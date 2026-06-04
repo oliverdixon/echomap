@@ -7,7 +7,6 @@
 int main()
 {
     WebCFD::WebCFD application;
-    application.start();
 
     return 0;
 }

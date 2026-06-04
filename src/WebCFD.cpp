@@ -4,49 +4,52 @@
 
 #include <iostream>
 
+#include <imgui.h>
 #include <dawn/webgpu_cpp_print.h>
 #include <webgpu/webgpu_glfw.h>
-#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_wgpu.h>
+
+#include "ParametersPanel.hpp"
+#include "RenderPanel.hpp"
 #if defined(__EMSCRIPTEN__)
 #include <emscripten/emscripten.h>
 #endif
 
 #include "WebCFD.hpp"
 
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_wgpu.h"
-
 namespace WebCFD
 {
 WebCFD::WebCFD()
 {
     static constexpr auto timed_wait_any = wgpu::InstanceFeatureName::TimedWaitAny;
-    constexpr wgpu::InstanceDescriptor instanceDesc{
+    constexpr wgpu::InstanceDescriptor instance_desc{
         .requiredFeatureCount = 1,
         .requiredFeatures = &timed_wait_any
     };
 
-    instance = wgpu::CreateInstance(&instanceDesc);
+    instance = wgpu::CreateInstance(&instance_desc);
     window = create_window();
-    surface = wgpu::glfw::CreateSurfaceForWindow(instance, window);
 
     instance.WaitAny(request_adapter(), default_timeout);
     instance.WaitAny(request_device(), default_timeout);
 
-    configure_surface();
-    configure_sample_shader();
+    std::tie(surface, default_format) = create_surface(adapter, window, instance, device);
+
     setup_gui();
+    run_event_loop();
 }
 
 WebCFD::~WebCFD()
 {
+    for (auto& panel : panels)
+        panel.reset();
+
     if (ImGui::GetCurrentContext()) {
         ImGui_ImplWGPU_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
-
-    pipeline = nullptr;
 
     if (surface) {
         surface.Unconfigure();
@@ -65,7 +68,7 @@ WebCFD::~WebCFD()
     glfwTerminate();
 }
 
-void WebCFD::start()
+void WebCFD::run_event_loop()
 {
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&WebCFD::render_shim, this, 0, true);
@@ -80,7 +83,7 @@ void WebCFD::start()
 #endif
 }
 
-GLFWwindow * WebCFD::create_window()
+GLFWwindow *WebCFD::create_window()
 {
     if (!glfwInit())
         throw std::runtime_error("glfwInit failed");
@@ -157,15 +160,19 @@ wgpu::Future WebCFD::request_device()
     );
 }
 
-void WebCFD::configure_surface()
+std::pair<wgpu::Surface, wgpu::TextureFormat> WebCFD::create_surface(
+    const wgpu::Adapter &adapter,
+    GLFWwindow *const window,
+    const wgpu::Instance &instance,
+    const wgpu::Device &device)
 {
+    const auto surface = wgpu::glfw::CreateSurfaceForWindow(instance, window);
     wgpu::SurfaceCapabilities capabilities;
     surface.GetCapabilities(adapter, &capabilities);
-    format = capabilities.formats[0];
 
     const wgpu::SurfaceConfiguration config{
         .device = device,
-        .format = format,
+        .format = capabilities.formats[0],
         .usage = wgpu::TextureUsage::RenderAttachment,
         .width = default_width,
         .height = default_height,
@@ -174,50 +181,34 @@ void WebCFD::configure_surface()
     };
 
     surface.Configure(&config);
+    return {surface, capabilities.formats[0]};
 }
 
-void WebCFD::configure_sample_shader()
+void WebCFD::render() const
 {
-    static constexpr char shader_code[] = R"(
-        @vertex fn vertexMain(@builtin(vertex_index) i : u32) ->
-          @builtin(position) vec4f {
-            const pos = array(vec2f(0, 1), vec2f(-1, -1), vec2f(1, -1));
-            return vec4f(pos[i], 0, 1);
-        }
-        @fragment fn fragmentMain() -> @location(0) vec4f {
-            return vec4f(1, 0, 0, 1);
-        }
-    )";
+    ImGui_ImplWGPU_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 
-    wgpu::ShaderSourceWGSL wgsl{{.code = shader_code}};
-    const wgpu::ShaderModuleDescriptor module_descriptor{.nextInChain = &wgsl};
-    const wgpu::ShaderModule module = device.CreateShaderModule(&module_descriptor);
+    for (const auto &panel: panels)
+        panel->draw();
 
-    wgpu::ColorTargetState colour_target{.format = format};
-    wgpu::FragmentState fragment{
-        .module = module,
-        .targetCount = 1,
-        .targets = &colour_target
-    };
+    ImGui::Render();
+    const wgpu::CommandEncoder encoder = device.CreateCommandEncoder();
 
-    const wgpu::RenderPipelineDescriptor pipeline_descriptor{
-        .vertex = {.module = module},
-        .fragment = &fragment
-    };
+    for (const auto &panel: panels)
+        panel->update_gpu(encoder);
 
-    pipeline = device.CreateRenderPipeline(&pipeline_descriptor);
-}
+    wgpu::SurfaceTexture surface_texture{};
+    surface.GetCurrentTexture(&surface_texture);
 
-// ReSharper disable once CppMemberFunctionMayBeConst - Not semantically constant
-void WebCFD::render()
-{
-    wgpu::SurfaceTexture surfaceTexture;
-    surface.GetCurrentTexture(&surfaceTexture);
+    const wgpu::TextureView surface_view = surface_texture.texture.CreateView();
 
     wgpu::RenderPassColorAttachment attachment{
-        .view = surfaceTexture.texture.CreateView(),
+        .view = surface_view,
         .loadOp = wgpu::LoadOp::Clear,
-        .storeOp = wgpu::StoreOp::Store
+        .storeOp = wgpu::StoreOp::Store,
+        .clearValue = {0.1, 0.1, 0.1, 1.0}
     };
 
     const wgpu::RenderPassDescriptor pass_descriptor{
@@ -225,11 +216,9 @@ void WebCFD::render()
         .colorAttachments = &attachment
     };
 
-    const wgpu::CommandEncoder encoder = device.CreateCommandEncoder();
     const wgpu::RenderPassEncoder pass = encoder.BeginRenderPass(&pass_descriptor);
-    pass.SetPipeline(pipeline);
-    pass.Draw(3);
-    update_gui(pass);
+    ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
+
     pass.End();
 
     const wgpu::CommandBuffer commands = encoder.Finish();
@@ -247,46 +236,15 @@ void WebCFD::setup_gui()
 
     ImGui_ImplWGPU_InitInfo init_info{};
     init_info.Device = device.Get();
-    init_info.RenderTargetFormat = static_cast<WGPUTextureFormat>(std::to_underlying(format));
+    init_info.RenderTargetFormat = static_cast<WGPUTextureFormat>(std::to_underlying(default_format));
 
     if (!ImGui_ImplWGPU_Init(&init_info))
         throw std::runtime_error("ImGui_ImplWGPU_Init failed");
-}
 
-// ReSharper disable once CppMemberFunctionMayBeStatic
-// ReSharper disable once CppDFAUnreachableFunctionCall
-void WebCFD::update_gui(const wgpu::RenderPassEncoder &render_pass)
-{
-    ImGui_ImplWGPU_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+    panels.emplace_back(std::make_unique<ParametersPanel>());
 
-    static float f = 0.0f;
-    static int counter = 0;
-    static bool show_demo_window = true;
-    static bool show_another_window = false;
-    static auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("This is some useful text.");
-    ImGui::Checkbox("Demo Window", &show_demo_window);
-    ImGui::Checkbox("Another Window", &show_another_window);
-
-    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-    ImGui::ColorEdit3("clear color", reinterpret_cast<float *>(&clear_color));
-
-    if (ImGui::Button("Button"))
-        counter++;
-    ImGui::SameLine();
-    ImGui::Text("counter = %d", counter);
-
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-        ImGui::GetIO().Framerate);
-
-    ImGui::End();
-
-    ImGui::Render();
-    ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), render_pass.Get());
+    // TODO: rendered shouldn't use surface texture format. It can just use a normal one such as Unorm8.
+    panels.emplace_back(std::make_unique<RenderPanel>(device, default_format, default_width, default_height));
 }
 
 } // WebCFD

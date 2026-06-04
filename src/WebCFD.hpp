@@ -8,6 +8,8 @@
 #include <GLFW/glfw3.h>
 #include <webgpu/webgpu_cpp.h>
 
+#include "IPanel.hpp"
+
 namespace WebCFD
 {
 
@@ -18,22 +20,25 @@ public:
 
     ~WebCFD();
 
-    void start();
-
 private:
     static constexpr std::uint32_t default_width = 512;
     static constexpr std::uint32_t default_height = 512;
     static constexpr auto default_timeout = std::numeric_limits<std::uint64_t>::max();
 
     static GLFWwindow *create_window();
+
+    static std::pair<wgpu::Surface, wgpu::TextureFormat> create_surface(
+        const wgpu::Adapter &adapter,
+        GLFWwindow *window,
+        const wgpu::Instance &instance,
+        const wgpu::Device &device);
+
     wgpu::Future request_adapter();
     wgpu::Future request_device();
-    void configure_surface();
-    void configure_sample_shader();
 
-    void render();
+    void run_event_loop();
+    void render() const;
     void setup_gui();
-    void update_gui(const wgpu::RenderPassEncoder &render_pass);
 
 #ifdef __EMSCRIPTEN__
     // ReSharper disable once CppParameterMayBeConstPtrOrRef - Function signature enforced by Emscripten API.
@@ -48,9 +53,10 @@ private:
     wgpu::Adapter adapter;
     wgpu::Device device;
     wgpu::Surface surface;
-    wgpu::TextureFormat format;
-    wgpu::RenderPipeline pipeline;
+    wgpu::TextureFormat default_format;
     GLFWwindow * window;
+
+    std::vector<std::unique_ptr<IPanel>> panels;
 };
 
 } // WebGPU

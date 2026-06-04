@@ -14,6 +14,13 @@ add_executable(WebCFD
         src/WebCFD.cpp
         src/WebCFD.hpp
         src/App.cpp
+        src/IPanel.hpp
+        src/ParametersPanel.cpp
+        src/ParametersPanel.hpp
+        src/RenderPanel.cpp
+        src/RenderPanel.hpp
+        src/ViewportRenderer.cpp
+        src/ViewportRenderer.hpp
 )
 
 target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui)
