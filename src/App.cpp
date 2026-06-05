@@ -1,6 +1,9 @@
-//
-// Created by owd on 04/06/2026.
-//
+/**
+ * @file
+ * @brief WebCFD entry point
+ * @author Oliver Dixon
+ * @date 2026-05-05
+ */
 
 #include "WebCFD.hpp"
 
