@@ -1,3 +1,8 @@
+# Dear ImGui CMakeLists.txt for WebCFD
+#
+# Author: Oliver Dixon
+# Date: 2026-06-06
+
 set(IMGUI_DIR "${CMAKE_CURRENT_LIST_DIR}/../imgui")
 
 add_library(imgui STATIC
@@ -26,6 +31,9 @@ target_include_directories(imgui PUBLIC
         "${IMGUI_DIR}/backends"
         "${IMGUI_DIR}/misc/cpp"
 )
+
+# Provide WebCFD Dear ImGui configuration header
+target_compile_definitions(imgui PUBLIC IMGUI_USER_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/ImGuiConfig.h")
 
 if (EMSCRIPTEN)
     target_link_libraries(imgui PUBLIC emdawnwebgpu_cpp)

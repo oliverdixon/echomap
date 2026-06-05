@@ -68,8 +68,8 @@ private:
     wgpu::Adapter adapter;
     wgpu::Device device;
     wgpu::Surface surface;
-    wgpu::TextureFormat default_format;
-    GLFWwindow* window;
+    wgpu::TextureFormat default_format = wgpu::TextureFormat::Undefined;
+    GLFWwindow* window = nullptr;
 
     bool swapchain_rebuild = false;
     std::vector<std::unique_ptr<IPanel>> panels;

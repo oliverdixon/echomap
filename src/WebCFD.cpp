@@ -17,6 +17,7 @@
 #endif
 
 #include "WebCFD.hpp"
+#include "RobotoMedium.hpp"
 
 namespace WebCFD
 {
@@ -48,11 +49,19 @@ WebCFD::~WebCFD()
         ImGui::DestroyContext();
     }
 
-    if (surface)
+    if (surface) {
         surface.Unconfigure();
+        surface = nullptr;
+    }
 
-    if (window)
+    device = nullptr;
+    adapter = nullptr;
+    instance = nullptr;
+
+    if (window) {
         glfwDestroyWindow(window);
+        window = nullptr;
+    }
 
     glfwTerminate();
 }
@@ -174,6 +183,7 @@ void WebCFD::render() const
     ImGui_ImplWGPU_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+    ImGui::DockSpaceOverViewport();
 
     for (const auto& panel : panels)
         panel->draw();
@@ -215,6 +225,10 @@ void WebCFD::setup_gui()
 
     auto& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.Fonts->AddFontFromMemoryCompressedTTF(data::RobotoMedium_compressed_data,
+        std::size(data::RobotoMedium_compressed_data));
+
+    ImGui::StyleColorsLight();
 
     if (!ImGui_ImplGlfw_InitForOther(window, true))
         throw std::runtime_error("ImGui_ImplGlfw_InitForOther failed");

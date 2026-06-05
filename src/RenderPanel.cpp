@@ -34,8 +34,15 @@ void RenderPanel::draw()
             std::max(1u, static_cast<std::uint32_t>(available_space.y))
     );
 
-    if (const auto texture_view = renderer.get_texture_view())
-        ImGui::Image(texture_view.Get(), available_space);
+    if (const auto texture_view = renderer.get_texture_view()) {
+        /*
+         * ImGui v1.91.4 removed ImTextureRef::ImTextureRef(void *) in favour of a (by default) 64-bit type. This
+         * reinterpret_cast is acceptable, providing that pointers, in particular WGPUTextureViewImpl*, is no larger
+         * than ImTextureID. We statically verify this.
+         */
+        static_assert(sizeof(WGPUTextureViewImpl *) <= sizeof(ImTextureID));
+        ImGui::Image(reinterpret_cast<ImTextureID>(texture_view.Get()), available_space);
+    }
 
     ImGui::End();
 }
