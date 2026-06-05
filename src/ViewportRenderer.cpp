@@ -11,44 +11,44 @@ namespace WebCFD
 
 ViewportRenderer::ViewportRenderer(
         const wgpu::Device& device,
-        const wgpu::TextureFormat texture_format,
         const std::uint32_t width,
-        const std::uint32_t height) :
+        const std::uint32_t height
+) :
     width(width),
     height(height),
-    device(device),
-    texture_format(texture_format)
+    device(device)
 {
     install_shader();
     recreate_texture();
 }
 
-void ViewportRenderer::render(const wgpu::CommandEncoder &command_encoder) const
+void ViewportRenderer::render(
+        const wgpu::CommandEncoder& command_encoder
+) const
 {
     if (!texture_view)
         return;
 
     wgpu::RenderPassColorAttachment attachment{
-        .view = texture_view,
-        .loadOp = wgpu::LoadOp::Clear,
-        .storeOp = wgpu::StoreOp::Store,
-        .clearValue = {0.02, 0.02, 0.04, 1.0}
+            .view = texture_view,
+            .loadOp = wgpu::LoadOp::Clear,
+            .storeOp = wgpu::StoreOp::Store,
+            .clearValue = {0.02, 0.02, 0.04, 1.0}
     };
 
-    const wgpu::RenderPassDescriptor pass_descriptor{
-        .colorAttachmentCount = 1,
-        .colorAttachments = &attachment
-    };
+    const wgpu::RenderPassDescriptor pass_descriptor{.colorAttachmentCount = 1, .colorAttachments = &attachment};
 
-    const wgpu::RenderPassEncoder pass =
-        command_encoder.BeginRenderPass(&pass_descriptor);
+    const wgpu::RenderPassEncoder pass = command_encoder.BeginRenderPass(&pass_descriptor);
 
     pass.SetPipeline(pipeline);
     pass.Draw(3);
     pass.End();
 }
 
-void ViewportRenderer::resize(const std::uint32_t new_width, const std::uint32_t new_height)
+void ViewportRenderer::resize(
+        const std::uint32_t new_width,
+        const std::uint32_t new_height
+)
 {
     if (new_width == 0 || new_height == 0)
         return;
@@ -85,16 +85,9 @@ void ViewportRenderer::install_shader()
     const wgpu::ShaderModule module = device.CreateShaderModule(&module_descriptor);
 
     wgpu::ColorTargetState colour_target{.format = texture_format};
-    wgpu::FragmentState fragment{
-        .module = module,
-        .targetCount = 1,
-        .targets = &colour_target
-    };
+    wgpu::FragmentState fragment{.module = module, .targetCount = 1, .targets = &colour_target};
 
-    const wgpu::RenderPipelineDescriptor pipeline_descriptor{
-        .vertex = {.module = module},
-        .fragment = &fragment
-    };
+    const wgpu::RenderPipelineDescriptor pipeline_descriptor{.vertex = {.module = module}, .fragment = &fragment};
 
     pipeline = device.CreateRenderPipeline(&pipeline_descriptor);
 }
@@ -111,4 +104,4 @@ void ViewportRenderer::recreate_texture()
     texture_view = texture.CreateView();
 }
 
-} // WebCFD
+} // namespace WebCFD

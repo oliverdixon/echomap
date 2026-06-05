@@ -2,13 +2,13 @@
 // Created by owd on 04/06/2026.
 //
 
-#include <iostream>
-
-#include <imgui.h>
-#include <dawn/webgpu_cpp_print.h>
-#include <webgpu/webgpu_glfw.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_wgpu.h>
+#include <dawn/webgpu_cpp_print.h>
+#include <imgui.h>
+#include <webgpu/webgpu_glfw.h>
+
+#include <iostream>
 
 #include "ParametersPanel.hpp"
 #include "RenderPanel.hpp"
@@ -23,10 +23,7 @@ namespace WebCFD
 WebCFD::WebCFD()
 {
     static constexpr auto timed_wait_any = wgpu::InstanceFeatureName::TimedWaitAny;
-    constexpr wgpu::InstanceDescriptor instance_desc{
-        .requiredFeatureCount = 1,
-        .requiredFeatures = &timed_wait_any
-    };
+    constexpr wgpu::InstanceDescriptor instance_desc{.requiredFeatureCount = 1, .requiredFeatures = &timed_wait_any};
 
     instance = wgpu::CreateInstance(&instance_desc);
     window = create_window();
@@ -51,19 +48,11 @@ WebCFD::~WebCFD()
         ImGui::DestroyContext();
     }
 
-    if (surface) {
+    if (surface)
         surface.Unconfigure();
-        surface = nullptr;
-    }
 
-    device = nullptr;
-    adapter = nullptr;
-    instance = nullptr;
-
-    if (window) {
+    if (window)
         glfwDestroyWindow(window);
-        window = nullptr;
-    }
 
     glfwTerminate();
 }
@@ -74,7 +63,6 @@ void WebCFD::run_event_loop()
     emscripten_set_main_loop_arg(&WebCFD::render_shim, this, 0, true);
 #else
     while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
         render();
         // ReSharper disable once CppExpressionWithoutSideEffects
         surface.Present();
@@ -83,20 +71,14 @@ void WebCFD::run_event_loop()
 #endif
 }
 
-GLFWwindow *WebCFD::create_window()
+GLFWwindow* WebCFD::create_window()
 {
     if (!glfwInit())
         throw std::runtime_error("glfwInit failed");
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    const auto window = glfwCreateWindow(
-        default_width,
-        default_height,
-        "WebCFD",
-        nullptr,
-        nullptr
-    );
+    const auto window = glfwCreateWindow(default_width, default_height, "WebCFD", nullptr, nullptr);
 
     if (!window) {
         glfwTerminate();
@@ -108,76 +90,77 @@ GLFWwindow *WebCFD::create_window()
 
 wgpu::Future WebCFD::request_adapter()
 {
-    const wgpu::RequestAdapterOptions options{
-        .compatibleSurface = surface
-    };
+    const wgpu::RequestAdapterOptions options{.compatibleSurface = surface};
 
     return instance.RequestAdapter(
-        &options, wgpu::CallbackMode::WaitAnyOnly,
-        [this](const wgpu::RequestAdapterStatus status, wgpu::Adapter new_adapter, const wgpu::StringView message)
-        {
-            if (status != wgpu::RequestAdapterStatus::Success) {
-                std::cout << "RequestAdapter: " << message << "\n";
-                exit(0);
-            }
+            &options,
+            wgpu::CallbackMode::WaitAnyOnly,
+            [this](const wgpu::RequestAdapterStatus status, wgpu::Adapter new_adapter, const wgpu::StringView message) {
+                if (status != wgpu::RequestAdapterStatus::Success) {
+                    std::cout << "RequestAdapter: " << message << "\n";
+                    exit(0);
+                }
 
-            adapter = std::move(new_adapter);
-        });
+                adapter = std::move(new_adapter);
+            }
+    );
 }
 
 wgpu::Future WebCFD::request_device()
 {
     wgpu::DeviceDescriptor desc{};
     desc.SetDeviceLostCallback(
-        wgpu::CallbackMode::AllowSpontaneous,
-        [](const wgpu::Device &, const wgpu::DeviceLostReason reason, const wgpu::StringView message)
-        {
-            if (reason == wgpu::DeviceLostReason::Destroyed)
-                return;
+            wgpu::CallbackMode::AllowSpontaneous,
+            [](const wgpu::Device&, const wgpu::DeviceLostReason reason, const wgpu::StringView message) {
+                if (reason == wgpu::DeviceLostReason::Destroyed)
+                    return;
 
-            std::cout << "Device lost: " << reason << " - message: " << message << "\n";
-        }
+                std::cout << "Device lost: " << reason << " - message: " << message << "\n";
+            }
     );
 
     desc.SetUncapturedErrorCallback(
-        [](const wgpu::Device &, const wgpu::ErrorType errorType, const wgpu::StringView message)
-        {
-            std::cout << "Error: " << errorType << " - message: " << message << "\n";
-        }
+            [](const wgpu::Device&, const wgpu::ErrorType errorType, const wgpu::StringView message) {
+                std::cout << "Error: " << errorType << " - message: " << message << "\n";
+            }
     );
 
     return adapter.RequestDevice(
-        &desc, wgpu::CallbackMode::WaitAnyOnly,
-        [this](const wgpu::RequestDeviceStatus status, wgpu::Device new_device, const wgpu::StringView message)
-        {
-            if (status != wgpu::RequestDeviceStatus::Success) {
-                std::cout << "RequestDevice: " << message << "\n";
-                exit(0);
-            }
+            &desc,
+            wgpu::CallbackMode::WaitAnyOnly,
+            [this](const wgpu::RequestDeviceStatus status, wgpu::Device new_device, const wgpu::StringView message) {
+                if (status != wgpu::RequestDeviceStatus::Success) {
+                    std::cout << "RequestDevice: " << message << "\n";
+                    exit(0);
+                }
 
-            device = std::move(new_device);
-        }
+                device = std::move(new_device);
+            }
     );
 }
 
-std::pair<wgpu::Surface, wgpu::TextureFormat> WebCFD::create_surface(
-    const wgpu::Adapter &adapter,
-    GLFWwindow *const window,
-    const wgpu::Instance &instance,
-    const wgpu::Device &device)
+std::pair<
+        wgpu::Surface,
+        wgpu::TextureFormat>
+WebCFD::create_surface(
+        const wgpu::Adapter& adapter,
+        GLFWwindow* const window,
+        const wgpu::Instance& instance,
+        const wgpu::Device& device
+)
 {
     const auto surface = wgpu::glfw::CreateSurfaceForWindow(instance, window);
     wgpu::SurfaceCapabilities capabilities;
     surface.GetCapabilities(adapter, &capabilities);
 
     const wgpu::SurfaceConfiguration config{
-        .device = device,
-        .format = capabilities.formats[0],
-        .usage = wgpu::TextureUsage::RenderAttachment,
-        .width = default_width,
-        .height = default_height,
-        .alphaMode = capabilities.alphaModes[0],
-        .presentMode = wgpu::PresentMode::Fifo
+            .device = device,
+            .format = capabilities.formats[0],
+            .usage = wgpu::TextureUsage::RenderAttachment,
+            .width = default_width,
+            .height = default_height,
+            .alphaMode = capabilities.alphaModes[0],
+            .presentMode = wgpu::PresentMode::Fifo
     };
 
     surface.Configure(&config);
@@ -186,17 +169,19 @@ std::pair<wgpu::Surface, wgpu::TextureFormat> WebCFD::create_surface(
 
 void WebCFD::render() const
 {
+    glfwPollEvents();
+
     ImGui_ImplWGPU_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    for (const auto &panel: panels)
+    for (const auto& panel : panels)
         panel->draw();
 
     ImGui::Render();
     const wgpu::CommandEncoder encoder = device.CreateCommandEncoder();
 
-    for (const auto &panel: panels)
+    for (const auto& panel : panels)
         panel->update_gpu(encoder);
 
     wgpu::SurfaceTexture surface_texture{};
@@ -205,16 +190,13 @@ void WebCFD::render() const
     const wgpu::TextureView surface_view = surface_texture.texture.CreateView();
 
     wgpu::RenderPassColorAttachment attachment{
-        .view = surface_view,
-        .loadOp = wgpu::LoadOp::Clear,
-        .storeOp = wgpu::StoreOp::Store,
-        .clearValue = {0.1, 0.1, 0.1, 1.0}
+            .view = surface_view,
+            .loadOp = wgpu::LoadOp::Clear,
+            .storeOp = wgpu::StoreOp::Store,
+            .clearValue = {0.1, 0.1, 0.1, 1.0}
     };
 
-    const wgpu::RenderPassDescriptor pass_descriptor{
-        .colorAttachmentCount = 1,
-        .colorAttachments = &attachment
-    };
+    const wgpu::RenderPassDescriptor pass_descriptor{.colorAttachmentCount = 1, .colorAttachments = &attachment};
 
     const wgpu::RenderPassEncoder pass = encoder.BeginRenderPass(&pass_descriptor);
     ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
@@ -231,6 +213,9 @@ void WebCFD::setup_gui()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
+    auto& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
     if (!ImGui_ImplGlfw_InitForOther(window, true))
         throw std::runtime_error("ImGui_ImplGlfw_InitForOther failed");
 
@@ -242,9 +227,7 @@ void WebCFD::setup_gui()
         throw std::runtime_error("ImGui_ImplWGPU_Init failed");
 
     panels.emplace_back(std::make_unique<ParametersPanel>());
-
-    // TODO: rendered shouldn't use surface texture format. It can just use a normal one such as Unorm8.
-    panels.emplace_back(std::make_unique<RenderPanel>(device, default_format, default_width, default_height));
+    panels.emplace_back(std::make_unique<RenderPanel>(device, default_width, default_height));
 }
 
-} // WebCFD
+} // namespace WebCFD

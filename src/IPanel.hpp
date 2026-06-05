@@ -1,6 +1,9 @@
-//
-// Created by owd on 04/06/2026.
-//
+/**
+ * @file
+ * @brief Panel interface specification
+ * @author Oliver Dixon
+ * @date 2026-05-05
+ */
 
 #ifndef WEBCFD_PANEL_HPP
 #define WEBCFD_PANEL_HPP
@@ -10,19 +13,37 @@
 namespace WebCFD
 {
 
+/**
+ * @class IPanel
+ *
+ * Represents a panel or window on the GUI.
+ *
+ * @details Panels may render from a static context, typically through a configured ImGui context, or despatch work to
+ *  the GPU through a WebGPU CommandEncoder.
+ */
 class IPanel
 {
 public:
     virtual ~IPanel() = default;
 
+    /**
+     * Draw the panel to the active rendering context.
+     */
     virtual void draw() = 0;
 
-    virtual void update_gpu(const wgpu::CommandEncoder &command_encoder)
+    /**
+     * Delegate work to the GPU via the WebGPU platform.
+     *
+     * @param command_encoder The configured CommandEncoder for the target accelerator.
+     */
+    virtual void update_gpu(
+            const wgpu::CommandEncoder& command_encoder
+    )
     {
         std::ignore = command_encoder;
     }
 };
 
-} // WebCFD
+} // namespace WebCFD
 
-#endif //WEBCFD_PANEL_HPP
+#endif // WEBCFD_PANEL_HPP

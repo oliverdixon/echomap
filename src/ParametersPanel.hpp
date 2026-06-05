@@ -16,6 +16,6 @@ public:
     void draw() override;
 };
 
-} // WebCFD
+} // namespace WebCFD
 
-#endif //WEBCFD_PARAMETERSPANEL_HPP
+#endif // WEBCFD_PARAMETERSPANEL_HPP

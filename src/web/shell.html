@@ -1,34 +1,34 @@
 <!DOCTYPE html>
 <html lang="en-GB">
-    <!--
-        WebCFD shell
+<!--
+    WebCFD shell
 
-        Author: Oliver Dixon
-        Date: 2026-06-05
-    -->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-        <link rel="stylesheet" href="shell.css">
-        <title>WebCFD</title>
-    </head>
-    <body>
-        <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
-        <script type='text/javascript'>
-            const canvas = document.getElementById("canvas");
+    Author: Oliver Dixon
+    Date: 2026-06-05
+-->
+<head>
+    <meta charset="utf-8">
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+    <link href="shell.css" rel="stylesheet">
+    <title>WebCFD</title>
+</head>
+<body>
+<canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+<script type='text/javascript'>
+    const canvas = document.getElementById("canvas");
 
-            var Module = {
-                canvas,
+    var Module = {
+        canvas,
 
-                print: text => console.log(text),
-                printErr: text => console.error(text),
-                setStatus: text => {
-                    if (text)
-                        console.log(text);
-                }
-            };
-        </script>
-        {{{ SCRIPT }}}
-    </body>
+        print: text => console.log(text),
+        printErr: text => console.error(text),
+        setStatus: text => {
+            if (text)
+                console.log(text);
+        }
+    };
+</script>
+{{{ SCRIPT }}}
+</body>
 </html>

@@ -13,12 +13,18 @@ namespace WebCFD
 class ViewportRenderer
 {
 public:
-    ViewportRenderer(const wgpu::Device& device, wgpu::TextureFormat texture_format, std::uint32_t width,
-        std::uint32_t height);
+    ViewportRenderer(
+            const wgpu::Device& device,
+            std::uint32_t width,
+            std::uint32_t height
+    );
 
-    void render(const wgpu::CommandEncoder &command_encoder) const;
+    void render(const wgpu::CommandEncoder& command_encoder) const;
 
-    void resize(std::uint32_t new_width, std::uint32_t new_height);
+    void resize(
+            std::uint32_t new_width,
+            std::uint32_t new_height
+    );
 
     [[nodiscard]] wgpu::TextureView get_texture_view() const noexcept;
 
@@ -26,16 +32,17 @@ private:
     void install_shader();
     void recreate_texture();
 
+    static constexpr auto texture_format = wgpu::TextureFormat::RGBA8Unorm;
+
     std::uint32_t width;
     std::uint32_t height;
 
     wgpu::Device device;
-    wgpu::TextureFormat texture_format;
     wgpu::RenderPipeline pipeline;
     wgpu::Texture texture;
     wgpu::TextureView texture_view;
 };
 
-} // WebCFD
+} // namespace WebCFD
 
-#endif //WEBCFD_VIEWPORTRENDERER_HPP
+#endif // WEBCFD_VIEWPORTRENDERER_HPP

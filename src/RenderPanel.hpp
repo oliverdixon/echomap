@@ -14,17 +14,20 @@ namespace WebCFD
 class RenderPanel final : public IPanel
 {
 public:
-    RenderPanel(const wgpu::Device& device, wgpu::TextureFormat texture_format, std::uint32_t width,
-        std::uint32_t height);
+    RenderPanel(
+            const wgpu::Device& device,
+            std::uint32_t width,
+            std::uint32_t height
+    );
 
     void draw() override;
 
-    void update_gpu(const wgpu::CommandEncoder &command_encoder) override;
+    void update_gpu(const wgpu::CommandEncoder& command_encoder) override;
 
 private:
     ViewportRenderer renderer;
 };
 
-} // WebCFD
+} // namespace WebCFD
 
-#endif //WEBCFD_RENDERPANEL_HPP
+#endif // WEBCFD_RENDERPANEL_HPP

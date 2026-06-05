@@ -2,19 +2,23 @@
 // Created by owd on 04/06/2026.
 //
 
-#include <imgui.h>
-
 #include "RenderPanel.hpp"
+
+#include <imgui.h>
 
 namespace WebCFD
 {
 
 RenderPanel::RenderPanel(
-       const wgpu::Device& device,
-       const wgpu::TextureFormat texture_format,
-       const std::uint32_t width,
-       const std::uint32_t height) :
-    renderer(device, texture_format, width, height)
+        const wgpu::Device& device,
+        const std::uint32_t width,
+        const std::uint32_t height
+) :
+    renderer(
+            device,
+            width,
+            height
+    )
 {
 }
 
@@ -26,8 +30,8 @@ void RenderPanel::draw()
 
     // TODO height blows up when hiding the window?  Produces error on console...
     renderer.resize(
-        std::max(1u, static_cast<std::uint32_t>(available_space.x)),
-        std::max(1u, static_cast<std::uint32_t>(available_space.y))
+            std::max(1u, static_cast<std::uint32_t>(available_space.x)),
+            std::max(1u, static_cast<std::uint32_t>(available_space.y))
     );
 
     if (const auto texture_view = renderer.get_texture_view())
@@ -36,9 +40,11 @@ void RenderPanel::draw()
     ImGui::End();
 }
 
-void RenderPanel::update_gpu(const wgpu::CommandEncoder &command_encoder)
+void RenderPanel::update_gpu(
+        const wgpu::CommandEncoder& command_encoder
+)
 {
     renderer.render(command_encoder);
 }
 
-} // WebCFD
+} // namespace WebCFD

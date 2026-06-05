@@ -1,55 +1,90 @@
-# Generated from CLion C/C++ Code Style settings
 ---
 Language: Cpp
 BasedOnStyle: LLVM
+Standard: Latest
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 8
+ColumnLimit: 120
+
 AccessModifierOffset: -4
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
-AlignOperands: false
-AlignTrailingComments: false
-AlwaysBreakTemplateDeclarations: Yes
-BraceWrapping: 
-  AfterCaseLabel: true
+NamespaceIndentation: None
+
+BreakBeforeBraces: Custom
+BraceWrapping:
   AfterClass: true
-  AfterControlStatement: true
+  AfterStruct: true
+  AfterUnion: true
   AfterEnum: true
   AfterFunction: true
   AfterNamespace: true
-  AfterStruct: true
-  AfterUnion: true
-  AfterExternBlock: false
-  BeforeCatch: true
-  BeforeElse: true
-  BeforeLambdaBody: true
-  BeforeWhile: true
+  AfterControlStatement: Never
+  BeforeElse: false
+  BeforeCatch: false
   SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
-BreakBeforeBraces: Custom
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortEnumsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortLambdasOnASingleLine: None
+
+BinPackArguments: false
+BinPackParameters: AlwaysOnePerLine
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+BreakFunctionDefinitionParameters: true
+
+AlignAfterOpenBracket: true
+BreakAfterOpenBracketBracedList: true
+BreakBeforeCloseBracketBracedList: true
+BreakAfterOpenBracketFunction: true
+BreakAfterOpenBracketIf: true
+BreakBeforeCloseBracketFunction: true
+BreakBeforeCloseBracketIf: true
+BreakAfterReturnType: Automatic
+PenaltyReturnTypeOnItsOwnLine: 1000000
+
 BreakConstructorInitializers: AfterColon
-BreakConstructorInitializersBeforeComma: false
-ColumnLimit: 120
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-IncludeCategories: 
-  - Regex: '^<.*'
-    Priority: 1
-  - Regex: '^".*'
-    Priority: 2
-  - Regex: '.*'
-    Priority: 3
-IncludeIsMainRegex: '([-_](test|unittest))?$'
-IndentCaseBlocks: true
-IndentWidth: 4
-InsertNewlineAtEOF: true
-MacroBlockBegin: ''
-MacroBlockEnd: ''
-MaxEmptyLinesToKeep: 2
-NamespaceIndentation: All
+ConstructorInitializerIndentWidth: 4
+PackConstructorInitializers: Never
+
 PointerAlignment: Left
-SpaceInEmptyParentheses: false
-SpacesInAngles: false
-SpacesInConditionalStatement: false
-SpacesInCStyleCastParentheses: false
+ReferenceAlignment: Left
+
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*\.h>'
+    Priority: 1
+  - Regex: '^<.*>'
+    Priority: 2
+  - Regex: '^".*"'
+    Priority: 3
+
+SpaceBeforeParens: ControlStatements
+SpaceAfterCStyleCast: false
 SpacesInParentheses: false
-TabWidth: 4
-...
+SpacesInAngles: false
+SpaceBeforeCpp11BracedList: false
+Cpp11BracedListStyle: true
+
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignOperands: Align
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+DerivePointerAlignment: false
+InsertTrailingCommas: None
+
+SeparateDefinitionBlocks: Always
+FixNamespaceComments: true
+ReflowComments: Always
