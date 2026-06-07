@@ -15,10 +15,9 @@ class RenderPanel final : public IPanel
 {
 public:
     RenderPanel(
-            const wgpu::Device& device,
+            wgpu::Device device,
             std::uint32_t width,
-            std::uint32_t height,
-            const SimulationParameters& parameters
+            std::uint32_t height
     );
 
     void draw() override;

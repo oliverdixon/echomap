@@ -8,13 +8,20 @@ project(WebCFD)
 
 set(CMAKE_CXX_STANDARD 23)
 
-# Dawn and ImGui submodules configuration
+# Dawn, ImGui, and dr_libs submodules configuration
+
 set(DAWN_FETCH_DEPENDENCIES ON)
 add_subdirectory(dawn EXCLUDE_FROM_ALL)
+
 include(cmake/ImGui.cmake)
 if(EMSCRIPTEN AND TARGET dawn_glfw)
     target_compile_definitions(dawn_glfw PRIVATE EMSCRIPTEN=1)
 endif()
+
+set(DR_LIBS_NO_MP3 ON CACHE BOOL "Disable dr_mp3")
+set(DR_LIBS_NO_FLAC ON CACHE BOOL "Disable dr_flac")
+set(DR_LIBS_FORCE_CXX ON CACHE BOOL "Enable dr_cxx")
+add_subdirectory(dr_libs EXCLUDE_FROM_ALL)
 
 # WebCFD common configuration
 add_executable(WebCFD
@@ -34,10 +41,10 @@ add_executable(WebCFD
         src/Logger.hpp
         src/ConfigurationError.cpp
         src/ConfigurationError.hpp
-        src/SimulationParameters.hpp
 )
 
 target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui)
+target_include_directories(WebCFD PRIVATE dr_libs)
 
 # Broadcast the Dear ImGui configuration file path across all WebCFD compilation units, i.a.w. imgui/imconfig.h advice.
 # An equivalent definition is made for the 'imgui' target in cmake/ImGui.cmake.
@@ -73,6 +80,7 @@ if (EMSCRIPTEN)
             "-sJSPI"
             "-sUSE_GLFW=3"
             "--shell-file=${web_shell}"
+            $<$<CONFIG:Debug,RelWithDebInfo>:--profiling-funcs>
     )
 
     # Define a target for each additional auxiliary file specified by web_extra to be replicated in the WebCFD target

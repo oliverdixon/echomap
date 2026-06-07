@@ -9,18 +9,9 @@
 namespace WebCFD
 {
 
-ParametersPanel::ParametersPanel(
-        SimulationParameters& parameters
-) :
-    parameters(parameters)
-{
-}
-
 void ParametersPanel::draw()
 {
     ImGui::Begin("Simulation Parameters");
-
-    ImGui::ColorEdit4("Triangle Colour", parameters.colour);
 
     ImGui::End();
 }

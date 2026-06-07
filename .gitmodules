@@ -5,3 +5,9 @@
 [submodule "dawn"]
 	path = dawn
 	url = git@github.com:google/dawn
+[submodule "dr_libs"]
+	path = dr_libs
+	url = git@github.com:mackron/dr_libs.git
+[submodule "implot"]
+	path = implot
+	url = git@github.com:epezent/implot.git

@@ -12,14 +12,11 @@
 #include <webgpu/webgpu_cpp.h>
 
 #include "IPanel.hpp"
-#include "SimulationParameters.hpp"
 
 namespace WebCFD
 {
 
 /**
- * @class WebCFD
- *
  * The WebCFD maintains state for the application including WebGPU and Dear ImGui context, encapsulating initialisation,
  * game loop, interaction, and clean-up.
  */
@@ -156,7 +153,6 @@ private:
     GLFWwindow* window = nullptr;
 
     std::vector<std::unique_ptr<IPanel>> panels;
-    std::unique_ptr<SimulationParameters> parameters = std::make_unique<SimulationParameters>();
 };
 
 } // namespace WebCFD

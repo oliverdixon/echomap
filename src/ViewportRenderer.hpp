@@ -7,8 +7,6 @@
 
 #include <webgpu/webgpu_cpp.h>
 
-#include "SimulationParameters.hpp"
-
 namespace WebCFD
 {
 
@@ -16,10 +14,9 @@ class ViewportRenderer
 {
 public:
     ViewportRenderer(
-            const wgpu::Device& device,
+            wgpu::Device  device,
             std::uint32_t width,
-            std::uint32_t height,
-            const SimulationParameters& parameters
+            std::uint32_t height
     );
 
     void render(const wgpu::CommandEncoder& command_encoder) const;
@@ -33,16 +30,12 @@ public:
 
 private:
     void recreate_texture();
-    void create_parameter_buffer();
     void create_pipeline();
 
     static constexpr auto texture_format = wgpu::TextureFormat::RGBA8Unorm;
 
     std::uint32_t width;
     std::uint32_t height;
-    const SimulationParameters& parameters;
-    wgpu::Buffer uniform_buffer;
-    wgpu::BindGroup bind_group;
 
     wgpu::Device device;
     wgpu::RenderPipeline pipeline;
