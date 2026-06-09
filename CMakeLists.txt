@@ -8,12 +8,13 @@ project(WebCFD)
 
 set(CMAKE_CXX_STANDARD 23)
 
-# Dawn, ImGui, and dr_libs submodules configuration
+# Dawn, ImGui, ImPlot, and dr_libs submodules configuration
 
 set(DAWN_FETCH_DEPENDENCIES ON)
 add_subdirectory(dawn EXCLUDE_FROM_ALL)
 
 include(cmake/ImGui.cmake)
+include(cmake/ImPlot.cmake)
 if(EMSCRIPTEN AND TARGET dawn_glfw)
     target_compile_definitions(dawn_glfw PRIVATE EMSCRIPTEN=1)
 endif()
@@ -43,7 +44,7 @@ add_executable(WebCFD
         src/ConfigurationError.hpp
 )
 
-target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui)
+target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui implot)
 target_include_directories(WebCFD PRIVATE dr_libs)
 
 # Broadcast the Dear ImGui configuration file path across all WebCFD compilation units, i.a.w. imgui/imconfig.h advice.

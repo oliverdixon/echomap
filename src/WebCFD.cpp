@@ -9,6 +9,7 @@
 #include <backends/imgui_impl_wgpu.h>
 #include <dawn/webgpu_cpp_print.h>
 #include <imgui.h>
+#include <implot.h>
 #include <webgpu/webgpu_glfw.h>
 
 #include "ParametersPanel.hpp"
@@ -79,6 +80,7 @@ WebCFD::~WebCFD() noexcept
     if (ImGui::GetCurrentContext()) {
         ImGui_ImplWGPU_Shutdown();
         ImGui_ImplGlfw_Shutdown();
+        ImPlot::DestroyContext();
         ImGui::DestroyContext();
     }
 
@@ -273,6 +275,7 @@ void WebCFD::setup_imgui()
     // Step 1.  Bring up the Dear ImGui context and initialise the GLFW backend.
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
 
     auto& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
