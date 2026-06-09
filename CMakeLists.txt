@@ -43,6 +43,10 @@ target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui)
 # An equivalent definition is made for the 'imgui' target in cmake/ImGui.cmake.
 target_compile_definitions(WebCFD PUBLIC IMGUI_USER_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/ImGuiConfig.h")
 
+# Update generated C++ to embed WGSL sources.
+include(cmake/EmbedWGSL.cmake)
+embed_wgsl_directory(WebCFD "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders")
+
 if (EMSCRIPTEN)
     # If configuring for an Emscripten/WebAssembly target, we need targets for the HTML shell and any extra web-side
     # configuration files such as stylesheets and additional JavaScript. Only the shell is a link dependency for
