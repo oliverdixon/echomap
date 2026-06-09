@@ -3,6 +3,10 @@
 //
 
 #include "ViewportRenderer.hpp"
+
+#include "shaders/aurora.hpp"
+#include "shaders/julia_bloom.hpp"
+#include "shaders/neon_voronoi.hpp"
 #include "shaders/vortex.hpp"
 
 #include <chrono>
@@ -14,6 +18,7 @@ ViewportRenderer::ViewportRenderer(
         const wgpu::Device& device,
         const std::uint32_t width,
         const std::uint32_t height,
+        const Shader shader,
         const SimulationParameters& parameters
 ) :
     width(width),
@@ -21,6 +26,21 @@ ViewportRenderer::ViewportRenderer(
     parameters(parameters),
     device(device)
 {
+    switch (shader) {
+    case Shader::Aurora:
+        shader_code = Shaders::aurora_wgsl;
+        break;
+    case Shader::JuliaBloom:
+        shader_code = Shaders::julia_bloom_wgsl;
+        break;
+    case Shader::NeonVoronoi:
+        shader_code = Shaders::neon_voronoi_wgsl;
+        break;
+    case Shader::Vortex:
+        shader_code = Shaders::vortex_wgsl;
+        break;
+    }
+
     create_parameter_buffer();
     create_pipeline();
     recreate_texture();
@@ -39,11 +59,10 @@ void ViewportRenderer::render(
     const float time = std::chrono::duration<float>(now - start_time).count();
 
     SimulationParameters frame_parameters = parameters;
-
-    frame_parameters.viewport[0] = time;
-    frame_parameters.viewport[1] = static_cast<float>(width) / static_cast<float>(height);
-    frame_parameters.viewport[2] = static_cast<float>(width);
-    frame_parameters.viewport[3] = static_cast<float>(height);
+    frame_parameters.viewport.x = time;
+    frame_parameters.viewport.y = static_cast<float>(width) / static_cast<float>(height);
+    frame_parameters.viewport.z = static_cast<float>(width);
+    frame_parameters.viewport.w = static_cast<float>(height);
 
     device.GetQueue().WriteBuffer(
             uniform_buffer,
@@ -141,7 +160,7 @@ void ViewportRenderer::create_pipeline()
             device.CreatePipelineLayout(&pipeline_layout_descriptor);
 
     wgpu::ShaderSourceWGSL wgsl{};
-    wgsl.code = Shaders::vortex_wgsl;
+    wgsl.code = shader_code;
 
     wgpu::ShaderModuleDescriptor module_descriptor{};
     module_descriptor.nextInChain = &wgsl;

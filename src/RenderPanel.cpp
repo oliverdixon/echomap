@@ -10,15 +10,19 @@ namespace WebCFD
 {
 
 RenderPanel::RenderPanel(
+        std::string panel_name,
+        const ViewportRenderer::Shader shader,
         const wgpu::Device& device,
         const std::uint32_t width,
         const std::uint32_t height,
         const SimulationParameters& parameters
 ) :
+    panel_name(std::move(panel_name)),
     renderer(
             device,
             width,
             height,
+            shader,
             parameters
     )
 {
@@ -26,7 +30,7 @@ RenderPanel::RenderPanel(
 
 void RenderPanel::draw()
 {
-    ImGui::Begin("Simulation Visualisation");
+    ImGui::Begin(panel_name.c_str());
 
     const auto available_space = ImGui::GetContentRegionAvail();
     renderer.resize(

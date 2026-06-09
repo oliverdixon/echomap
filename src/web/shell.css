@@ -22,6 +22,10 @@ body {
     inset: 0;
 }
 
+header {
+    text-align: center;
+}
+
 #canvas {
     display: block;
 

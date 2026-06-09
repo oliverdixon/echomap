@@ -8,16 +8,28 @@
 namespace WebCFD
 {
 
-struct alignas(16) SimulationParameters
-{
-    float viewport[4] = { 0.0f, 1.0f, 1.0f, 1.0f };
+struct alignas(16) ShaderVec4 {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    float w = 0.0f;
+};
 
-    float controls[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+struct alignas(16) ShaderVec3 {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+    float _padding = 0.0f;
+};
 
-    float colour_a[4] = { 0.5f, 0.5f, 0.5f, 0.0f };
-    float colour_b[4] = { 0.5f, 0.5f, 0.5f, 0.0f };
-    float colour_c[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
-    float colour_d[4] = { 0.0f, 0.3f, 0.7f, 0.0f };
+struct alignas(16) SimulationParameters {
+    ShaderVec4 viewport;   // time, aspect, width, height
+    ShaderVec4 controls;   // speed, intensity, warp, scale
+
+    ShaderVec3 colour_a;
+    ShaderVec3 colour_b;
+    ShaderVec3 colour_c;
+    ShaderVec3 colour_d;
 };
 
 } // namespace WebCFD

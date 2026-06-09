@@ -5,6 +5,8 @@
 #ifndef WEBCFD_RENDERPANEL_HPP
 #define WEBCFD_RENDERPANEL_HPP
 
+#include <string>
+
 #include "IPanel.hpp"
 #include "ViewportRenderer.hpp"
 
@@ -15,6 +17,8 @@ class RenderPanel final : public IPanel
 {
 public:
     RenderPanel(
+            std::string panel_name,
+            ViewportRenderer::Shader shader,
             const wgpu::Device& device,
             std::uint32_t width,
             std::uint32_t height,
@@ -27,6 +31,7 @@ public:
 
 private:
     ViewportRenderer renderer;
+    std::string panel_name;
 };
 
 } // namespace WebCFD

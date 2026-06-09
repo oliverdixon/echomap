@@ -1,22 +1,25 @@
-struct Params {
+struct Params
+{
     viewport: vec4<f32>,
     controls: vec4<f32>,
-    colour_a: vec4<f32>,
-    colour_b: vec4<f32>,
-    colour_c: vec4<f32>,
-    colour_d: vec4<f32>,
+    colour_a: vec3<f32>,
+    colour_b: vec3<f32>,
+    colour_c: vec3<f32>,
+    colour_d: vec3<f32>,
 };
 
 @group(0) @binding(0)
 var<uniform> params: Params;
 
-struct VsOut {
+struct VsOut
+{
     @builtin(position) position: vec4<f32>,
     @location(0) uv: vec2<f32>,
 };
 
 @vertex
-fn vs_main(@builtin(vertex_index) vertex_index: u32) -> VsOut {
+fn vs_main(@builtin(vertex_index) vertex_index: u32) -> VsOut
+{
     let positions = array<vec2<f32>, 3>(
         vec2<f32>(-1.0, -1.0),
         vec2<f32>( 3.0, -1.0),
@@ -28,10 +31,12 @@ fn vs_main(@builtin(vertex_index) vertex_index: u32) -> VsOut {
     var out: VsOut;
     out.position = vec4<f32>(p, 0.0, 1.0);
     out.uv = p * 0.5 + vec2<f32>(0.5);
+
     return out;
 }
 
-fn rot(a: f32) -> mat2x2<f32> {
+fn rot(a: f32) -> mat2x2<f32>
+{
     let s = sin(a);
     let c = cos(a);
 
@@ -42,9 +47,9 @@ fn rot(a: f32) -> mat2x2<f32> {
 }
 
 fn palette(t: f32) -> vec3<f32> {
-    return params.colour_a.xyz +
-           params.colour_b.xyz *
-           cos(6.28318530718 * (params.colour_c.xyz * t + params.colour_d.xyz));
+    return params.colour_a +
+           params.colour_b *
+           cos(6.28318530718 * (params.colour_c * t + params.colour_d));
 }
 
 fn hash21(p: vec2<f32>) -> f32 {
@@ -103,7 +108,8 @@ fn grid_stars(p: vec2<f32>, t: f32) -> vec3<f32> {
 }
 
 @fragment
-fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
+fn fs_main(in: VsOut) -> @location(0) vec4<f32>
+{
     var uv = in.uv * 2.0 - vec2<f32>(1.0);
     uv.x *= params.viewport.y;
 
@@ -120,14 +126,10 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
 
     var colour = vec3<f32>(0.0);
 
-    /*
-       Deep background starfield.
-    */
+    // Deep background starfield.
     colour += grid_stars(p, t);
 
-    /*
-       Iterated inversion fractal.
-    */
+    // Iterated inversion fractal.
     var q = p;
 
     for (var i: i32 = 0; i < 9; i = i + 1) {
@@ -157,9 +159,7 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
         colour += c * haze * 0.018;
     }
 
-    /*
-       Polar tunnel shockwaves.
-    */
+    // Polar tunnel shockwaves.
     let r = max(length(p), 0.001);
     let a = atan2(p.y, p.x);
 
@@ -170,9 +170,7 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
     let tunnel_mask = smoothstep(1.15, 0.05, r);
     colour += palette(tunnel * 0.09 + t * 0.045) * tunnel_mask * 0.18 * warp;
 
-    /*
-       Animated event-horizon ring.
-    */
+    // Animated event-horizon ring.
     let ring_radius = 0.42 + 0.035 * sin(t * 0.9);
     let ring_distance = abs(r - ring_radius);
     let ring = exp(-70.0 * ring_distance);
@@ -180,22 +178,16 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
     let ring_colour = palette(a * 0.08 + t * 0.12);
     colour += ring_colour * ring * 0.38;
 
-    /*
-       Central lens/starburst.
-    */
+    // Central lens/starburst.
     let flare_p = rot(t * 0.45) * p;
     let flare = star(flare_p, 0.58);
     colour += palette(t * 0.04 + 0.18) * flare * 0.9;
 
-    /*
-       Subtle scanline shimmer.
-    */
+    // Subtle scanline shimmer.
     let scanline = 0.96 + 0.04 * sin((in.uv.y * params.viewport.w + t * 80.0) * 0.7);
     colour *= scanline;
 
-    /*
-       Vignette, tone map, gamma.
-    */
+    // Vignette, tone map, gamma.
     let vignette = smoothstep(1.45, 0.18, length(uv));
     colour *= vignette * intensity;
 

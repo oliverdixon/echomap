@@ -15,10 +15,19 @@ namespace WebCFD
 class ViewportRenderer
 {
 public:
+    enum class Shader
+    {
+        Aurora,
+        JuliaBloom,
+        NeonVoronoi,
+        Vortex
+    };
+
     ViewportRenderer(
             const wgpu::Device& device,
             std::uint32_t width,
             std::uint32_t height,
+            Shader shader,
             const SimulationParameters& parameters
     );
 
@@ -43,6 +52,7 @@ private:
     const SimulationParameters& parameters;
     wgpu::Buffer uniform_buffer;
     wgpu::BindGroup bind_group;
+    wgpu::StringView shader_code;
 
     wgpu::Device device;
     wgpu::RenderPipeline pipeline;
