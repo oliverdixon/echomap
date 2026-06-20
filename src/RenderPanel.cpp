@@ -1,6 +1,9 @@
-//
-// Created by owd on 04/06/2026.
-//
+/**
+ * @file
+ * @brief WebCFD rendering ImGui panel implementation
+ * @author Oliver Dixon
+ * @date 2026-06-20
+ */
 
 #include "RenderPanel.hpp"
 
@@ -12,19 +15,19 @@ namespace WebCFD
 RenderPanel::RenderPanel(
         std::string panel_name,
         const ViewportRenderer::Shader shader,
-        const wgpu::Device& device,
+        wgpu::Device device,
         const std::uint32_t width,
         const std::uint32_t height,
         const SimulationParameters& parameters
 ) :
-    panel_name(std::move(panel_name)),
     renderer(
-            device,
+            std::move(device),
             width,
             height,
             shader,
             parameters
-    )
+    ),
+    panel_name(std::move(panel_name))
 {
 }
 
@@ -44,7 +47,7 @@ void RenderPanel::draw()
          * reinterpret_cast is acceptable, providing that pointers, in particular WGPUTextureViewImpl*, is no larger
          * than ImTextureID. We statically verify this.
          */
-        static_assert(sizeof(WGPUTextureViewImpl *) <= sizeof(ImTextureID));
+        static_assert(sizeof(WGPUTextureViewImpl*) <= sizeof(ImTextureID));
         ImGui::Image(reinterpret_cast<ImTextureID>(texture_view.Get()), available_space);
     }
 

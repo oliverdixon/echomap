@@ -1,6 +1,9 @@
-//
-// Created by owd on 04/06/2026.
-//
+/**
+ * @file
+ * @brief WebCFD parameters ImGui panel implementation
+ * @author Oliver Dixon
+ * @date 2026-06-20
+ */
 
 #include "ParametersPanel.hpp"
 
@@ -16,6 +19,7 @@ ParametersPanel::ParametersPanel(
     parameters(parameters),
     invalidate_layout_callback(std::move(invalidate_layout_callback))
 {
+    // Regardless of the inherited parameters, reset them to our randomly generated baseline for this panel instance.
     parameters = default_parameters;
 }
 
@@ -29,17 +33,28 @@ void ParametersPanel::draw()
     ImGuiWindowFlags flags = ImGuiWindowFlags_HorizontalScrollbar;
 
     if (requires_repositioning || force_repositioning) {
-        const ImGuiViewport * const viewport = ImGui::GetMainViewport();
+        /*
+         * If the reposition has been requested (or forced by the user), reset the ParametersPanel position to the
+         * center of the overall viewport. Note that in the presence of Dear ImGui persistence (typically an 'imgui.ini'
+         * file in the CWD, the position will not change unless the repositioning request was forced).
+         */
+
+        const ImGuiViewport* const viewport = ImGui::GetMainViewport();
         const ImVec2 center{
-            viewport->WorkPos.x + viewport->WorkSize.x / 2.0f,
-            viewport->WorkPos.y + viewport->WorkSize.y / 2.0f,
+                viewport->WorkPos.x + viewport->WorkSize.x / 2.0f,
+                viewport->WorkPos.y + viewport->WorkSize.y / 2.0f,
         };
 
-        ImGui::SetNextWindowPos(center, force_repositioning ? ImGuiCond_Always : ImGuiCond_FirstUseEver,
-            ImVec2{.5f, .5f});
+        ImGui::SetNextWindowPos(
+                center,
+                force_repositioning ? ImGuiCond_Always : ImGuiCond_FirstUseEver,
+                ImVec2{.5f, .5f}
+        );
+
         flags |= ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize;
 
         requires_repositioning = false;
+        force_repositioning = false;
     }
 
     ImGui::Begin(panel_name.c_str(), nullptr, flags);

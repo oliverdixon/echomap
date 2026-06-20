@@ -5,12 +5,13 @@
  * @date 2026-05-05
  */
 
-#include <ranges>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_wgpu.h>
 #include <dawn/webgpu_cpp_print.h>
 #include <imgui_internal.h>
 #include <webgpu/webgpu_glfw.h>
+
+#include <ranges>
 
 #include "ParametersPanel.hpp"
 #include "RenderPanel.hpp"
@@ -156,8 +157,7 @@ wgpu::Future WebCFD::request_adapter() noexcept
     return instance.RequestAdapter(
             &options,
             wgpu::CallbackMode::WaitAnyOnly,
-            [this](const wgpu::RequestAdapterStatus status, wgpu::Adapter new_adapter, const wgpu::StringView message)
-            {
+            [this](const wgpu::RequestAdapterStatus status, wgpu::Adapter new_adapter, const wgpu::StringView message) {
                 if (status != wgpu::RequestAdapterStatus::Success)
                     Logger::log_f(
                             Logger::Level::Error,
@@ -320,17 +320,49 @@ void WebCFD::setup_imgui()
 #endif
 
     // Step 3.  Construct and register panels to appear on the WebCFD application UI.
-    panels.emplace_back(std::make_unique<RenderPanel>("Aurora", ViewportRenderer::Shader::Aurora, device,
-        viewport_width, viewport_height, *parameters));
+    panels.emplace_back(
+            std::make_unique<RenderPanel>(
+                    "Aurora",
+                    ViewportRenderer::Shader::Aurora,
+                    device,
+                    viewport_width,
+                    viewport_height,
+                    *parameters
+            )
+    );
 
-    panels.emplace_back(std::make_unique<RenderPanel>("Julia Bloom", ViewportRenderer::Shader::JuliaBloom, device,
-        viewport_width, viewport_height, *parameters));
+    panels.emplace_back(
+            std::make_unique<RenderPanel>(
+                    "Julia Bloom",
+                    ViewportRenderer::Shader::JuliaBloom,
+                    device,
+                    viewport_width,
+                    viewport_height,
+                    *parameters
+            )
+    );
 
-    panels.emplace_back(std::make_unique<RenderPanel>("Neon Voronoi", ViewportRenderer::Shader::NeonVoronoi, device,
-        viewport_width, viewport_height, *parameters));
+    panels.emplace_back(
+            std::make_unique<RenderPanel>(
+                    "Neon Voronoi",
+                    ViewportRenderer::Shader::NeonVoronoi,
+                    device,
+                    viewport_width,
+                    viewport_height,
+                    *parameters
+            )
+    );
 
-    panels.emplace_back(std::make_unique<RenderPanel>("Vortex", ViewportRenderer::Shader::Vortex, device,
-        viewport_width, viewport_height, *parameters));
+    panels.emplace_back(
+            std::make_unique<RenderPanel>(
+                    "Vortex",
+                    ViewportRenderer::Shader::Vortex,
+                    device,
+                    viewport_width,
+                    viewport_height,
+                    *parameters
+            )
+    );
 
     panels.emplace_back(std::make_unique<ParametersPanel>(*parameters, [this] {
         dockspace_configured = false;
@@ -374,7 +406,7 @@ void WebCFD::fix_initial_dockspace()
     if (panels.empty())
         return;
 
-    const ImGuiViewport * const docking_viewport = ImGui::GetMainViewport();
+    const ImGuiViewport* const docking_viewport = ImGui::GetMainViewport();
 
     ImGui::DockBuilderRemoveNode(dockspace_id);
     ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);

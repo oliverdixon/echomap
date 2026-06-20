@@ -1,6 +1,9 @@
-//
-// Created by owd on 05/06/2026.
-//
+/**
+ * @file
+ * @brief WebCFD parameters structure specification
+ * @author Oliver Dixon
+ * @date 2026-06-20
+ */
 
 #ifndef WEBCFD_SIMULATIONPARAMETERS_H
 #define WEBCFD_SIMULATIONPARAMETERS_H
@@ -10,6 +13,9 @@
 namespace WebCFD
 {
 
+/**
+ * A 16-byte-aligned four-dimensional real vector.
+ */
 struct alignas(
         16
 ) ShaderVec4
@@ -20,6 +26,12 @@ struct alignas(
     float w = 0.0f;
 };
 
+/**
+ * A 16-byte-aligned three-dimensional real vector.
+ *
+ * Because WebGPU shaders align three-dimensional float-32 vectors on a 64-byte boundary, this structure contains
+ * padding such that <code>sizeof(ShaderVec3) == sizeof(ShaderVec4)</code>.
+ */
 struct alignas(
         16
 ) ShaderVec3
@@ -32,11 +44,24 @@ private:
     float padding = 0.0f;
 };
 
+/**
+ * WebCFD simulation parameters (animation and colouring) relevant to all shaders.
+ *
+ * Optional RNG services are provided through static members.
+ */
 struct alignas(
         16
 ) SimulationParameters
 {
-    explicit SimulationParameters(const bool randomise = false) noexcept
+
+    /**
+     * Initialise a new SimulationParameters instance, optionally randomising the initial colourways.
+     *
+     * @param randomise Should the colourways be randomised?
+     */
+    explicit SimulationParameters(
+            const bool randomise = false
+    ) noexcept
     {
         if (randomise) {
             colour_a.x = distribution(generator);

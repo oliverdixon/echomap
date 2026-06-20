@@ -1,6 +1,9 @@
-//
-// Created by owd on 04/06/2026.
-//
+/**
+ * @file
+ * @brief WebCFD viewport renderer implementation
+ * @author Oliver Dixon
+ * @date 2026-06-20
+ */
 
 #include "ViewportRenderer.hpp"
 
