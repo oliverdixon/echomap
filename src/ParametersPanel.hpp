@@ -8,6 +8,8 @@
 #ifndef WEBCFD_PARAMETERSPANEL_HPP
 #define WEBCFD_PARAMETERSPANEL_HPP
 
+#include <string>
+
 #include "IPanel.hpp"
 #include "WAVData.hpp"
 
@@ -43,6 +45,7 @@ private:
     bool force_repositioning = false;
 
     WAVData wav_data{"../audio/stereo.wav"};
+    WAVData downsampled{wav_data, 50.0f};
     std::function<void()> invalidate_layout_callback;
 };
 

@@ -10,6 +10,8 @@
 #include <imgui.h>
 #include <implot.h>
 
+#include <ranges>
+
 namespace WebCFD
 {
 
@@ -54,12 +56,22 @@ void ParametersPanel::draw()
         force_repositioning = false;
     }
 
+    ImPlotSpec spec;
+    spec.Stride = sizeof(WAVData::AudioPoint);
+
     ImGui::Begin(panel_name.c_str(), nullptr, flags);
 
-    if (ImPlot::BeginPlot("Audio Data")) {
-        ImPlot::SetupAxes("PCM Value", "Time");
-        ImPlot::PlotLine("v(t)", wav_data.get_data(), wav_data.get_frame_count());
-        ImPlot::EndPlot();
+    std::size_t channel_idx = 0;
+
+    for (const auto [original, downsample] : std::ranges::views::zip(wav_data, downsampled)) {
+        if (ImPlot::BeginPlot(std::string("Audio Data: Channel " + std::to_string(channel_idx)).c_str())) {
+            ImPlot::SetupAxes("PCM Value", "Time");
+            ImPlot::PlotLine("Original Data", &original.front().time, &original.front().amplitude, static_cast<int>(original.size()), spec);
+            ImPlot::PlotLine("Downsampled Data", &downsample.front().time, &downsample.front().amplitude, static_cast<int>(downsample.size()), spec);
+            ImPlot::EndPlot();
+        }
+
+        ++channel_idx;
     }
 
     ImGui::End();
