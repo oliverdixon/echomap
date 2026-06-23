@@ -48,24 +48,6 @@ public:
     );
 
     /**
-     * Log a formatted message to the backend.
-     *
-     * @tparam Args Types of variadic arguments for the formatter.
-     * @param level The level of the message.
-     * @param fmt The <code>printf</code>-style format string of the message.
-     * @param args The values for the format string.
-     */
-    template <typename... Args>
-    static void log_f(
-            const Level level,
-            std::format_string<Args...> fmt,
-            Args&&... args
-    )
-    {
-        log(level, std::format(fmt, std::forward<Args>(args)...), std::source_location::current());
-    }
-
-    /**
      * Log a formatted message to the backend with a specific source location.
      *
      * @tparam Args Types of variadic arguments for the formatter.
@@ -96,5 +78,65 @@ private:
 };
 
 } // namespace WebCFD
+
+/**
+ * Logs a formatted info-level message using WebCFD::Logger::log_f.
+ *
+ * @param msg The format string, followed by formatted values.
+ */
+#define LOG_F_INFO(msg, ...)                                                                                           \
+    do {                                                                                                               \
+        Logger::log_f(Logger::Level::Info, std::source_location::current(), msg, __VA_ARGS__);                         \
+    } while (0);
+
+/**
+ * Logs a formatted warning-level message using WebCFD::Logger::log_f.
+ *
+ * @param msg The format string, followed by formatted values.
+ */
+#define LOG_F_WARN(msg, ...)                                                                                           \
+    do {                                                                                                               \
+        Logger::log_f(Logger::Level::Warning, std::source_location::current(), msg, __VA_ARGS__);                      \
+    } while (0);
+
+/**
+ * Logs a formatted error-level message using WebCFD::Logger::log_f.
+ *
+ * @param msg The format string, followed by formatted values.
+ */
+#define LOG_F_ERROR(msg, ...)                                                                                          \
+    do {                                                                                                               \
+        Logger::log_f(Logger::Level::Error, std::source_location::current(), msg, __VA_ARGS__);                        \
+    } while (0);
+
+/**
+ * Logs an unformatted info-level message using WebCFD::Logger::log.
+ *
+ * @param msg The string literal to log.
+ */
+#define LOG_INFO(msg)                                                                                                  \
+    do {                                                                                                               \
+        Logger::log(Logger::Level::Info, msg, std::source_location::current());                                        \
+    } while (0);
+
+/**
+ * Logs an unformatted warning-level message using WebCFD::Logger::log.
+ *
+ * @param msg The string literal to log.
+ */
+#define LOG_WARN(msg)                                                                                                  \
+    do {                                                                                                               \
+        Logger::log(Logger::Level::Warning, msg, std::source_location::current());                                     \
+    } while (0);
+
+/**
+ * Logs an unformatted error-level message using WebCFD::Logger::log.
+ *
+ * @param msg The string literal to log.
+ */
+#define LOG_ERROR(msg)                                                                                                 \
+    do {                                                                                                               \
+        Logger::log(Logger::Level::Error, msg, std::source_location::current());                                       \
+    } while (0);
 
 #endif // WEBCFD_LOGGER_H

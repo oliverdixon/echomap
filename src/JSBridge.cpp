@@ -32,16 +32,16 @@ int JSBridge::notify_wav_file_picked(
 ) noexcept
 {
     if (instance == nullptr) {
-        Logger::log(Logger::Level::Error, "No WebCFD app instance is registered,", std::source_location::current());
+        LOG_ERROR("No WebCFD app instance is registered");
         return 1;
     }
 
     if (path == nullptr) {
-        Logger::log(Logger::Level::Error, "File picker callback received no path.", std::source_location::current());
+        LOG_ERROR("File picker callback received no path.");
         return 2;
     }
 
-    Logger::log_f(Logger::Level::Info, std::source_location::current(), "Received new file {}", path);
+    LOG_F_INFO("Received new file {}", path);
     // TODO process
 
     return 0;

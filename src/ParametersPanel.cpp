@@ -24,11 +24,8 @@ ParametersPanel::ParametersPanel(
 {
     plotting_spec.Stride = sizeof(WAVData::AudioPoint);
 
-    Logger::log_f(Logger::Level::Info, std::source_location::current(), "Original data: {} samples",
-        wav_data.get_sample_rate());
-
-    Logger::log_f(Logger::Level::Info, std::source_location::current(), "Downsampled data: {} samples",
-        downsampled.get_sample_rate());
+    LOG_F_INFO("Original data: {} samples", wav_data.get_sample_rate());
+    LOG_F_INFO("Downsampled data: {} samples", downsampled.get_sample_rate());
 }
 
 const char* ParametersPanel::get_imgui_name() const noexcept
