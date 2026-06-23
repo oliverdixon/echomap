@@ -10,6 +10,8 @@
 
 #include <string>
 
+#include <implot.h>
+
 #include "IPanel.hpp"
 #include "WAVData.hpp"
 
@@ -46,6 +48,8 @@ private:
 
     WAVData wav_data{"../audio/stereo.wav"};
     WAVData downsampled{wav_data, 50.0f};
+
+    ImPlotSpec plotting_spec;
     std::function<void()> invalidate_layout_callback;
 };
 

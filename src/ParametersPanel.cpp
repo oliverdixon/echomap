@@ -12,6 +12,8 @@
 
 #include <ranges>
 
+#include "Logger.hpp"
+
 namespace WebCFD
 {
 
@@ -20,6 +22,13 @@ ParametersPanel::ParametersPanel(
 ) :
     invalidate_layout_callback(std::move(invalidate_layout_callback))
 {
+    plotting_spec.Stride = sizeof(WAVData::AudioPoint);
+
+    Logger::log_f(Logger::Level::Info, std::source_location::current(), "Original data: {} samples",
+        wav_data.get_sample_rate());
+
+    Logger::log_f(Logger::Level::Info, std::source_location::current(), "Downsampled data: {} samples",
+        downsampled.get_sample_rate());
 }
 
 const char* ParametersPanel::get_imgui_name() const noexcept
@@ -56,22 +65,16 @@ void ParametersPanel::draw()
         force_repositioning = false;
     }
 
-    ImPlotSpec spec;
-    spec.Stride = sizeof(WAVData::AudioPoint);
-
     ImGui::Begin(panel_name.c_str(), nullptr, flags);
 
-    std::size_t channel_idx = 0;
+    if (ImPlot::BeginPlot("Waveform")) {
+        ImPlot::SetupAxes("Amplitude", "Time");
 
-    for (const auto [original, downsample] : std::ranges::views::zip(wav_data, downsampled)) {
-        if (ImPlot::BeginPlot(std::string("Audio Data: Channel " + std::to_string(channel_idx)).c_str())) {
-            ImPlot::SetupAxes("PCM Value", "Time");
-            ImPlot::PlotLine("Original Data", &original.front().time, &original.front().amplitude, static_cast<int>(original.size()), spec);
-            ImPlot::PlotLine("Downsampled Data", &downsample.front().time, &downsample.front().amplitude, static_cast<int>(downsample.size()), spec);
-            ImPlot::EndPlot();
-        }
+        for (const auto [channel_idx, channel] : std::ranges::views::enumerate(downsampled))
+            ImPlot::PlotLine(std::string("Channel " + std::to_string(channel_idx)).c_str(), &channel.front().time,
+                &channel.front().amplitude, static_cast<int>(channel.size()), plotting_spec);
 
-        ++channel_idx;
+        ImPlot::EndPlot();
     }
 
     ImGui::End();

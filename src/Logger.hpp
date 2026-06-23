@@ -52,6 +52,24 @@ public:
      *
      * @tparam Args Types of variadic arguments for the formatter.
      * @param level The level of the message.
+     * @param fmt The <code>printf</code>-style format string of the message.
+     * @param args The values for the format string.
+     */
+    template <typename... Args>
+    static void log_f(
+            const Level level,
+            std::format_string<Args...> fmt,
+            Args&&... args
+    )
+    {
+        log(level, std::format(fmt, std::forward<Args>(args)...), std::source_location::current());
+    }
+
+    /**
+     * Log a formatted message to the backend with a specific source location.
+     *
+     * @tparam Args Types of variadic arguments for the formatter.
+     * @param level The level of the message.
      * @param location The origin of the message.
      * @param fmt The <code>printf</code>-style format string of the message.
      * @param args The values for the format string.
