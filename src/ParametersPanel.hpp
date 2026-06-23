@@ -9,7 +9,7 @@
 #define WEBCFD_PARAMETERSPANEL_HPP
 
 #include "IPanel.hpp"
-#include "SimulationParameters.hpp"
+#include "WAVData.hpp"
 
 namespace WebCFD
 {
@@ -26,11 +26,9 @@ public:
     /**
      * Create a new ParametersPanel to control the given SimulationParameters.
      *
-     * @param parameters The SimulationParameters to update from the panel controls.
      * @param invalidate_layout_callback The callback to invalidate the layout of the parent window.
      */
     explicit ParametersPanel(
-            SimulationParameters& parameters,
             std::function<void()> invalidate_layout_callback
     );
 
@@ -44,8 +42,7 @@ private:
     bool requires_repositioning = true;
     bool force_repositioning = false;
 
-    const SimulationParameters default_parameters = SimulationParameters(true);
-    SimulationParameters& parameters;
+    WAVData wav_data{"../audio/stereo.wav"};
     std::function<void()> invalidate_layout_callback;
 };
 

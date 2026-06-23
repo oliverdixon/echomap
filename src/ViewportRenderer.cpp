@@ -10,11 +10,6 @@
 #include <chrono>
 #include <utility>
 
-#include "shaders/aurora.hpp"
-#include "shaders/julia_bloom.hpp"
-#include "shaders/neon_voronoi.hpp"
-#include "shaders/vortex.hpp"
-
 namespace WebCFD
 {
 
@@ -30,21 +25,6 @@ ViewportRenderer::ViewportRenderer(
     parameters(parameters),
     device(std::move(device))
 {
-    switch (shader) {
-    case Shader::Aurora:
-        shader_code = Shaders::aurora_wgsl;
-        break;
-    case Shader::JuliaBloom:
-        shader_code = Shaders::julia_bloom_wgsl;
-        break;
-    case Shader::NeonVoronoi:
-        shader_code = Shaders::neon_voronoi_wgsl;
-        break;
-    case Shader::Vortex:
-        shader_code = Shaders::vortex_wgsl;
-        break;
-    }
-
     create_parameter_buffer();
     create_pipeline();
     recreate_texture();

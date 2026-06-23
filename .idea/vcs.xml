@@ -22,6 +22,8 @@
     <mapping directory="$PROJECT_DIR$/dawn/third_party/vulkan-loader/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/dawn/third_party/vulkan-utility-libraries/src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/dawn/third_party/webgpu-headers/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dr_libs" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/implot" vcs="Git" />
   </component>
 </project>

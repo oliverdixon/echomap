@@ -13,7 +13,6 @@
 #include <webgpu/webgpu_cpp.h>
 
 #include "IPanel.hpp"
-#include "SimulationParameters.hpp"
 
 namespace WebCFD
 {
@@ -113,7 +112,7 @@ private:
     void render() noexcept;
 
     /**
-     * Create a context for Dear ImGui and configure the plain GLFW and WebGPU backends.
+     * Create a context for Dear ImGui and ImPlot, and configure the plain GLFW and WebGPU backends.
      *
      * @throws ConfigurationError A Dear ImGui backend could not be initialised.
      */
@@ -157,7 +156,6 @@ private:
     GLFWwindow* window = nullptr;
 
     std::vector<std::unique_ptr<IPanel>> panels;
-    std::unique_ptr<SimulationParameters> parameters = std::make_unique<SimulationParameters>();
     ImGuiID dockspace_id;
     bool dockspace_configured = false;
 };

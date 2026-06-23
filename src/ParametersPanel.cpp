@@ -8,19 +8,16 @@
 #include "ParametersPanel.hpp"
 
 #include <imgui.h>
+#include <implot.h>
 
 namespace WebCFD
 {
 
 ParametersPanel::ParametersPanel(
-        SimulationParameters& parameters,
         std::function<void()> invalidate_layout_callback
 ) :
-    parameters(parameters),
     invalidate_layout_callback(std::move(invalidate_layout_callback))
 {
-    // Regardless of the inherited parameters, reset them to our randomly generated baseline for this panel instance.
-    parameters = default_parameters;
 }
 
 const char* ParametersPanel::get_imgui_name() const noexcept
@@ -59,40 +56,10 @@ void ParametersPanel::draw()
 
     ImGui::Begin(panel_name.c_str(), nullptr, flags);
 
-    ImGui::PushItemWidth(256.0f);
-
-    ImGui::SeparatorText("Animation Settings");
-    ImGui::SliderFloat("Speed", &parameters.controls.x, 0.0f, 4.0f);
-    ImGui::SliderFloat("Intensity", &parameters.controls.y, 0.0f, 3.0f);
-    ImGui::SliderFloat("Warp", &parameters.controls.z, 0.0f, 3.0f);
-    ImGui::SliderFloat("Scale", &parameters.controls.w, 0.25f, 4.0f);
-
-    ImGui::SeparatorText("Colourway Settings");
-    ImGui::ColorEdit3("Colour A", &parameters.colour_a.x);
-    ImGui::ColorEdit3("Colour B", &parameters.colour_b.x);
-    ImGui::ColorEdit3("Colour C", &parameters.colour_c.x);
-    ImGui::ColorEdit3("Colour D", &parameters.colour_d.x);
-
-    ImGui::SeparatorText("Reset Options");
-    ImGui::PopItemWidth();
-
-    if (ImGui::Button("Reset Layout")) {
-        invalidate_layout_callback();
-        force_repositioning = true;
-    }
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Reset Animation Settings"))
-        parameters.controls = default_parameters.controls;
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Reset Colourways")) {
-        parameters.colour_a = default_parameters.colour_a;
-        parameters.colour_b = default_parameters.colour_b;
-        parameters.colour_c = default_parameters.colour_c;
-        parameters.colour_d = default_parameters.colour_d;
+    if (ImPlot::BeginPlot("Audio Data")) {
+        ImPlot::SetupAxes("PCM Value", "Time");
+        ImPlot::PlotLine("v(t)", wav_data.get_data(), wav_data.get_frame_count());
+        ImPlot::EndPlot();
     }
 
     ImGui::End();

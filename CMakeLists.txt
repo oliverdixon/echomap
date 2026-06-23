@@ -44,9 +44,11 @@ add_executable(WebCFD
         src/ConfigurationError.hpp
         src/SimulationParameters.hpp
         src/SimulationParameters.cpp
+        src/WAVData.cpp
+        src/WAVData.hpp
 )
 
-target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui implot)
+target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui implot dr_libs_interface)
 target_include_directories(WebCFD PRIVATE dr_libs)
 
 # Broadcast the Dear ImGui configuration file path across all WebCFD compilation units, i.a.w. imgui/imconfig.h advice.

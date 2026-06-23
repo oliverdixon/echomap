@@ -7,8 +7,13 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_wgpu.h>
-#include <dawn/webgpu_cpp_print.h>
 #include <imgui_internal.h>
+#include <implot.h>
+
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/emscripten.h>
+#endif
+#include <dawn/webgpu_cpp_print.h>
 #include <webgpu/webgpu_glfw.h>
 
 #include <ranges>
@@ -16,9 +21,6 @@
 #include "ParametersPanel.hpp"
 #include "RenderPanel.hpp"
 #include "RobotoMedium.hpp"
-#if defined(__EMSCRIPTEN__)
-#include <emscripten/emscripten.h>
-#endif
 
 #include "ConfigurationError.hpp"
 #include "Logger.hpp"
@@ -65,10 +67,12 @@ void WebCFD::run_event_loop()
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&WebCFD::render_shim, this, 0, true);
 #else
+    render();
+    instance.ProcessEvents();
+
     while (!glfwWindowShouldClose(window)) {
+        glfwWaitEvents();
         render();
-        // ReSharper disable once CppExpressionWithoutSideEffects
-        surface.Present();
         instance.ProcessEvents();
     }
 #endif
@@ -225,12 +229,32 @@ void WebCFD::render() noexcept
 {
     glfwPollEvents();
 
+    if (!handle_window_resize())
+        return;
+
+    wgpu::SurfaceTexture surface_texture{};
+    surface.GetCurrentTexture(&surface_texture);
+
+    if (surface_texture.status != wgpu::SurfaceGetCurrentTextureStatus::SuccessOptimal) {
+        switch (surface_texture.status) {
+        case wgpu::SurfaceGetCurrentTextureStatus::Outdated:
+        case wgpu::SurfaceGetCurrentTextureStatus::Lost:
+            surface.Unconfigure();
+            configure_surface(surface, device, surface_capabilities, viewport_width, viewport_height);
+            break;
+
+        default:
+            break;
+        }
+
+        return;
+    }
+
+    const wgpu::TextureView surface_view = surface_texture.texture.CreateView();
+
     ImGui_ImplWGPU_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-
-    if (!handle_window_resize())
-        return;
 
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
     if (!dockspace_configured) {
@@ -245,18 +269,13 @@ void WebCFD::render() noexcept
 
     ImGui::Render();
 
-    // Step 2.  Set up a command encoder for the render and allow Dear ImGui panels to provide work.
+    // Step 2. Set up a command encoder for the render and allow Dear ImGui panels to provide work.
     const wgpu::CommandEncoder encoder = device.CreateCommandEncoder();
 
     for (const auto& panel : panels)
         panel->update_gpu(encoder);
 
-    // Step 3.  Provide the framebuffer to the WebGPU driver.
-
-    wgpu::SurfaceTexture surface_texture{};
-    surface.GetCurrentTexture(&surface_texture);
-
-    const wgpu::TextureView surface_view = surface_texture.texture.CreateView();
+    // Step 3. Provide the framebuffer to the WebGPU driver.
     wgpu::RenderPassColorAttachment attachment{
             .view = surface_view,
             .loadOp = wgpu::LoadOp::Clear,
@@ -269,10 +288,15 @@ void WebCFD::render() noexcept
 
     ImGui_ImplWGPU_RenderDrawData(ImGui::GetDrawData(), pass.Get());
     pass.End();
+
     const wgpu::CommandBuffer commands = encoder.Finish();
 
-    // Step 4.  Submit batched work to the GPU.
+    // Step 4. Submit batched work to the GPU.
     device.GetQueue().Submit(1, &commands);
+
+    // Step 5. Present the frame that was successfully acquired and submitted.
+    // ReSharper disable once CppExpressionWithoutSideEffects
+    surface.Present();
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst - Not semantically constant
@@ -281,9 +305,10 @@ void WebCFD::setup_imgui()
     if (!device)
         throw ConfigurationError("Cannot initialise ImGui: WebGPU device is null");
 
-    // Step 1.  Bring up the Dear ImGui context and initialise the GLFW backend.
+    // Step 1. Bring up the Dear ImGui context and initialise the GLFW backend.
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
 
     auto& io = ImGui::GetIO();
 #ifdef WEBCFD_DISABLE_IMGUI_PERSISTENCE
@@ -300,7 +325,7 @@ void WebCFD::setup_imgui()
     if (!ImGui_ImplGlfw_InitForOther(window, true))
         throw ConfigurationError("ImGui_ImplGlfw_InitForOther failed");
 
-    // Step 2.  Configure the WebGPU backend for Dear ImGui.
+    // Step 2. Configure the WebGPU backend for Dear ImGui.
     ImGui_ImplWGPU_InitInfo init_info{};
     init_info.Device = device.Get();
     // ReSharper disable once CppDFAConstantConditions
@@ -320,52 +345,8 @@ void WebCFD::setup_imgui()
     ImGui_ImplGlfw_InstallEmscriptenCallbacks(window, "#canvas");
 #endif
 
-    // Step 3.  Construct and register panels to appear on the WebCFD application UI.
-    panels.emplace_back(
-            std::make_unique<RenderPanel>(
-                    "Aurora",
-                    ViewportRenderer::Shader::Aurora,
-                    device,
-                    viewport_width,
-                    viewport_height,
-                    *parameters
-            )
-    );
-
-    panels.emplace_back(
-            std::make_unique<RenderPanel>(
-                    "Julia Bloom",
-                    ViewportRenderer::Shader::JuliaBloom,
-                    device,
-                    viewport_width,
-                    viewport_height,
-                    *parameters
-            )
-    );
-
-    panels.emplace_back(
-            std::make_unique<RenderPanel>(
-                    "Neon Voronoi",
-                    ViewportRenderer::Shader::NeonVoronoi,
-                    device,
-                    viewport_width,
-                    viewport_height,
-                    *parameters
-            )
-    );
-
-    panels.emplace_back(
-            std::make_unique<RenderPanel>(
-                    "Vortex",
-                    ViewportRenderer::Shader::Vortex,
-                    device,
-                    viewport_width,
-                    viewport_height,
-                    *parameters
-            )
-    );
-
-    panels.emplace_back(std::make_unique<ParametersPanel>(*parameters, [this] {
+    // Step 3. Construct and register panels to appear on the WebCFD application UI.
+    panels.emplace_back(std::make_unique<ParametersPanel>([this] {
         dockspace_configured = false;
     }));
 }
