@@ -9,6 +9,7 @@
 
 #include <cassert>
 #include <cmath>
+#include <stdexcept>
 
 namespace WebCFD
 {
@@ -33,7 +34,7 @@ void AudioChannel::add_sample(
         const Sample& sample
 )
 {
-    if (sample.time <= samples.back().time)
+    if (!samples.empty() && sample.time <= samples.back().time)
         throw std::runtime_error("Inserted sample violates monotonically increasing invariant of channel.");
 
     samples.push_back(sample);
@@ -44,7 +45,7 @@ void AudioChannel::emplace_sample(
         const float amplitude
 )
 {
-    if (time <= samples.back().time)
+    if (!samples.empty() && time <= samples.back().time)
         throw std::runtime_error("Inserted sample violates monotonically increasing invariant of channel.");
 
     samples.emplace_back(time, amplitude);

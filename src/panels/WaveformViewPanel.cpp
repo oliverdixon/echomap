@@ -12,7 +12,7 @@
 
 #include <ranges>
 
-#include "Logger.hpp"
+#include "../Logger.hpp"
 
 namespace WebCFD
 {

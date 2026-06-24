@@ -10,8 +10,8 @@
 
 #include <string>
 
-#include "IPanel.hpp"
 #include "ViewportRenderer.hpp"
+#include "panels/IPanel.hpp"
 
 namespace WebCFD
 {

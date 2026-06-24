@@ -12,7 +12,8 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
-#include "WaveformViewPanel.hpp"
+#include "panels/ArrayViewPanel.hpp"
+#include "panels/WaveformViewPanel.hpp"
 
 namespace WebCFD
 {
@@ -160,7 +161,19 @@ private:
     wgpu::SurfaceCapabilities surface_capabilities;
     GLFWwindow* window = nullptr;
 
+    std::vector<Sensor> sensors = { // TODO just a test...
+        { 0, 1, 0 },
+        { 0, 0, 1 },
+        { 0, 1, 0 },
+        { 0, 1, 1 },
+        { 1, 0, 0 },
+        { 1, 0, 1 },
+        { 1, 1, 0 },
+        { 1, 1, 1 }
+    };
+
     std::unique_ptr<WaveformViewPanel> waveform_test_panel;
+    std::unique_ptr<ArrayViewPanel> array_test_panel = std::make_unique<ArrayViewPanel>("Array View", sensors);
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

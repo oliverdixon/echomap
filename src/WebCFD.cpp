@@ -21,8 +21,8 @@
 #include "ConfigurationError.hpp"
 #include "Logger.hpp"
 #include "RobotoMedium.hpp"
-#include "WaveformViewPanel.hpp"
 #include "WebCFD.hpp"
+#include "panels/WaveformViewPanel.hpp"
 
 namespace WebCFD
 {
@@ -86,6 +86,7 @@ WebCFD::~WebCFD() noexcept
     if (ImGui::GetCurrentContext()) {
         ImGui_ImplWGPU_Shutdown();
         ImGui_ImplGlfw_Shutdown();
+        ImPlot3D::DestroyContext();
         ImPlot::DestroyContext();
         ImGui::DestroyContext();
     }
@@ -273,6 +274,9 @@ void WebCFD::render() noexcept
     if (waveform_test_panel != nullptr)
         waveform_test_panel->draw();
 
+    if (array_test_panel != nullptr)
+        array_test_panel->draw();
+
     ImGui::Render();
 
     // Step 2. Set up a command encoder for the render and allow Dear ImGui panels to provide work.
@@ -315,6 +319,7 @@ void WebCFD::setup_imgui()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImPlot::CreateContext();
+    ImPlot3D::CreateContext();
 
     auto& io = ImGui::GetIO();
 #ifdef WEBCFD_DISABLE_IMGUI_PERSISTENCE

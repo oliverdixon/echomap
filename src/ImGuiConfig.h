@@ -13,4 +13,6 @@
 #define IMGUI_DISABLE_DEBUG_TOOLS
 #define IMGUI_DISABLE_DEFAULT_FONT
 
+#define ImDrawIdx unsigned int
+
 #endif // WEBCFD_IMGUICONFIG_H

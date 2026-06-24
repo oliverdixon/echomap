@@ -9,6 +9,7 @@ add_library(implot3d STATIC
         "${IMPLOT3D_DIR}/implot3d.cpp"
         "${IMPLOT3D_DIR}/implot3d_internal.h"
         "${IMPLOT3D_DIR}/implot3d.h"
+        "${IMPLOT3D_DIR}/implot3d_items.cpp"
 )
 
 target_include_directories(implot3d PUBLIC "${IMPLOT3D_DIR}")

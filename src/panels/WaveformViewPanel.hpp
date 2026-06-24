@@ -12,8 +12,8 @@
 
 #include <string>
 
+#include "../audio/WAVData.hpp"
 #include "IPanel.hpp"
-#include "audio/WAVData.hpp"
 
 namespace WebCFD
 {
