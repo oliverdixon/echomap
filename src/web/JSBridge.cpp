@@ -11,8 +11,8 @@
 
 #include <emscripten/em_macros.h>
 
-#include "ConfigurationError.hpp"
-#include "Logger.hpp"
+#include "../ConfigurationError.hpp"
+#include "../Logger.hpp"
 
 namespace WebCFD
 {

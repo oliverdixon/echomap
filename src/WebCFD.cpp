@@ -20,8 +20,8 @@
 
 #include "ConfigurationError.hpp"
 #include "Logger.hpp"
-#include "ParametersPanel.hpp"
 #include "RobotoMedium.hpp"
+#include "WaveformViewPanel.hpp"
 #include "WebCFD.hpp"
 
 namespace WebCFD
@@ -59,10 +59,9 @@ WebCFD::WebCFD() :
 
     setup_imgui();
 
-#ifdef __EMSCRIPTEN__
-    parameters_panel = std::make_unique<ParametersPanel>();
-#else
-    parameters_panel = std::make_unique<ParametersPanel>("../audio/stereo.wav");
+#ifndef __EMSCRIPTEN__
+    WAVData wav_data{"../audio/stereo.wav"};
+    waveform_test_panel = std::make_unique<WaveformViewPanel>("Sample", *wav_data.begin());
 #endif
 }
 
@@ -110,10 +109,10 @@ WebCFD::~WebCFD() noexcept
 
 void WebCFD::update_wav_file(
         const char* const path
-) const
+)
 {
-    if (parameters_panel != nullptr)
-        parameters_panel->update_wav_file(path);
+    WAVData wav_data{path};
+    waveform_test_panel = std::make_unique<WaveformViewPanel>("Sample", *wav_data.begin());
 }
 
 GLFWwindow* WebCFD::create_window(
@@ -271,7 +270,8 @@ void WebCFD::render() noexcept
 
     ImGui::DockSpaceOverViewport(dockspace_id, viewport, ImGuiDockNodeFlags_None);
 
-    parameters_panel->draw();
+    if (waveform_test_panel != nullptr)
+        waveform_test_panel->draw();
 
     ImGui::Render();
 

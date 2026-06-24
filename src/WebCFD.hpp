@@ -12,7 +12,7 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
-#include "ParametersPanel.hpp"
+#include "WaveformViewPanel.hpp"
 
 namespace WebCFD
 {
@@ -53,7 +53,7 @@ public:
      *
      * @param path Path of the new wave file on the file system.
      */
-    void update_wav_file(const char* path) const;
+    void update_wav_file(const char* path);
 
 private:
     static constexpr auto operation_timeout = std::numeric_limits<std::uint64_t>::max();
@@ -160,7 +160,7 @@ private:
     wgpu::SurfaceCapabilities surface_capabilities;
     GLFWwindow* window = nullptr;
 
-    std::unique_ptr<ParametersPanel> parameters_panel;
+    std::unique_ptr<WaveformViewPanel> waveform_test_panel;
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

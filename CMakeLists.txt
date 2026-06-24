@@ -32,8 +32,8 @@ add_executable(WebCFD
         src/WebCFD.hpp
         src/App.cpp
         src/IPanel.hpp
-        src/ParametersPanel.cpp
-        src/ParametersPanel.hpp
+        src/WaveformViewPanel.cpp
+        src/WaveformViewPanel.hpp
         src/RenderPanel.cpp
         src/RenderPanel.hpp
         src/ViewportRenderer.cpp
@@ -46,10 +46,12 @@ add_executable(WebCFD
         src/ConfigurationError.hpp
         src/SimulationParameters.hpp
         src/SimulationParameters.cpp
-        src/WAVData.cpp
-        src/WAVData.hpp
-        src/JSBridge.cpp
-        src/JSBridge.hpp
+        src/audio/WAVData.cpp
+        src/audio/WAVData.hpp
+        src/web/JSBridge.cpp
+        src/web/JSBridge.hpp
+        src/audio/AudioChannel.cpp
+        src/audio/AudioChannel.hpp
 )
 
 target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui implot implot3d dr_libs_interface)

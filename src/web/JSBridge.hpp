@@ -10,7 +10,7 @@
 
 #ifdef __EMSCRIPTEN__
 
-#include "WebCFD.hpp"
+#include "../WebCFD.hpp"
 
 namespace WebCFD
 {
