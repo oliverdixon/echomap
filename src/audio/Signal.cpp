@@ -97,6 +97,24 @@ std::vector<Signal::Sample>::const_iterator Signal::cend() const noexcept
     return samples.cend();
 }
 
+Signal::Signal(
+        const Signal& old_signal
+) :
+    Object(CopyTag{},
+           old_signal)
+{
+}
+
+Signal::Signal(
+        const Signal& old_signal,
+        const std::string_view new_name
+) :
+    Object(CopyTag{},
+           old_signal,
+           new_name)
+{
+}
+
 void Signal::downsample_and_copy(
         const Signal& source_channel,
         const size_t threshold

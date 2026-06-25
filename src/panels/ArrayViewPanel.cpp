@@ -32,14 +32,7 @@ void ArrayViewPanel::draw() noexcept
     ImGui::Begin(panel_name.c_str(), nullptr);
 
     if (ImPlot3D::BeginPlot("Sensor Array")) {
-        ImPlot3D::PlotScatter(
-                "",
-                &sensors.begin()->position.x,
-                &sensors.begin()->position.y,
-                &sensors.begin()->position.z,
-                static_cast<int>(sensors.size()),
-                plotting_spec
-        );
+
 
         ImPlot3D::EndPlot();
     }

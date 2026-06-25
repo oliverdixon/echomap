@@ -7,25 +7,18 @@
 
 #include "ViewportPanel.hpp"
 
-#include <imgui.h>
-#include <implot.h>
-
 #include <format>
 
 namespace WebCFD
 {
 
-ViewportPanel::ViewportPanel()
-{
-    plotting_spec.Stride = sizeof(Signal::Sample);
-}
-
 ViewportPanel::ViewportPanel(
-        Project* const project
+        Project* const initial_project
 ) :
-    active_project(project)
+    active_project(initial_project)
 {
-    plotting_spec.Stride = sizeof(Signal::Sample);
+    plotting_spec_2d.Stride = sizeof(Signal::Sample);
+    plotting_spec_3d.Stride = sizeof(decltype(contiguous_sensor_cache)::value_type);
 }
 
 const char* ViewportPanel::get_imgui_name() const noexcept
@@ -38,12 +31,7 @@ void ViewportPanel::draw() noexcept
     if (ImGui::Begin(panel_name.c_str(), nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar)) {
         if (ImGui::BeginTabBar("##ViewportTabBar")) {
             draw_signal_waveforms();
-
-            if (ImGui::BeginTabItem("Sensor Geometry")) {
-                // TODO...
-                ImGui::EndTabItem();
-            }
-
+            draw_sensor_geometry();
             draw_channel_mappings();
 
             if (ImGui::BeginTabItem("Localisation")) {
@@ -58,6 +46,15 @@ void ViewportPanel::draw() noexcept
     ImGui::End();
 }
 
+void ViewportPanel::update_sensor_cache()
+{
+    contiguous_sensor_cache.clear();
+
+    if (active_project != nullptr)
+        for (const auto& sensor : active_project->observe_sensors())
+            contiguous_sensor_cache.emplace_back(sensor);
+}
+
 void ViewportPanel::draw_signal_waveforms() const noexcept
 {
     if (!ImGui::BeginTabItem("Signal Waveforms"))
@@ -70,20 +67,37 @@ void ViewportPanel::draw_signal_waveforms() const noexcept
             if (const auto downsampled = get_downsampled_signal(signal); downsampled == nullptr)
                 ImGui::Text("Could not downsample %s due to system error.", signal.get_imgui_name());
             else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
-                ImPlot::SetupAxisLinks(ImAxis_X1, &max_bounding_box.X.Min, &max_bounding_box.X.Max);
-                ImPlot::SetupAxisLinks(ImAxis_Y1, &max_bounding_box.Y.Min, &max_bounding_box.Y.Max);
+                ImPlot::SetupAxisLinks(ImAxis_X1, &waveform_bounding_cache.X.Min, &waveform_bounding_cache.X.Max);
+                ImPlot::SetupAxisLinks(ImAxis_Y1, &waveform_bounding_cache.Y.Min, &waveform_bounding_cache.Y.Max);
                 ImPlot::PlotLine(
                         "",
                         &downsampled->begin()->time,
                         &downsampled->begin()->amplitude,
                         static_cast<int>(downsampled->get_sample_count()),
-                        plotting_spec
+                        plotting_spec_2d
                 );
 
                 ImPlot::EndPlot();
             }
 
         ImPlot::EndAlignedPlots();
+    }
+
+    ImGui::EndTabItem();
+}
+
+void ViewportPanel::draw_sensor_geometry() const noexcept
+{
+    if (!ImGui::BeginTabItem("Sensor Geometry"))
+        return;
+
+    if (!active_project->are_sensors_stored())
+        ImGui::Text("No sensors are loaded.");
+    else if (ImPlot3D::BeginPlot("Sensor Positions")) {
+        const auto& [xs, ys, zs] = (*contiguous_sensor_cache.begin()).position;
+        ImPlot3D::PlotScatter("", &xs, &ys, &zs, static_cast<int>(contiguous_sensor_cache.size()), plotting_spec_3d);
+
+        ImPlot3D::EndPlot();
     }
 
     ImGui::EndTabItem();
@@ -124,19 +138,24 @@ const Signal* ViewportPanel::get_downsampled_signal(
         const Signal& signal
 ) const
 {
-    auto downsampled_it = downsampled_waveforms.find(signal.get_id());
+    auto downsampled_it = downsample_cache.find(signal.get_id());
     bool success;
 
-    if (downsampled_it == downsampled_waveforms.end()) {
-        auto [added_it, was_added] = downsampled_waveforms.emplace(
-                signal.get_id(),
-                Signal(signal,
-                       default_downsample_factor,
-                       std::format(
-                               "{} ({}x LTTB Preview)",
-                               signal.get_name(),
-                               static_cast<int>(default_downsample_factor)
-                       ))
+    if (downsampled_it == downsample_cache.end()) {
+
+        // This is a bit cryptic - https://stackoverflow.com/a/27960637.
+        auto [added_it, was_added] = downsample_cache.emplace(
+                std::piecewise_construct,
+                std::forward_as_tuple(signal.get_id()),
+                std::forward_as_tuple(
+                        signal,
+                        default_downsample_factor,
+                        std::format(
+                                "{} ({}x LTTB Preview)",
+                                signal.get_name(),
+                                static_cast<int>(default_downsample_factor)
+                        )
+                )
         );
 
         downsampled_it = added_it;
@@ -146,11 +165,11 @@ const Signal* ViewportPanel::get_downsampled_signal(
             const auto local_min = added_it->second.begin()->time;
             const auto local_max = std::prev(added_it->second.end())->time;
 
-            if (local_min < max_bounding_box.X.Min)
-                max_bounding_box.X.Min = local_min;
+            if (local_min < waveform_bounding_cache.X.Min)
+                waveform_bounding_cache.X.Min = local_min;
 
-            if (local_max > max_bounding_box.X.Max)
-                max_bounding_box.X.Max = local_max;
+            if (local_max > waveform_bounding_cache.X.Max)
+                waveform_bounding_cache.X.Max = local_max;
         }
     } else
         success = true;

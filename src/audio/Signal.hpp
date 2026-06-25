@@ -112,6 +112,9 @@ public:
     [[nodiscard]] std::vector<Sample>::const_iterator cbegin() const noexcept;
     [[nodiscard]] std::vector<Sample>::const_iterator cend() const noexcept;
 
+    Signal(const Signal& old_signal);
+    Signal(const Signal& old_signal, std::string_view new_name);
+
 private:
     /**
      * Downsample the data points of a Signal to the given threshold.

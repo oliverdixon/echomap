@@ -15,12 +15,15 @@ class Sensor : public Object<Sensor>
 public:
     struct Position
     {
-        float x;
-        float y;
-        float z;
+        float x = 0.0f;
+        float y = 0.0f;
+        float z = 0.0f;
     } position{};
 
     explicit Sensor(std::string_view name = {});
+
+    Sensor(const Sensor& old_sensor);
+    Sensor(const Sensor& old_sensor, std::string_view new_name);
 };
 
 } // namespace WebCFD

@@ -5,6 +5,7 @@
 #ifndef WEBCFD_OBJECT_HPP
 #define WEBCFD_OBJECT_HPP
 
+#include <format>
 #include <string>
 #include <string_view>
 
@@ -45,7 +46,13 @@ public:
         return class_name;
     }
 
+    Object(const Object&) = delete;
+    Object& operator=(const Object&) = delete;
+
 protected:
+    struct CopyTag
+    {};
+
     Object() :
         id(IDAllocator<Derived>::allocate()),
         name(class_name + ' ' + std::to_string(id))
@@ -60,7 +67,43 @@ protected:
     {
     }
 
+    Object(
+            CopyTag,
+            const Object& old
+    ) :
+        id(IDAllocator<Derived>::allocate()),
+        copy_count(old.copy_count + 1),
+        name(std::format(
+                "{} ({})",
+                old.get_name(),
+                copy_count
+        ))
+    {
+    }
+
+    Object(
+            CopyTag,
+            const Object& old,
+            const std::string_view new_name
+    ) :
+        id(IDAllocator<Derived>::allocate()),
+        copy_count(old.copy_count),
+        name(new_name)
+    {
+    }
+
 private:
+    Object(
+            const id_type id,
+            const std::size_t copy_count,
+            const std::string_view name
+    ) :
+        id(id),
+        copy_count(copy_count),
+        name(name)
+    {
+    }
+
     /**
      * Display name for objects of the type determined by the templated class.
      *
@@ -80,6 +123,7 @@ private:
     static constexpr std::string class_name = "Untyped Object";
 
     const id_type id;
+    std::size_t copy_count = 0;
     std::string name;
 };
 
