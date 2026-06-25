@@ -5,10 +5,12 @@
 #ifndef WEBCFD_SENSOR_HPP
 #define WEBCFD_SENSOR_HPP
 
+#include "../Object.hpp"
+
 namespace WebCFD
 {
 
-class Sensor
+class Sensor : public Object<Sensor>
 {
 public:
     struct Position
@@ -16,7 +18,9 @@ public:
         float x;
         float y;
         float z;
-    } position;
+    } position{};
+
+    explicit Sensor(std::string_view name = {});
 };
 
 } // namespace WebCFD

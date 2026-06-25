@@ -10,14 +10,20 @@
 
 #include "ViewportPanel.hpp"
 
-#include "../audio/WAVData.hpp"
-
 namespace WebCFD
 {
 
 ViewportPanel::ViewportPanel()
 {
-    plotting_spec.Stride = sizeof(AudioChannel::Sample);
+    plotting_spec.Stride = sizeof(Signal::Sample);
+}
+
+ViewportPanel::ViewportPanel(
+        Project * const project
+) :
+    active_project(project)
+{
+    plotting_spec.Stride = sizeof(Signal::Sample);
 }
 
 const char* ViewportPanel::get_imgui_name() const noexcept
@@ -30,10 +36,12 @@ void ViewportPanel::draw() noexcept
     if (ImGui::Begin(panel_name.c_str(), nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar)) {
         if (ImGui::BeginTabBar("##ViewportTabBar")) {
             if (ImGui::BeginTabItem("Signal Waveforms")) {
+                // TODO...
                 ImGui::EndTabItem();
             }
 
             if (ImGui::BeginTabItem("Sensor Geometry")) {
+                // TODO...
                 ImGui::EndTabItem();
             }
 
@@ -52,6 +60,7 @@ void ViewportPanel::draw() noexcept
             }
 
             if (ImGui::BeginTabItem("Localisation")) {
+                // TODO...
                 ImGui::EndTabItem();
             }
 

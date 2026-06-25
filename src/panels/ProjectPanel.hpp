@@ -5,6 +5,7 @@
 #ifndef WEBCFD_PROJECTPANEL_HPP
 #define WEBCFD_PROJECTPANEL_HPP
 
+#include "../Project.hpp"
 #include "IPanel.hpp"
 
 namespace WebCFD
@@ -13,12 +14,16 @@ namespace WebCFD
 class ProjectPanel final : public IPanel
 {
 public:
+    explicit ProjectPanel(Project * project);
+
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
 private:
-    std::string panel_name = "Unnamed Project";
+    const std::string panel_name = "Project Explorer";
+
+    Project * active_project = nullptr;
 };
 
 } // namespace WebCFD

@@ -50,8 +50,8 @@ add_executable(WebCFD
         src/audio/WAVData.hpp
         src/web/JSBridge.cpp
         src/web/JSBridge.hpp
-        src/audio/AudioChannel.cpp
-        src/audio/AudioChannel.hpp
+        src/audio/Signal.cpp
+        src/audio/Signal.hpp
         src/panels/ArrayViewPanel.cpp
         src/panels/ArrayViewPanel.hpp
         src/audio/Sensor.cpp
@@ -60,6 +60,11 @@ add_executable(WebCFD
         src/panels/ProjectPanel.hpp
         src/panels/MenuPanel.cpp
         src/panels/MenuPanel.hpp
+        src/Project.cpp
+        src/Project.hpp
+        src/BidirectionalUnorderedMapping.hpp
+        src/Object.hpp
+        src/IDAllocator.hpp
 )
 
 target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui implot implot3d dr_libs_interface)

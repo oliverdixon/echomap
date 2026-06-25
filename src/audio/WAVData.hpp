@@ -8,11 +8,10 @@
 #ifndef WEBCFD_WAVDATA_H
 #define WEBCFD_WAVDATA_H
 
-// ReSharper disable once CppUnusedIncludeDirective - Emscripten false +ve.
-#include <cstdint>
 #include <vector>
 
-#include "AudioChannel.hpp"
+#include "../Object.hpp"
+#include "Signal.hpp"
 
 namespace WebCFD
 {
@@ -20,7 +19,7 @@ namespace WebCFD
 /**
  * A container for wave audio file data composed of one or many channels at a common sample rate.
  */
-class WAVData
+class WAVData : public Object<WAVData>
 {
 public:
     /**
@@ -38,20 +37,20 @@ public:
      */
     [[nodiscard]] std::uint64_t get_sample_count() const;
 
-    [[nodiscard]] std::vector<AudioChannel>::iterator begin();
+    [[nodiscard]] std::vector<Signal>::iterator begin();
 
-    [[nodiscard]] std::vector<AudioChannel>::iterator end();
+    [[nodiscard]] std::vector<Signal>::iterator end();
 
-    [[nodiscard]] std::vector<AudioChannel>::const_iterator begin() const;
+    [[nodiscard]] std::vector<Signal>::const_iterator begin() const;
 
-    [[nodiscard]] std::vector<AudioChannel>::const_iterator end() const;
+    [[nodiscard]] std::vector<Signal>::const_iterator end() const;
 
-    [[nodiscard]] std::vector<AudioChannel>::const_iterator cbegin() const noexcept;
+    [[nodiscard]] std::vector<Signal>::const_iterator cbegin() const noexcept;
 
-    [[nodiscard]] std::vector<AudioChannel>::const_iterator cend() const noexcept;
+    [[nodiscard]] std::vector<Signal>::const_iterator cend() const noexcept;
 
 private:
-    std::vector<AudioChannel> channels;
+    std::vector<Signal> channels;
 };
 
 } // namespace WebCFD

@@ -15,7 +15,10 @@
 
 #include "../ConfigurationError.hpp"
 
-namespace WebCFD {
+namespace WebCFD
+{
+
+template <> constexpr std::string Object<WAVData>::class_name = "Wave file";
 
 WAVData::WAVData(
         const char* const file_path
@@ -55,8 +58,10 @@ WAVData::WAVData(
                  * The audio data is uniformly spaced, so we can infer the time values by taking the current frame
                  * offset for the chunk (total frames - remaining frames) and adding the current frame index.
                  */
-                channel.emplace_sample(drwav_info.totalPCMFrameCount - remaining_frames + frame_idx,
-                    interleaved[frame_idx * drwav_info.channels + channel_idx]);
+                channel.emplace_sample(
+                        drwav_info.totalPCMFrameCount - remaining_frames + frame_idx,
+                        interleaved[frame_idx * drwav_info.channels + channel_idx]
+                );
                 ++channel_idx;
             }
         }
@@ -78,34 +83,34 @@ std::uint64_t WAVData::get_sample_count() const
     return channels.front().get_sample_count();
 }
 
-std::vector<AudioChannel>::iterator WAVData::begin()
+std::vector<Signal>::iterator WAVData::begin()
 {
     return channels.begin();
 }
 
-std::vector<AudioChannel>::iterator WAVData::end()
+std::vector<Signal>::iterator WAVData::end()
 {
     return channels.end();
 }
 
-std::vector<AudioChannel>::const_iterator WAVData::begin() const
+std::vector<Signal>::const_iterator WAVData::begin() const
 {
     return channels.begin();
 }
 
-std::vector<AudioChannel>::const_iterator WAVData::end() const
+std::vector<Signal>::const_iterator WAVData::end() const
 {
     return channels.end();
 }
 
-std::vector<AudioChannel>::const_iterator WAVData::cbegin() const noexcept
+std::vector<Signal>::const_iterator WAVData::cbegin() const noexcept
 {
     return channels.cbegin();
 }
 
-std::vector<AudioChannel>::const_iterator WAVData::cend() const noexcept
+std::vector<Signal>::const_iterator WAVData::cend() const noexcept
 {
     return channels.cend();
 }
 
-} // WebCFD
+} // namespace WebCFD

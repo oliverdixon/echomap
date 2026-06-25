@@ -12,6 +12,7 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
+#include "Project.hpp"
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
 #include "panels/ViewportPanel.hpp"
@@ -162,9 +163,11 @@ private:
     wgpu::SurfaceCapabilities surface_capabilities;
     GLFWwindow* window = nullptr;
 
+    std::unique_ptr<Project> project = std::make_unique<Project>("Unnamed project");
+
     std::unique_ptr<MenuPanel> menu_panel = std::make_unique<MenuPanel>();
-    std::unique_ptr<ProjectPanel> project_panel = std::make_unique<ProjectPanel>();
-    std::unique_ptr<ViewportPanel> viewport_panel = std::make_unique<ViewportPanel>();
+    std::unique_ptr<ProjectPanel> project_panel = std::make_unique<ProjectPanel>(project.get());
+    std::unique_ptr<ViewportPanel> viewport_panel = std::make_unique<ViewportPanel>(project.get());
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

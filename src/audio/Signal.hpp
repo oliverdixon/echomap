@@ -1,15 +1,17 @@
 /**
  * @file
- * @brief AudioChannel class specification
+ * @brief Audio signal class specification
  * @author Oliver Dixon
  * @date 2026-06-24
  */
 
-#ifndef WEBCFD_AUDIOCHANNEL_HPP
-#define WEBCFD_AUDIOCHANNEL_HPP
+#ifndef WEBCFD_SIGNAL_HPP
+#define WEBCFD_SIGNAL_HPP
 
 #include <cstdint>
 #include <vector>
+
+#include "../Object.hpp"
 
 namespace WebCFD
 {
@@ -31,7 +33,7 @@ namespace WebCFD
  *
  * @invariant The time series is monotonically increasing. This is enforced with exceptions at runtime.
  */
-class AudioChannel
+class Signal : public Object<Signal>
 {
 public:
     /**
@@ -44,31 +46,33 @@ public:
     };
 
     /**
-     * Creates an empty channel.
+     * Creates an empty optionally named Signal.
+     *
+     * @param name Optional display name.
      */
-    AudioChannel() = default;
+    explicit Signal(std::string_view name = {});
 
     /**
-     * Downsamples an existing AudioChannel instance across all channels to the given number of samples.
+     * Downsamples an existing Signal instance across all channels to the given number of samples.
      *
-     * @param source The existing AudioChannel to downsample.
+     * @param source The existing Signal to downsample.
      * @param sample_count The desired number of samples in the downsampled data.
+     * @param name Optional display name.
      */
-    AudioChannel(
-            const AudioChannel& source,
-            std::uint64_t sample_count
-    );
+    Signal(const Signal& source,
+           std::uint64_t sample_count,
+           std::string_view name = {});
 
     /**
-     * Downsamples an existing AudioChannel instance across all channels by the given factor.
+     * Downsamples an existing Signal instance across all channels by the given factor.
      *
-     * @param source The existing AudioChannel to downsample.
+     * @param source The existing Signal to downsample.
      * @param downsample_factor The factor by which the number of samples should be reduced during downsampling.
+     * @param name Optional display name.
      */
-    AudioChannel(
-            const AudioChannel& source,
-            float downsample_factor
-    );
+    Signal(const Signal& source,
+           float downsample_factor,
+           std::string_view name = {});
 
     /**
      * Add a sample to the end of the channel sample data.
@@ -113,7 +117,7 @@ public:
 
 private:
     /**
-     * Downsample the data points of an AudioChannel to the given threshold.
+     * Downsample the data points of a Signal to the given threshold.
      *
      * <p>
      *  This helper uses the well-known Largest-Triangle Three-Buckets (LTTB) downsampling algorithm, described in
@@ -126,13 +130,13 @@ private:
      *  https://github.com/sveinn-steinarsson/flot-downsample.
      * </p>
      *
-     * @param source_channel The original AudioChannel to be downsampled.
+     * @param source_channel The original Signal to be downsampled.
      * @param threshold The number of samples in the downsampled data.
-     * @return The downsampled AudioChannel.
-     * @post The number of samples in the returned AudioChannel matches the threshold parameter.
+     * @return The downsampled Signal.
+     * @post The number of samples in the returned signal matches the threshold parameter.
      */
     void downsample_and_copy(
-            const AudioChannel& source_channel,
+            const Signal& source_channel,
             size_t threshold
     );
 
@@ -141,4 +145,4 @@ private:
 
 } // namespace WebCFD
 
-#endif // WEBCFD_AUDIOCHANNEL_HPP
+#endif // WEBCFD_SIGNAL_HPP

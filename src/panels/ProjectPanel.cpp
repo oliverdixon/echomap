@@ -9,21 +9,32 @@
 namespace WebCFD
 {
 
+ProjectPanel::ProjectPanel(
+        Project * const project
+) :
+    active_project(project)
+{
+}
+
 void ProjectPanel::draw() noexcept
 {
     constexpr ImGuiTreeNodeFlags default_flags = ImGuiTreeNodeFlags_DefaultOpen;
 
     if (ImGui::Begin(panel_name.c_str())) {
-        if (ImGui::CollapsingHeader("Signals", default_flags)) {
+        if (active_project == nullptr)
+            ImGui::Text("No active project.");
+        else {
+            if (ImGui::CollapsingHeader("Signals", default_flags))
+                for (const auto& signal : active_project->observe_signals())
+                    ImGui::Text("%s", signal.get_imgui_name());
 
-        }
+            if (ImGui::CollapsingHeader("Sensors", default_flags))
+                for (const auto& sensor : active_project->observe_sensors())
+                    ImGui::Text("%s", sensor.get_imgui_name());
 
-        if (ImGui::CollapsingHeader("Sensors", default_flags)) {
-
-        }
-
-        if (ImGui::CollapsingHeader("Results", default_flags)) {
-
+            if (ImGui::CollapsingHeader("Results", default_flags)) {
+                // TODO...
+            }
         }
     }
 
