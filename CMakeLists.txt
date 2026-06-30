@@ -69,7 +69,14 @@ add_executable(WebCFD
         src/panels/ErrorModal.hpp
 )
 
-target_link_libraries(WebCFD PRIVATE webgpu_glfw imgui implot implot3d dr_libs_interface)
+target_link_libraries(WebCFD PRIVATE
+        webgpu_glfw
+        imgui
+        implot
+        implot3d
+        dr_libs_interface
+)
+
 target_include_directories(WebCFD PRIVATE dr_libs)
 
 # Broadcast the Dear ImGui configuration file path across all WebCFD compilation units, i.a.w. imgui/imconfig.h advice.

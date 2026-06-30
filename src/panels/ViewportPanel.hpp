@@ -30,17 +30,17 @@ public:
     void draw() noexcept override;
 
 private:
-    mutable struct AddChannelMappingRowCache
+    struct AddChannelMappingRowCache
     {
         const Signal * selected_signal = nullptr;
         const Sensor * selected_sensor = nullptr;
     } new_mapping_cache;
 
-    void draw_signal_waveforms() const noexcept;
-    void draw_sensor_geometry() const noexcept;
+    void draw_signal_waveforms() noexcept;
+    void draw_sensor_geometry() noexcept;
 
-    void draw_channel_mappings() const noexcept;
-    void draw_new_channel_mapping() const noexcept;
+    void draw_channel_mappings() noexcept;
+    void draw_new_channel_mapping() noexcept;
     void draw_existing_channel_mapping() const noexcept;
 
     /**
@@ -53,7 +53,7 @@ private:
      * @todo It would be nice if this could run in the background, and not hold up the render thread. At least, the
      *       cache miss (downsampling algorithm) case shouldn't be done in the render thread.
      */
-    const Signal* get_downsampled_signal(const Signal& signal) const;
+    const Signal* get_downsampled_signal(const Signal& signal);
 
     /**
      * The duplicated Signal objects, downsampled for visualisation.
@@ -62,31 +62,31 @@ private:
      * generated exclusively for the purposes of visualisation on this panel, and the elements' construction and
      * destruction is at the whim of the renderer such that downsampled time series are only created ad-hoc when they
      * need to be visualised. Therefore, the ViewportPanel seems to be the natural owner.
-     *
-     * @note This field is declared <code>mutable</code> since it is a cache modifiable in the rendering routine.
      */
-    mutable std::unordered_map<Signal::id_type, Signal> downsample_cache;
+    std::unordered_map<Signal::id_type, Signal> downsample_cache;
 
     /**
      * The maximum bounding box of a LTTB-downsampled wave form plot.
      *
      * The Y axis (amplitude) is fixed, since our PCM-normalised values, given as a constraint from the Signal samples,
      * are within the range [-1, 1]. The X range is variable and should be updated as new Signal objects are received.
-     *
-     * @note This field is declared <code>mutable</code> since it is a cache modifiable in the rendering routine.
      */
-    mutable ImPlotRect waveform_bounding_cache{
+    ImPlotRect waveform_bounding_cache{
             std::numeric_limits<double>::max(),
             std::numeric_limits<double>::lowest(),
             -1.0,
             1.0
     };
 
+    std::vector<ImU32> sensor_colours;
+
     mutable ErrorModal error_modal;
 
     const std::string panel_name = "Manager";
     static constexpr float default_downsample_factor = 50.0f;
-    static constexpr auto table_flags = ImGuiTableFlags_Borders;
+    static constexpr auto table_flags = ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Borders |
+        ImGuiTableFlags_RowBg;
+    static constexpr ImU32 default_sensor_colour = IM_COL32(0.0f, 0.0f, 255.0f, 255.0f);
 
     ImPlotSpec plotting_spec_2d;
     ImPlot3DSpec plotting_spec_3d;

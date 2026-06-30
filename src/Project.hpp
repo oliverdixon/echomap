@@ -110,6 +110,20 @@ public:
     }
 
     /**
+     * Provides a transformed view for stored Sensor objects in the Project.
+     *
+     * @return A view containing mutating references to all stored Sensor objects.
+     */
+    [[nodiscard]] auto mutate_sensors() noexcept
+    {
+        return sensors | std::views::values |
+               std::views::transform([](const std::unique_ptr<Sensor>& container) -> Sensor& {
+                   assert(container);
+                   return *container;
+               });
+    }
+
+    /**
      * Checks if any channel mappings exist in the Project?
      *
      * @return Are there any Signal-Sensor mappings defined?
