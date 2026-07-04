@@ -22,53 +22,43 @@ The intended inheritance hierarchy of CMake profiles looks like the following:
     "clusterBkg": "#f8fbff",
     "clusterBorder": "#ccd8f0",
     "titleColor": "#333333"
-  },
-  "flowchart": {
-    "curve": "linear",
-    "nodeSpacing": 28,
-    "rankSpacing": 42
   }
 }}%%
 flowchart LR
-    %% Root preset
-    default
+    default["default"]
 
-    %% Preset axes
     subgraph platformPresets["Platform"]
         direction TB
-        native
-        wasm
+        native["native"]
+        wasm["wasm"]
     end
 
     subgraph buildTypePresets["Build"]
         direction TB
-        debug
-        release
+        debug["debug"]
+        release["release"]
     end
 
-    %% Concrete shared presets
     subgraph concretePresets["Concrete"]
         direction TB
-        native-debug
-        native-release
-        wasm-debug
-        wasm-release
+        native_debug["native-debug"]
+        native_release["native-release"]
+        wasm_debug["wasm-debug"]
+        wasm_release["wasm-release"]
     end
 
-    %% Local environment-only presets
     subgraph localEnvPresets["Environment"]
         direction TB
-        vcpkg-local
-        wasm-local
+        vcpkg_local["vcpkg-local"]
+        wasm_local["wasm-local"]
     end
 
-    %% Actual usable local presets
     subgraph localPresets["Local"]
         direction TB
-        native-debug-local
-        native-release-local
-        wasm-debug-local
-        wasm-release-local
+        native_debug_local["native-debug-local"]
+        native_release_local["native-release-local"]
+        wasm_debug_local["wasm-debug-local"]
+        wasm_release_local["wasm-release-local"]
     end
 
     %% Root/platform inheritance
@@ -76,41 +66,36 @@ flowchart LR
     default --> wasm
 
     %% Platform inheritance into concrete presets
-    native --> native-debug
-    native --> native-release
-    wasm --> wasm-debug
-    wasm --> wasm-release
+    native --> native_debug
+    native --> native_release
+    wasm --> wasm_debug
+    wasm --> wasm_release
 
     %% Build-type inheritance into concrete presets
-    debug --> native-debug
-    debug --> wasm-debug
-    release --> native-release
-    release --> wasm-release
+    debug --> native_debug
+    debug --> wasm_debug
+    release --> native_release
+    release --> wasm_release
 
     %% Concrete inheritance into usable local presets
-    native-debug --> native-debug-local
-    native-release --> native-release-local
-    wasm-debug --> wasm-debug-local
-    wasm-release --> wasm-release-local
+    native_debug --> native_debug_local
+    native_release --> native_release_local
+    wasm_debug --> wasm_debug_local
+    wasm_release --> wasm_release_local
 
     %% Environment inheritance into usable local presets
-    vcpkg-local --> native-debug-local
-    vcpkg-local --> native-release-local
-    vcpkg-local --> wasm-debug-local
-    vcpkg-local --> wasm-release-local
+    vcpkg_local --> native_debug_local
+    vcpkg_local --> native_release_local
+    vcpkg_local --> wasm_debug_local
+    vcpkg_local --> wasm_release_local
 
-    wasm-local --> wasm-debug-local
-    wasm-local --> wasm-release-local
-
-    %% Layout hints
-    platformPresets ~~~ buildTypePresets
-    concretePresets ~~~ localEnvPresets
-    localEnvPresets ~~~ localPresets
+    wasm_local --> wasm_debug_local
+    wasm_local --> wasm_release_local
 
     %% Styling
     classDef project fill:#e8f1ff,stroke:#3366cc,stroke-width:1.5px,color:#111;
     classDef local fill:#eeeeee88,stroke:#99999988,stroke-width:1.5px,color:#666666;
 
-    class default,native,wasm,debug,release,native-debug,native-release,wasm-debug,wasm-release project;
-    class vcpkg-local,wasm-local,native-debug-local,native-release-local,wasm-debug-local,wasm-release-local local;
+    class default,native,wasm,debug,release,native_debug,native_release,wasm_debug,wasm_release project;
+    class vcpkg_local,wasm_local,native_debug_local,native_release_local,wasm_debug_local,wasm_release_local local;
 ```
