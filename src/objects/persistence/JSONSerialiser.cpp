@@ -155,7 +155,7 @@ void tag_invoke(
     else {
         builder.append_key_value("kind", "embedded");
         builder.append_comma();
-        builder.append_key_value("sample_rate_hz", signal.get_sample_count());
+        builder.append_key_value("sample_count", signal.get_sample_count());
         builder.append_comma();
         builder.escape_and_append_with_quotes("samples");
         builder.start_array();

@@ -94,14 +94,14 @@
       "additionalProperties": false,
       "required": [
         "kind",
-        "sample_rate_hz",
+        "sample_count",
         "samples"
       ],
       "properties": {
         "kind": {
           "const": "embedded"
         },
-        "sample_rate_hz": {
+        "sample_count": {
           "type": "number",
           "exclusiveMinimum": 0
         },
