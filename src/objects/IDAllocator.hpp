@@ -11,7 +11,7 @@
 namespace WebCFD
 {
 
-template<typename Class>
+template<typename>
 class IDAllocator
 {
 public:

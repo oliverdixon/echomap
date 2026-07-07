@@ -6,7 +6,7 @@
 
 #include <format>
 
-#include "audio/Sensor.hpp"
+#include "Sensor.hpp"
 
 namespace WebCFD
 {
@@ -20,7 +20,7 @@ Project::Project(
 {
     // TODO remove. Adding data for testing...
 
-    auto file_signals = WAVDataLoader::load_wave_file("../audio/4channel.wav");
+    auto file_signals = SignalFactory::load_wave_file("../audio/4channel.wav");
 
     std::vector<const Signal *> loaded_signals;
     std::vector<const Sensor *> loaded_sensors;

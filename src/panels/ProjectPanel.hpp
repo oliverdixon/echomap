@@ -5,7 +5,7 @@
 #ifndef WEBCFD_PROJECTPANEL_HPP
 #define WEBCFD_PROJECTPANEL_HPP
 
-#include "../Project.hpp"
+#include "../objects/Project.hpp"
 #include "IPanel.hpp"
 
 namespace WebCFD

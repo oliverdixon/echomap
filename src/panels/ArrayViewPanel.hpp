@@ -12,7 +12,7 @@
 
 #include <string>
 
-#include "../audio/Sensor.hpp"
+#include "../objects/Sensor.hpp"
 #include "IPanel.hpp"
 
 namespace WebCFD

@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "../Object.hpp"
+#include "Object.hpp"
 
 namespace WebCFD
 {

@@ -7,7 +7,7 @@
 
 #include "ArrayViewPanel.hpp"
 
-#include "../audio/Sensor.hpp"
+#include "../objects/Sensor.hpp"
 
 namespace WebCFD
 {

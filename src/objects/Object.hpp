@@ -49,6 +49,9 @@ public:
     Object(const Object&) = delete;
     Object& operator=(const Object&) = delete;
 
+    Object(Object&&) = default;
+    Object& operator=(Object&&) = default;
+
     [[nodiscard]] bool operator==(const Object& other) const noexcept
     {
         return id == other.id;

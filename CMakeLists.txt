@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 find_package(Dawn CONFIG REQUIRED)
 find_package(ImGui REQUIRED)
-find_package(RapidJSON REQUIRED)
+find_package(simdjson REQUIRED)
 find_package(ImPlot REQUIRED)
 find_package(ImPlot3D REQUIRED)
 
@@ -33,41 +33,42 @@ add_executable(WebCFD
         src/RobotoMedium.hpp
         src/Logger.cpp
         src/Logger.hpp
-        src/ConfigurationError.cpp
-        src/ConfigurationError.hpp
+        src/errors/ConfigurationError.cpp
+        src/errors/ConfigurationError.hpp
         src/SimulationParameters.hpp
         src/SimulationParameters.cpp
-        src/audio/WAVDataLoader.cpp
-        src/audio/WAVDataLoader.hpp
+        src/objects/SignalFactory.cpp
+        src/objects/SignalFactory.hpp
         src/web/JSBridge.cpp
         src/web/JSBridge.hpp
-        src/audio/Signal.cpp
-        src/audio/Signal.hpp
+        src/objects/Signal.cpp
+        src/objects/Signal.hpp
         src/panels/ArrayViewPanel.cpp
         src/panels/ArrayViewPanel.hpp
-        src/audio/Sensor.cpp
-        src/audio/Sensor.hpp
+        src/objects/Sensor.cpp
+        src/objects/Sensor.hpp
         src/panels/ProjectPanel.cpp
         src/panels/ProjectPanel.hpp
         src/panels/MenuPanel.cpp
         src/panels/MenuPanel.hpp
-        src/Project.cpp
-        src/Project.hpp
-        src/BidirectionalUnorderedMapping.hpp
-        src/Object.hpp
-        src/IDAllocator.hpp
+        src/objects/Project.cpp
+        src/objects/Project.hpp
+        src/objects/BidirectionalUnorderedMapping.hpp
+        src/objects/Object.hpp
+        src/objects/IDAllocator.hpp
         src/panels/ErrorModal.cpp
         src/panels/ErrorModal.hpp
-        src/ProjectFactory.cpp
-        src/ProjectFactory.hpp
         src/SurfaceFactory.cpp
         src/SurfaceFactory.hpp
+        src/errors/LocatableError.cpp
+        src/errors/LocatableError.hpp
 )
 
 target_link_libraries(WebCFD PRIVATE
         imgui::imgui
         implot::implot
         implot3d::implot3d
+        simdjson::simdjson
 )
 
 # Update generated C++ to embed WGSL sources.

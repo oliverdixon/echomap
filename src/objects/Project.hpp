@@ -7,14 +7,14 @@
 
 #include <implot3d.h>
 
+#include <flat_map>
 #include <memory>
 #include <ranges>
 #include <string_view>
-#include <flat_map>
 
 #include "BidirectionalUnorderedMapping.hpp"
-#include "audio/Sensor.hpp"
-#include "audio/WAVDataLoader.hpp"
+#include "Sensor.hpp"
+#include "SignalFactory.hpp"
 
 namespace WebCFD
 {

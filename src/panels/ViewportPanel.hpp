@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include "../Project.hpp"
+#include "../objects/Project.hpp"
 #include "ErrorModal.hpp"
 #include "IPanel.hpp"
 

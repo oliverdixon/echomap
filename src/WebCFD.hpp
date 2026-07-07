@@ -12,7 +12,7 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
-#include "Project.hpp"
+#include "objects/Project.hpp"
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
 #include "panels/ViewportPanel.hpp"

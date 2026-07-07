@@ -5,19 +5,17 @@
  * @date 2026-06-24
  */
 
-#include "WAVDataLoader.hpp"
+#include "SignalFactory.hpp"
 
 #define DR_WAV_IMPLEMENTATION
 #include <dr_wav.h>
 
-#include <limits>
-
-#include "../ConfigurationError.hpp"
+#include "../errors/ConfigurationError.hpp"
 
 namespace WebCFD
 {
 
-std::vector<std::unique_ptr<Signal>> WAVDataLoader::load_wave_file(
+std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
         const char * const file_path
 )
 {

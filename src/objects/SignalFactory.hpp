@@ -5,8 +5,8 @@
  * @date 2026-06-24
  */
 
-#ifndef WEBCFD_WAVDATA_H
-#define WEBCFD_WAVDATA_H
+#ifndef WEBCFD_SIGNALFACTORY_H
+#define WEBCFD_SIGNALFACTORY_H
 
 #include <memory>
 #include <vector>
@@ -16,7 +16,7 @@
 namespace WebCFD
 {
 
-class WAVDataLoader
+class SignalFactory
 {
 public:
     /**
@@ -31,4 +31,4 @@ public:
 
 } // namespace WebCFD
 
-#endif // WEBCFD_WAVDATA_H
+#endif // WEBCFD_SIGNALFACTORY_H

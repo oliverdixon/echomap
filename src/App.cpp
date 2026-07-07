@@ -5,10 +5,13 @@
  * @date 2026-05-05
  */
 
-#include "ConfigurationError.hpp"
 #include "Logger.hpp"
 #include "WebCFD.hpp"
+#include "errors/ConfigurationError.hpp"
+
+#if defined(__EMSCRIPTEN__)
 #include "web/JSBridge.hpp"
+#endif
 
 /**
  * WebCFD common entry point.

@@ -5,7 +5,7 @@
 #ifndef WEBCFD_SENSOR_HPP
 #define WEBCFD_SENSOR_HPP
 
-#include "../Object.hpp"
+#include "Object.hpp"
 
 namespace WebCFD
 {

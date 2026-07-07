@@ -40,7 +40,7 @@
 
 #if defined(__APPLE__)
 
-// If we're on an Apple platform, define C++ shims to despatch messages through the Objective C interface.
+// If we're on an Apple platform, define C++ shims to despatch messages through the Objective-C interface.
 
 #include <objc/message.h>
 #include <objc/objc.h>

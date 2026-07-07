@@ -16,14 +16,8 @@ ConfigurationError::ConfigurationError(
         const std::string_view message,
         const std::source_location location
 ) :
-    std::runtime_error(std::string(message)),
-    location(location)
+    LocatableError(message, location)
 {
-}
-
-const std::source_location& ConfigurationError::where() const noexcept
-{
-    return location;
 }
 
 } // namespace WebCFD
