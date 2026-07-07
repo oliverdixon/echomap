@@ -6,6 +6,7 @@
 #define WEBCFD_IDESERIALISER_HPP
 
 #include <memory>
+#include <string_view>
 
 namespace WebCFD
 {

@@ -24,8 +24,6 @@ add_executable(WebCFD
         src/WebCFD.hpp
         src/App.cpp
         src/panels/IPanel.hpp
-        src/panels/ViewportPanel.cpp
-        src/panels/ViewportPanel.hpp
         src/RenderPanel.cpp
         src/RenderPanel.hpp
         src/ViewportRenderer.cpp
@@ -70,6 +68,8 @@ add_executable(WebCFD
         src/panels/SignalWaveformPanel.hpp
         src/panels/SensorGeometryPanel.cpp
         src/panels/SensorGeometryPanel.hpp
+        src/panels/ChannelMappingPanel.cpp
+        src/panels/ChannelMappingPanel.hpp
 )
 
 target_link_libraries(WebCFD PRIVATE

@@ -13,11 +13,11 @@
 #include <webgpu/webgpu_cpp.h>
 
 #include "objects/Project.hpp"
+#include "panels/ChannelMappingPanel.hpp"
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
-#include "panels/ViewportPanel.hpp"
 
 namespace WebCFD
 {
@@ -169,9 +169,9 @@ private:
 
     std::unique_ptr<MenuPanel> menu_panel = std::make_unique<MenuPanel>();
     std::unique_ptr<ProjectPanel> project_panel = std::make_unique<ProjectPanel>();
-    std::unique_ptr<ViewportPanel> viewport_panel = std::make_unique<ViewportPanel>();
     std::unique_ptr<SignalWaveformPanel> signal_waveform_panel = std::make_unique<SignalWaveformPanel>();
     std::unique_ptr<SensorGeometryPanel> sensor_geometry_panel = std::make_unique<SensorGeometryPanel>();
+    std::unique_ptr<ChannelMappingPanel> channel_mapping_panel = std::make_unique<ChannelMappingPanel>();
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

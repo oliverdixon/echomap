@@ -21,7 +21,7 @@ namespace WebCFD
  *
  * Additionally, the panel owns the downsampled time series in a cache used exclusively for visualisation.
  */
-class SignalWaveformPanel : public IPanel
+class SignalWaveformPanel final : public IPanel
 {
 public:
     explicit SignalWaveformPanel(Project* initial_project = nullptr);
@@ -53,7 +53,7 @@ private:
      * It is typically undesirable for the panels to own any non-trivial state. In this case, however, the data is
      * generated exclusively for the purposes of visualisation on this panel, and the elements' construction and
      * destruction is at the whim of the renderer such that downsampled time series are only created ad-hoc when they
-     * need to be visualised. Therefore, the ViewportPanel seems to be the natural owner.
+     * need to be visualised. Therefore, the SignalWaveformPanel seems to be the natural owner.
      */
     std::unordered_map<Signal::id_type, Signal> downsample_cache;
 

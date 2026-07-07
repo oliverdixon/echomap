@@ -17,7 +17,10 @@ namespace WebCFD
 
 class Project;
 
-class SensorGeometryPanel : public IPanel
+/**
+ * Provides a panel for defining and reviewing (in a 3D plot) positions of loaded Sensor objects in the active Project.
+ */
+class SensorGeometryPanel final : public IPanel
 {
 public:
     explicit SensorGeometryPanel(Project* initial_project = nullptr);

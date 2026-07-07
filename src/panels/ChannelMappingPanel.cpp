@@ -1,37 +1,49 @@
-/**
- * @file
- * @brief WebCFD main viewport panel implementation
- * @author Oliver Dixon
- * @date 2026-06-20
- */
+//
+// Created by owd on 07/07/2026.
+//
 
-#include "ViewportPanel.hpp"
+#include "ChannelMappingPanel.hpp"
 
-#include <format>
-#include <algorithm>
+#include "../objects/Project.hpp"
 
 namespace WebCFD
 {
 
-ViewportPanel::ViewportPanel(
+ChannelMappingPanel::ChannelMappingPanel(
         Project* const initial_project
 ) :
     active_project(initial_project)
 {
-
 }
 
-const char* ViewportPanel::get_imgui_name() const noexcept
+const char* ChannelMappingPanel::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
 }
 
-void ViewportPanel::draw() noexcept
+void ChannelMappingPanel::draw() noexcept
 {
-    if (ImGui::Begin(panel_name.c_str(), nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar)) {
-        if (ImGui::BeginTabBar("##ViewportTabBar")) {
-            draw_channel_mappings();
-            ImGui::EndTabBar();
+    if (ImGui::Begin(panel_name.c_str())) {
+        if (active_project == nullptr)
+            ImGui::Text("No project is loaded.");
+        else {
+            ImGui::SeparatorText("Create Channel Mapping");
+            draw_new_channel_mapping();
+
+            // If a new mapping has been fully described, add it and prompt for another.
+            if (new_mapping_cache.selected_signal != nullptr && new_mapping_cache.selected_sensor != nullptr) {
+                try {
+                    active_project->add_association(*new_mapping_cache.selected_signal, *new_mapping_cache.selected_sensor);
+                } catch (const std::runtime_error& exception) {
+                    error_modal.raise_error("Cannot add channel mapping.", exception);
+                }
+
+                new_mapping_cache.selected_signal = nullptr;
+                new_mapping_cache.selected_sensor = nullptr;
+            }
+
+            ImGui::SeparatorText("Existing Channel Mapping");
+            draw_existing_channel_mapping();
         }
     }
 
@@ -39,45 +51,14 @@ void ViewportPanel::draw() noexcept
     ImGui::End();
 }
 
-void ViewportPanel::set_active_project(
+void ChannelMappingPanel::set_active_project(
         Project* const new_active_project
 ) noexcept
 {
     active_project = new_active_project;
 }
 
-void ViewportPanel::draw_channel_mappings() noexcept
-{
-    if (!ImGui::BeginTabItem("Channel Mapping"))
-        return;
-
-    if (active_project == nullptr) {
-        ImGui::Text("No project is loaded.");
-        return;
-    }
-
-    ImGui::SeparatorText("Create Channel Mapping");
-    draw_new_channel_mapping();
-
-    // If a new mapping has been fully described, add it and prompt for another.
-    if (new_mapping_cache.selected_signal != nullptr && new_mapping_cache.selected_sensor != nullptr) {
-        try {
-            active_project->add_association(*new_mapping_cache.selected_signal, *new_mapping_cache.selected_sensor);
-        } catch (const std::runtime_error& exception) {
-            error_modal.raise_error("Cannot add channel mapping.", exception);
-        }
-
-        new_mapping_cache.selected_signal = nullptr;
-        new_mapping_cache.selected_sensor = nullptr;
-    }
-
-    ImGui::SeparatorText("Existing Channel Mapping");
-    draw_existing_channel_mapping();
-
-    ImGui::EndTabItem();
-}
-
-void ViewportPanel::draw_new_channel_mapping() noexcept
+void ChannelMappingPanel::draw_new_channel_mapping() noexcept
 {
     if (ImGui::BeginTable("##NewChannelMapping", 2, table_flags)) {
         ImGui::TableSetupColumn("Signal", ImGuiTableColumnFlags_WidthStretch);
@@ -140,7 +121,7 @@ void ViewportPanel::draw_new_channel_mapping() noexcept
     }
 }
 
-void ViewportPanel::draw_existing_channel_mapping() const noexcept
+void ChannelMappingPanel::draw_existing_channel_mapping() const noexcept
 {
     if (ImGui::BeginTable("##ExistingChannelMapping", 2, table_flags)) {
         ImGui::TableSetupColumn("Signal", ImGuiTableColumnFlags_WidthStretch);

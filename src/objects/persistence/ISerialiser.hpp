@@ -5,6 +5,8 @@
 #ifndef WEBCFD_ISERIALISER_HPP
 #define WEBCFD_ISERIALISER_HPP
 
+#include <string_view>
+
 namespace WebCFD
 {
 
