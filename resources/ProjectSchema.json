@@ -4,25 +4,28 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "schema_version",
     "metadata",
     "signals",
     "sensors",
     "mappings"
   ],
-
   "properties": {
     "schema_version": {
       "type": "integer",
       "const": 1
     },
-
     "metadata": {
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "id",
         "name"
       ],
       "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
         "name": {
           "type": "string",
           "minLength": 1
@@ -67,8 +70,7 @@
   },
   "$defs": {
     "id": {
-      "type": "string",
-      "pattern": "^[A-Za-z_][A-Za-z0-9_-]*$"
+      "type": "integer"
     },
     "signal": {
       "type": "object",
@@ -89,16 +91,16 @@
         "source": {
           "oneOf": [
             {
-              "$ref": "#/$defs/embedded_wav_signal"
+              "$ref": "#/$defs/embedded"
             },
             {
-              "$ref": "#/$defs/filesystem_wav_signal"
+              "$ref": "#/$defs/filesystem"
             }
           ]
         }
       }
     },
-    "embedded_wav_signal": {
+    "embedded": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -108,15 +110,11 @@
       ],
       "properties": {
         "kind": {
-          "const": "embedded_wav"
+          "const": "embedded"
         },
         "sample_rate_hz": {
           "type": "number",
           "exclusiveMinimum": 0
-        },
-        "channel_count": {
-          "type": "integer",
-          "minimum": 1
         },
         "samples": {
           "type": "array",
@@ -126,7 +124,7 @@
         }
       }
     },
-    "filesystem_wav_signal": {
+    "filesystem": {
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -136,7 +134,7 @@
       ],
       "properties": {
         "kind": {
-          "const": "filesystem_wav"
+          "const": "filesystem"
         },
         "path": {
           "type": "string",
