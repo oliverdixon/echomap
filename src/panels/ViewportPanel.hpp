@@ -29,6 +29,8 @@ public:
 
     void draw() noexcept override;
 
+    void set_active_project(Project* new_active_project) noexcept override;
+
 private:
     struct AddChannelMappingRowCache
     {

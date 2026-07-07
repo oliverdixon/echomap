@@ -47,4 +47,11 @@ const char* ProjectPanel::get_imgui_name() const noexcept
     return panel_name.c_str();
 }
 
+void ProjectPanel::set_active_project(
+        Project* const new_active_project
+) noexcept
+{
+    active_project = new_active_project;
+}
+
 } // namespace WebCFD

@@ -63,10 +63,22 @@ void ViewportPanel::draw() noexcept
     ImGui::End();
 }
 
+void ViewportPanel::set_active_project(
+        Project* const new_active_project
+) noexcept
+{
+    active_project = new_active_project;
+}
+
 void ViewportPanel::draw_signal_waveforms() noexcept
 {
     if (!ImGui::BeginTabItem("Signal Waveforms"))
         return;
+
+    if (active_project == nullptr) {
+        ImGui::Text("No project is loaded.");
+        return;
+    }
 
     if (active_project->get_signal_count() > 0 && ImPlot::BeginAlignedPlots("##WaveformAlignedGroup")) {
         ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -99,6 +111,11 @@ void ViewportPanel::draw_sensor_geometry() noexcept
 {
     if (!ImGui::BeginTabItem("Sensor Geometry"))
         return;
+
+    if (active_project == nullptr) {
+        ImGui::Text("No project is loaded.");
+        return;
+    }
 
     if (!active_project->get_sensors_count())
         ImGui::Text("No sensors are loaded.");
@@ -189,6 +206,11 @@ void ViewportPanel::draw_channel_mappings() noexcept
 {
     if (!ImGui::BeginTabItem("Channel Mapping"))
         return;
+
+    if (active_project == nullptr) {
+        ImGui::Text("No project is loaded.");
+        return;
+    }
 
     ImGui::SeparatorText("Create Channel Mapping");
     draw_new_channel_mapping();

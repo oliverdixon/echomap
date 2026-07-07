@@ -78,4 +78,11 @@ const char* ErrorModal::get_imgui_name() const noexcept
     return panel_name.c_str();
 }
 
+void ErrorModal::set_active_project(
+        Project* const new_active_project
+) noexcept
+{
+    std::ignore = new_active_project;
+}
+
 } // namespace WebCFD

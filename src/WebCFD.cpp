@@ -11,12 +11,11 @@
 #include <implot.h>
 #include <implot3d.h>
 
+#include "objects/persistence/JSONDeserialiser.hpp"
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
-#include <dawn/webgpu_cpp_print.h>
-
-#include <ranges>
 
 #include "Logger.hpp"
 #include "RobotoMedium.hpp"
@@ -58,6 +57,11 @@ WebCFD::WebCFD() :
     configure_surface(surface, device, surface_capabilities, viewport_width, viewport_height);
 
     setup_imgui();
+
+    JSONDeserialiser deserialiser;
+    project = deserialiser.deserialise_project("../resources/ExampleProject.json");
+    project_panel->set_active_project(project.get());
+    viewport_panel->set_active_project(project.get());
 }
 
 void WebCFD::run_event_loop()

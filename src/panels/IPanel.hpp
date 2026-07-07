@@ -13,6 +13,8 @@
 namespace WebCFD
 {
 
+class Project;
+
 /**
  * Represents a panel or window on the GUI.
  *
@@ -47,6 +49,21 @@ public:
     {
         std::ignore = command_encoder;
     }
+
+    /**
+     * Reset the active Project for a Panel.
+     *
+     * This functionally intentionally does not provide a default. All panels must acknowledge a new active project,
+     * even if implemented as a no-op.
+     *
+     * @param new_active_project A mutable pointer to the new active Project.
+     *
+     * @todo Panels should be able to get by with a constant pointer. The application should use an event-driven
+     *  architecture, such that panels do not modify the Project directly, but post change requests to a queue managed
+     *  by the central WebCFD instance. This would also facilitiate moving to a multi-threaded architecture, since the
+     *  render actions would have less data dependency on the Project state.
+     */
+    virtual void set_active_project(Project* new_active_project) noexcept = 0;
 };
 
 } // namespace WebCFD

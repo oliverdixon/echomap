@@ -7,8 +7,6 @@
 #include <format>
 
 #include "Sensor.hpp"
-#include "persistence/JSONSerialiser.hpp"
-#include "persistence/SignalFactory.hpp"
 
 namespace WebCFD
 {
@@ -20,29 +18,6 @@ Project::Project(
 ) :
     Object(project_name)
 {
-    // TODO remove. Adding data for testing...
-
-    auto file_signals = SignalFactory::load_wave_file("../audio/4channel.wav");
-
-    std::vector<const Signal *> loaded_signals;
-    std::vector<const Sensor *> loaded_sensors;
-
-    loaded_signals.reserve(file_signals.size());
-    loaded_sensors.reserve(file_signals.size());
-
-    for (auto&& signal : file_signals) {
-        loaded_signals.push_back(add_signal(std::move(signal)));
-        loaded_sensors.push_back(add_sensor(std::make_unique<Sensor>()));
-
-        assert(loaded_signals.back());
-        assert(loaded_sensors.back());
-    }
-
-    for (auto [signal, sensor] : std::views::zip(observe_signals(), std::views::reverse(observe_sensors())))
-        add_association(signal, sensor);
-
-    JSONSerialiser serialiser;
-    std::cout << JSONSerialiser::pretty_print(serialiser.serialise_project(*this)) << std::endl;
 }
 
 const Signal* Project::add_signal(
