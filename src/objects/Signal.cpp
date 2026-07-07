@@ -41,10 +41,15 @@ Signal::Signal(
         const float downsample_factor,
         const std::string_view name
 ) :
-    Signal(source,
-           static_cast<std::uint64_t>(static_cast<float>(source.get_sample_count()) / downsample_factor),
-           name)
+    Object(name),
+    fs_source(source.fs_source)
 {
+    auto sample_count = static_cast<std::uint64_t>(static_cast<float>(source.get_sample_count()) / downsample_factor);
+
+    if (sample_count < downsample_factor)
+        sample_count = static_cast<std::uint64_t>(downsample_factor);
+
+    downsample_and_copy(source, sample_count);
 }
 
 void Signal::add_sample(
@@ -68,7 +73,7 @@ void Signal::add_sample(
 }
 
 void Signal::emplace_sample(
-        const uint64_t time,
+        const float time,
         const float amplitude
 )
 {
@@ -79,7 +84,7 @@ void Signal::emplace_sample(
 
 void Signal::emplace_sample(
         ExternalSampleTag,
-        const uint64_t time,
+        const float time,
         const float amplitude
 )
 {

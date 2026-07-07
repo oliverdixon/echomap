@@ -91,6 +91,9 @@ public:
     /**
      * Downsamples an existing Signal instance across all channels by the given factor.
      *
+     * If the downsampling factor would cause the downsampled series to consist of fewer samples than the factor, the
+     * source is copied and no downsampled is performed.
+     *
      * @param source The existing Signal to downsample.
      * @param downsample_factor The factor by which the number of samples should be reduced during downsampling.
      * @param name Optional display name.
@@ -126,7 +129,7 @@ public:
      * @throws std::runtime_error if the sample would violate the monotonically increasing invariant.
      */
     void emplace_sample(
-            uint64_t time,
+            float time,
             float amplitude
     );
 
@@ -139,7 +142,7 @@ public:
      */
     void emplace_sample(
             ExternalSampleTag,
-            uint64_t time,
+            float time,
             float amplitude
     );
 
@@ -175,7 +178,10 @@ public:
      */
     [[nodiscard]] const std::optional<Source>& observe_source() const noexcept;
 
-    void provide_source(const std::filesystem::path& path, std::size_t channel);
+    void provide_source(
+            const std::filesystem::path& path,
+            std::size_t channel
+    );
 
     [[nodiscard]] std::vector<Sample>::const_iterator begin() const;
     [[nodiscard]] std::vector<Sample>::const_iterator end() const;
