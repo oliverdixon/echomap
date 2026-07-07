@@ -1,0 +1,45 @@
+/**
+ * @file
+ * @brief WebCFD sensor geometry panel specification
+ * @author Oliver Dixon
+ * @date 2026-07-07
+ */
+
+#ifndef WEBCFD_SENSORGEOMETRYPANEL_HPP
+#define WEBCFD_SENSORGEOMETRYPANEL_HPP
+
+#include <implot3d.h>
+
+#include "IPanel.hpp"
+
+namespace WebCFD
+{
+
+class Project;
+
+class SensorGeometryPanel : public IPanel
+{
+public:
+    explicit SensorGeometryPanel(Project* initial_project = nullptr);
+
+    [[nodiscard]] const char* get_imgui_name() const noexcept override;
+
+    void draw() noexcept override;
+
+    void set_active_project(Project* new_active_project) noexcept override;
+
+private:
+    void recache_sensor_colours() noexcept;
+    void draw_geometry_summary() noexcept;
+    void draw_geometry_plot() const noexcept;
+
+    const std::string panel_name = "Sensor Geometry";
+
+    std::vector<ImU32> sensor_colours;
+    ImPlot3DSpec plotting_spec_3d;
+    Project * active_project = nullptr;
+};
+
+} // namespace WebCFD
+
+#endif // WEBCFD_SENSORGEOMETRYPANEL_HPP

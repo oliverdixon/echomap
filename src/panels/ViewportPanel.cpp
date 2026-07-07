@@ -30,30 +30,7 @@ void ViewportPanel::draw() noexcept
 {
     if (ImGui::Begin(panel_name.c_str(), nullptr, ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoTitleBar)) {
         if (ImGui::BeginTabBar("##ViewportTabBar")) {
-            if (active_project != nullptr && active_project->get_sensors_count() != sensor_colours.size()) {
-                // Ensure that we maintain the correct number of colours for the current number of sensors.
-                sensor_colours.resize(active_project->get_sensors_count());
-                for (auto [src, dst] : std::views::zip(active_project->observe_sensors(), sensor_colours))
-                    dst = IM_COL32(
-                            static_cast<int>(src.colour.r * 255.0f),
-                            static_cast<int>(src.colour.g * 255.0f),
-                            static_cast<int>(src.colour.b * 255.0f),
-                            static_cast<int>(src.colour.a * 255.0f)
-                    );
-
-                // ... and update the plotting specification in case the resize invalidated pointers.
-                plotting_spec_3d.MarkerFillColors = &*sensor_colours.begin();
-                plotting_spec_3d.MarkerLineColors = plotting_spec_3d.MarkerFillColors;
-            }
-
-            draw_sensor_geometry();
             draw_channel_mappings();
-
-            if (ImGui::BeginTabItem("Localisation")) {
-                // TODO...
-                ImGui::EndTabItem();
-            }
-
             ImGui::EndTabBar();
         }
     }
@@ -67,101 +44,6 @@ void ViewportPanel::set_active_project(
 ) noexcept
 {
     active_project = new_active_project;
-}
-
-void ViewportPanel::draw_sensor_geometry() noexcept
-{
-    if (!ImGui::BeginTabItem("Sensor Geometry"))
-        return;
-
-    if (active_project == nullptr) {
-        ImGui::Text("No project is loaded.");
-        return;
-    }
-
-    if (!active_project->get_sensors_count())
-        ImGui::Text("No sensors are loaded.");
-
-    ImGui::SeparatorText("Geometry Summary");
-    if (ImGui::BeginTable("##GeometrySummary", 5, table_flags)) {
-        ImGui::TableSetupColumn("##SensorColourColumn", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("Sensor", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("X Position", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("Y Position", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("Z Position", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableHeadersRow();
-
-        std::size_t row_idx = 0;
-
-        for (auto& sensor : active_project->mutate_sensors()) {
-            ImGui::PushID(sensor.get_id());
-
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-
-            const ImVec4 colour = ImGui::ColorConvertU32ToFloat4(sensor_colours[row_idx]);
-            float rgb[4] = {colour.x, colour.y, colour.z, colour.w};
-
-            if (ImGui::ColorEdit4("##colour", rgb, ImGuiColorEditFlags_NoInputs)) {
-                sensor.colour.r = colour.x;
-                sensor.colour.g = colour.y;
-                sensor.colour.b = colour.z;
-                sensor.colour.a = colour.w;
-
-                sensor_colours[row_idx] = IM_COL32(
-                        static_cast<int>(rgb[0] * 255.0f),
-                        static_cast<int>(rgb[1] * 255.0f),
-                        static_cast<int>(rgb[2] * 255.0f),
-                        static_cast<int>(rgb[3] * 255.0f)
-                );
-            }
-
-            ImGui::TableNextColumn();
-            ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::Text("%s", sensor.get_imgui_name());
-
-            ImGui::TableNextColumn();
-            ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::InputFloat("##x", &sensor.position.x, 0.01f, 1.0f);
-
-            ImGui::TableNextColumn();
-            ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::InputFloat("##y", &sensor.position.y, 0.01f, 1.0f);
-
-            ImGui::TableNextColumn();
-            ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::InputFloat("##z", &sensor.position.z, 0.01f, 1.0f);
-
-            ImGui::PopID();
-
-            ++row_idx;
-        }
-
-        ImGui::EndTable();
-    }
-
-    ImGui::SeparatorText("Geometry Plot");
-    ImPlot3D::PushStyleColor(ImPlot3DCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-
-    const auto avail_size = ImGui::GetContentRegionAvail();
-    const float aspect_ratio = avail_size.x / avail_size.y;
-
-    if (ImPlot3D::BeginPlot("##SensorGeometryPlot", ImVec2(-std::numeric_limits<float>::min(), avail_size.y))) {
-        ImPlot3D::SetupBoxScale(aspect_ratio, 1.0f, 1.0f);
-        ImPlot3D::SetupAxes("X", "Y", "Z");
-        ImPlot3D::PlotScatterG(
-                "",
-                Project::get_sensor_point,
-                active_project,
-                static_cast<int>(active_project->get_sensors_count()),
-                plotting_spec_3d
-        );
-
-        ImPlot3D::EndPlot();
-    }
-
-    ImPlot3D::PopStyleColor();
-    ImGui::EndTabItem();
 }
 
 void ViewportPanel::draw_channel_mappings() noexcept

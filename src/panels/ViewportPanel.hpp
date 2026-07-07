@@ -8,8 +8,6 @@
 #ifndef WEBCFD_VIEWPORTPANEL_HPP
 #define WEBCFD_VIEWPORTPANEL_HPP
 
-#include <implot3d.h>
-
 #include <string>
 
 #include "../objects/Project.hpp"
@@ -37,21 +35,13 @@ private:
         const Sensor * selected_sensor = nullptr;
     } new_mapping_cache;
 
-    void draw_sensor_geometry() noexcept;
-
     void draw_channel_mappings() noexcept;
     void draw_new_channel_mapping() noexcept;
     void draw_existing_channel_mapping() const noexcept;
 
-    std::vector<ImU32> sensor_colours;
-
     mutable ErrorModal error_modal;
 
     const std::string panel_name = "Manager";
-    static constexpr auto table_flags = ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Borders |
-        ImGuiTableFlags_RowBg;
-
-    ImPlot3DSpec plotting_spec_3d;
 
     Project* active_project = nullptr;
 };

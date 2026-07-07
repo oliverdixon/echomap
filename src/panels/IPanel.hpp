@@ -9,6 +9,7 @@
 #define WEBCFD_PANEL_HPP
 
 #include <webgpu/webgpu_cpp.h>
+#include <implot.h>
 
 namespace WebCFD
 {
@@ -64,6 +65,10 @@ public:
      *       architecture, since the render actions would have less data dependency on the Project state.
      */
     virtual void set_active_project(Project* new_active_project) noexcept = 0;
+
+protected:
+    static constexpr auto table_flags = ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Borders |
+        ImGuiTableFlags_RowBg;
 };
 
 } // namespace WebCFD

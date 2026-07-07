@@ -43,8 +43,6 @@ add_executable(WebCFD
         src/web/JSBridge.hpp
         src/objects/Signal.cpp
         src/objects/Signal.hpp
-        src/panels/ArrayViewPanel.cpp
-        src/panels/ArrayViewPanel.hpp
         src/objects/Sensor.cpp
         src/objects/Sensor.hpp
         src/panels/ProjectPanel.cpp
@@ -70,6 +68,8 @@ add_executable(WebCFD
         src/objects/persistence/JSONDeserialiser.hpp
         src/panels/SignalWaveformPanel.cpp
         src/panels/SignalWaveformPanel.hpp
+        src/panels/SensorGeometryPanel.cpp
+        src/panels/SensorGeometryPanel.hpp
 )
 
 target_link_libraries(WebCFD PRIVATE

@@ -63,6 +63,7 @@ WebCFD::WebCFD() :
     project_panel->set_active_project(project.get());
     viewport_panel->set_active_project(project.get());
     signal_waveform_panel->set_active_project(project.get());
+    sensor_geometry_panel->set_active_project(project.get());
 }
 
 void WebCFD::run_event_loop()
@@ -274,6 +275,7 @@ void WebCFD::render() noexcept
     project_panel->draw();
     viewport_panel->draw();
     signal_waveform_panel->draw();
+    sensor_geometry_panel->draw();
 
     ImGui::Render();
 

@@ -15,6 +15,7 @@
 #include "objects/Project.hpp"
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
+#include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
 #include "panels/ViewportPanel.hpp"
 
@@ -170,6 +171,7 @@ private:
     std::unique_ptr<ProjectPanel> project_panel = std::make_unique<ProjectPanel>();
     std::unique_ptr<ViewportPanel> viewport_panel = std::make_unique<ViewportPanel>();
     std::unique_ptr<SignalWaveformPanel> signal_waveform_panel = std::make_unique<SignalWaveformPanel>();
+    std::unique_ptr<SensorGeometryPanel> sensor_geometry_panel = std::make_unique<SensorGeometryPanel>();
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;
