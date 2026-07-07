@@ -17,9 +17,13 @@ namespace WebCFD
 template <> constexpr std::string Object<Signal>::class_name = "Signal";
 
 Signal::Signal(
-        const std::string_view name
+        const std::string_view name,
+        const std::optional<Source>& source,
+        const std::uint32_t sample_rate
 ) :
-    Object(name)
+    Object(name),
+    sample_rate(sample_rate),
+    fs_source(source)
 {
 }
 
@@ -28,9 +32,15 @@ Signal::Signal(
         const std::uint64_t sample_count,
         const std::string_view name
 ) :
-    Object(name)
+    Object(name),
+    sample_rate(0),
+    fs_source(source.fs_source)
 {
     downsample_and_copy(source, sample_count);
+
+    if (!samples.empty())
+        // New sample rate is determined by sample count over the total duration (in seconds).
+        sample_rate = samples.size() * 1000 / std::prev(samples.end())->time;
 }
 
 Signal::Signal(
@@ -48,6 +58,16 @@ void Signal::add_sample(
         const Sample& sample
 )
 {
+    add_sample(ExternalSampleTag{}, sample);
+    if (fs_source.has_value())
+        fs_source->dirty = true;
+}
+
+void Signal::add_sample(
+        ExternalSampleTag,
+        const Sample& sample
+)
+{
     if (!samples.empty() && sample.time <= samples.back().time)
         throw std::runtime_error("Inserted sample violates monotonically increasing invariant of channel.");
 
@@ -55,6 +75,17 @@ void Signal::add_sample(
 }
 
 void Signal::emplace_sample(
+        const uint64_t time,
+        const float amplitude
+)
+{
+    emplace_sample(ExternalSampleTag{}, time, amplitude);
+    if (fs_source.has_value())
+        fs_source->dirty = true;
+}
+
+void Signal::emplace_sample(
+        ExternalSampleTag,
         const uint64_t time,
         const float amplitude
 )
@@ -72,9 +103,19 @@ void Signal::reserve_samples(
     samples.reserve(count);
 }
 
-std::uint64_t Signal::get_sample_count() const
+std::uint64_t Signal::get_sample_count() const noexcept
 {
     return samples.size();
+}
+
+std::uint32_t Signal::get_sample_rate() const noexcept
+{
+    return sample_rate;
+}
+
+const std::optional<Signal::Source>& Signal::observe_source() const noexcept
+{
+    return fs_source;
 }
 
 std::vector<Signal::Sample>::const_iterator Signal::begin() const
@@ -101,7 +142,9 @@ Signal::Signal(
         const Signal& old_signal
 ) :
     Object(CopyTag{},
-           old_signal)
+           old_signal),
+    sample_rate(old_signal.sample_rate),
+    fs_source(old_signal.fs_source)
 {
 }
 
@@ -111,7 +154,9 @@ Signal::Signal(
 ) :
     Object(CopyTag{},
            old_signal,
-           new_name)
+           new_name),
+    sample_rate(old_signal.sample_rate),
+    fs_source(old_signal.fs_source)
 {
 }
 

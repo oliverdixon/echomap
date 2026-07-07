@@ -23,11 +23,16 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
     if (!drwav_init_file(&drwav_info, file_path, nullptr))
         throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
 
+    const auto typed_path = std::filesystem::path(file_path);
     std::vector<std::unique_ptr<Signal>> signals;
     signals.resize(drwav_info.channels);
+
+    std::size_t channel_num = 1;
     for (auto& channel : signals) {
-        channel = std::make_unique<Signal>();
+        const auto formatted_name = std::format("{}#{}", typed_path.stem().c_str(), channel_num);
+        channel = std::make_unique<Signal>(formatted_name, Signal::Source(typed_path, channel_num));
         channel->reserve_samples(drwav_info.totalPCMFrameCount);
+        ++channel_num;
     }
 
     /*
@@ -51,12 +56,13 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
 
         for (drwav_uint64 frame_idx = 0; frame_idx < frame_count; ++frame_idx) {
             std::size_t channel_idx = 0;
-            for (auto& channel : signals) {
+            for (const auto& channel : signals) {
                 /*
                  * The audio data is uniformly spaced, so we can infer the time values by taking the current frame
                  * offset for the chunk (total frames - remaining frames) and adding the current frame index.
                  */
                 channel->emplace_sample(
+                        Signal::ExternalSampleTag{},
                         drwav_info.totalPCMFrameCount - remaining_frames + frame_idx,
                         interleaved[frame_idx * drwav_info.channels + channel_idx]
                 );
