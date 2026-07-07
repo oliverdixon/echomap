@@ -71,12 +71,10 @@ public:
      *
      * @param name Optional display name.
      * @param source Optional file system source path indicating the origin of the file.
-     * @param sample_rate Sample rate of the Signal stream, in Hz.
      */
     explicit Signal(
             std::string_view name = {},
-            const std::optional<Source>& source = {},
-            std::uint32_t sample_rate = 48000
+            const std::optional<Source>& source = {}
     );
 
     /**
@@ -160,13 +158,6 @@ public:
     [[nodiscard]] std::uint64_t get_sample_count() const noexcept;
 
     /**
-     * Retrieves the sample rate, in Hz, of the Signal stream.
-     *
-     * @return The constant number of samples per second.
-     */
-    [[nodiscard]] std::uint32_t get_sample_rate() const noexcept;
-
-    /**
      * Retrieves the optional Source of the Signal.
      *
      * <p>
@@ -183,6 +174,8 @@ public:
      * @return The Source of the Signal, or an empty optional if the Signal is not externally sourced.
      */
     [[nodiscard]] const std::optional<Source>& observe_source() const noexcept;
+
+    void provide_source(const std::filesystem::path& path, std::size_t channel);
 
     [[nodiscard]] std::vector<Sample>::const_iterator begin() const;
     [[nodiscard]] std::vector<Sample>::const_iterator end() const;
@@ -219,7 +212,6 @@ private:
     );
 
     std::vector<Sample> samples;     /**< Sample stream. */
-    std::uint32_t sample_rate;       /**< Constant sample rate, in Hz. */
     std::optional<Source> fs_source; /**< External source, if any, of the Signal Sample stream. */
 };
 

@@ -11,23 +11,13 @@
 #include <dr_wav.h>
 
 #include <memory>
+#include <span>
 #include <vector>
 
 namespace WebCFD
 {
 
 class Signal;
-
-
-/**
- * Models a sized range of mutable Signal references.
- *
- * @tparam R The candidate type.
- */
-template <typename R>
-concept mutable_signal_range = std::ranges::forward_range<R> && std::ranges::sized_range<R> &&
-                               std::is_lvalue_reference_v<std::ranges::range_reference_t<R>> &&
-                               std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<R>>, Signal>;
 
 class SignalFactory
 {
@@ -51,14 +41,20 @@ public:
      * in the wave file must be provided through the mutable Signal range.
      *
      * @param file_path The location of the WAV on the local file system.
-     * @param channels Destination of the Signal channels.
+     * @param channels Destination of the Signal channels. In particular, a list of pointers to Signal. For each entry
+     *  at index <code>idx</code>:
+     *  <ul>
+     *      <li>If <code>channels[idx] == nullptr</code>, the wave file channel <code>idx</code> is ignored; or</li>
+     *      <li>If <code>channels[idx] != nullptr</code>, the wave file channel <code>idx</code> is written to
+     *          <code>*channels[idx]</code>.</li>
+     *  </ul>
      *
      * @throws ConfigurationError The WAV file could not be loaded.
      * @pre There are sufficient Signal objects in the destination range to store channels in the wave file.
      */
     static void load_wave_file(
             const char* file_path,
-            mutable_signal_range auto&& channels
+            std::span<Signal* const> channels
     );
 
 private:
@@ -70,11 +66,13 @@ private:
      * @param channels Destination of the Signal channels.
      *
      * @pre There are sufficient Signal objects in the destination range to store channels in the wave file.
+     * @see load_wave_file(const char*, mutable_signal_range auto&&) for semantics of the destination channels
+     *  parameter.
      */
     static void load_wave_file_into_channels(
             drwav& drwav_info,
             std::string_view file_path,
-            mutable_signal_range auto&& channels
+            std::span<Signal* const> channels
     );
 };
 

@@ -16,8 +16,6 @@ class JSONSerialiser : public ISerialiser
 {
 public:
     std::string_view serialise_project(const Project& project) override;
-    std::string_view serialise_signal(const Signal& signal) override;
-    std::string_view serialise_sensor(const Sensor& sensor) override;
 
     static std::string pretty_print(std::string_view data);
 

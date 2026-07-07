@@ -11,6 +11,7 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include <dr_wav.h>
 
+#include <algorithm>
 #include <ranges>
 
 #include "../../errors/ConfigurationError.hpp"
@@ -39,13 +40,17 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
     }
 
     try {
-        load_wave_file_into_channels(
-                drwav_info,
-                file_path,
-                signals | std::views::transform([](const std::unique_ptr<Signal>& signal) -> Signal& {
-                    return *signal;
-                })
+        std::vector<Signal*> signal_ptrs;
+        signal_ptrs.reserve(signals.size());
+        std::ranges::transform(
+                signals,
+                std::back_inserter(signal_ptrs),
+                [](const std::unique_ptr<Signal>& signal) -> Signal* {
+                    return signal.get();
+                }
         );
+
+        load_wave_file_into_channels(drwav_info, file_path, signal_ptrs);
     } catch (const std::runtime_error&) {
         drwav_uninit(&drwav_info);
         throw;
@@ -57,7 +62,7 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
 
 void SignalFactory::load_wave_file(
         const char* const file_path,
-        mutable_signal_range auto&& channels
+        std::span<Signal* const> channels
 )
 {
     drwav drwav_info;
@@ -65,11 +70,7 @@ void SignalFactory::load_wave_file(
         throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
 
     try {
-        load_wave_file_into_channels(
-                drwav_info,
-                file_path,
-                channels
-        );
+        load_wave_file_into_channels(drwav_info, file_path, channels);
     } catch (const std::runtime_error&) {
         drwav_uninit(&drwav_info);
         throw;
@@ -81,14 +82,15 @@ void SignalFactory::load_wave_file(
 void SignalFactory::load_wave_file_into_channels(
         drwav& drwav_info,
         const std::string_view file_path,
-        mutable_signal_range auto&& channels
+        std::span<Signal* const> channels
 )
 {
-    const auto channel_count = channels.size();
+    const auto channel_count = std::ranges::size(channels);
     assert(drwav_info.channels <= channel_count);
 
-    for (auto& channel : channels)
-        channel.reserve_samples(drwav_info.totalPCMFrameCount);
+    for (auto channel : channels)
+        if (channel != nullptr)
+            channel->reserve_samples(drwav_info.totalPCMFrameCount);
 
     /*
      * Dr_WAV provides audio data as amplitudes uniformly interleaved across the channels. That is, for a stereo signal,
@@ -106,21 +108,19 @@ void SignalFactory::load_wave_file_into_channels(
             // We couldn't read the expected number of frames. drwav_init_file must've provided the wrong count.
             throw ConfigurationError("Cannot read WAV file at " + std::string(file_path) + ". Is it corrupted?");
 
-        for (drwav_uint64 frame_idx = 0; frame_idx < frame_count; ++frame_idx) {
-            std::size_t channel_idx = 0;
-            for (auto& channel : channels) {
-                /*
-                 * The audio data is uniformly spaced, so we can infer the time values by taking the current frame
-                 * offset for the chunk (total frames - remaining frames) and adding the current frame index.
-                 */
-                channel.emplace_sample(
-                        Signal::ExternalSampleTag{},
-                        drwav_info.totalPCMFrameCount - remaining_frames + frame_idx,
-                        interleaved[frame_idx * drwav_info.channels + channel_idx]
-                );
-                ++channel_idx;
+        for (drwav_uint64 frame_idx = 0; frame_idx < frame_count; ++frame_idx)
+            for (std::size_t channel_idx = 0; channel_idx < drwav_info.channels; ++channel_idx) {
+                if (auto* const destination = std::ranges::begin(channels)[channel_idx]; destination != nullptr)
+                    /*
+                     * The audio data is uniformly spaced, so we can infer the time values by taking the current frame
+                     * offset for the chunk (total frames - remaining frames) and adding the current frame index.
+                     */
+                    destination->emplace_sample(
+                            Signal::ExternalSampleTag{},
+                            drwav_info.totalPCMFrameCount - remaining_frames + frame_idx,
+                            interleaved[frame_idx * drwav_info.channels + channel_idx]
+                    );
             }
-        }
 
         remaining_frames -= frame_count;
     }

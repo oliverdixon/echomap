@@ -18,8 +18,6 @@ public:
     virtual ~ISerialiser() = default;
 
     virtual std::string_view serialise_project(const Project& project) = 0;
-    virtual std::string_view serialise_sensor(const Sensor& sensor) = 0;
-    virtual std::string_view serialise_signal(const Signal& signal) = 0;
 };
 
 } // namespace WebCFD

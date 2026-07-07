@@ -18,11 +18,9 @@ template <> constexpr std::string Object<Signal>::class_name = "Signal";
 
 Signal::Signal(
         const std::string_view name,
-        const std::optional<Source>& source,
-        const std::uint32_t sample_rate
+        const std::optional<Source>& source
 ) :
     Object(name),
-    sample_rate(sample_rate),
     fs_source(source)
 {
 }
@@ -33,14 +31,9 @@ Signal::Signal(
         const std::string_view name
 ) :
     Object(name),
-    sample_rate(0),
     fs_source(source.fs_source)
 {
     downsample_and_copy(source, sample_count);
-
-    if (!samples.empty())
-        // New sample rate is determined by sample count over the total duration (in seconds).
-        sample_rate = samples.size() * 1000 / std::prev(samples.end())->time;
 }
 
 Signal::Signal(
@@ -108,14 +101,17 @@ std::uint64_t Signal::get_sample_count() const noexcept
     return samples.size();
 }
 
-std::uint32_t Signal::get_sample_rate() const noexcept
-{
-    return sample_rate;
-}
-
 const std::optional<Signal::Source>& Signal::observe_source() const noexcept
 {
     return fs_source;
+}
+
+void Signal::provide_source(
+        const std::filesystem::path& path,
+        const std::size_t channel
+)
+{
+    fs_source = Source(path, channel);
 }
 
 std::vector<Signal::Sample>::const_iterator Signal::begin() const
@@ -143,7 +139,6 @@ Signal::Signal(
 ) :
     Object(CopyTag{},
            old_signal),
-    sample_rate(old_signal.sample_rate),
     fs_source(old_signal.fs_source)
 {
 }
@@ -155,7 +150,6 @@ Signal::Signal(
     Object(CopyTag{},
            old_signal,
            new_name),
-    sample_rate(old_signal.sample_rate),
     fs_source(old_signal.fs_source)
 {
 }

@@ -65,7 +65,7 @@ void tag_invoke(
     builder.escape_and_append_with_quotes("mappings");
     builder.append_colon();
     builder.start_array();
-    for (const auto [sensor, signal] : project.observe_associations()) {
+    for (const auto [signal, sensor] : project.observe_associations()) {
         if (!first_element)
             builder.append_comma();
 
@@ -192,24 +192,6 @@ std::string_view JSONSerialiser::serialise_project(
 {
     sb.clear();
     sb.append(project);
-    return sb.view();
-}
-
-std::string_view JSONSerialiser::serialise_signal(
-        const Signal& signal
-)
-{
-    sb.clear();
-    sb.append(signal);
-    return sb.view();
-}
-
-std::string_view JSONSerialiser::serialise_sensor(
-        const Sensor& sensor
-)
-{
-    sb.clear();
-    sb.append(sensor);
     return sb.view();
 }
 

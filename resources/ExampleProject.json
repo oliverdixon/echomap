@@ -97,20 +97,20 @@
   ],
   "mappings": [
     {
-      "sensor": "4channel#4",
-      "signal": "Sensor 0"
+      "signal": "4channel#4",
+      "sensor": "Sensor 0"
     },
     {
-      "sensor": "4channel#3",
-      "signal": "Sensor 1"
+      "signal": "4channel#3",
+      "sensor": "Sensor 1"
     },
     {
-      "sensor": "4channel#2",
-      "signal": "Sensor 2"
+      "signal": "4channel#2",
+      "sensor": "Sensor 2"
     },
     {
-      "sensor": "4channel#1",
-      "signal": "Sensor 3"
+      "signal": "4channel#1",
+      "sensor": "Sensor 3"
     }
   ]
 }
