@@ -1,17 +1,17 @@
 /**
  * @file
- * @brief WebCFD bidirectional unordered mapping container specification and implementation
+ * @brief EchoMap bidirectional unordered mapping container specification and implementation
  * @author Oliver Dixon
  * @date 2026-06-25
  */
 
-#ifndef WEBCFD_BIDIRECTIONALUNORDEREDMAPPING_HPP
-#define WEBCFD_BIDIRECTIONALUNORDEREDMAPPING_HPP
+#ifndef ECHOMAP_BIDIRECTIONALUNORDEREDMAPPING_HPP
+#define ECHOMAP_BIDIRECTIONALUNORDEREDMAPPING_HPP
 
 #include <cassert>
 #include <unordered_map>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -221,6 +221,6 @@ public:
     }
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_BIDIRECTIONALUNORDEREDMAPPING_HPP
+#endif // ECHOMAP_BIDIRECTIONALUNORDEREDMAPPING_HPP

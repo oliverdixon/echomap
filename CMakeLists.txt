@@ -1,10 +1,10 @@
-# WebCFD CMakeLists.txt
+# EchoMap CMakeLists.txt
 #
 # Author: Oliver Dixon
 # Date: 2026-06-05
 
 cmake_minimum_required(VERSION 4.0)
-project(WebCFD)
+project(EchoMap)
 
 set(CMAKE_CXX_STANDARD 23)
 
@@ -18,10 +18,10 @@ if(EMSCRIPTEN AND TARGET dawn_glfw)
     target_compile_definitions(dawn_glfw PRIVATE EMSCRIPTEN=1)
 endif()
 
-# WebCFD common configuration
-add_executable(WebCFD
-        src/WebCFD.cpp
-        src/WebCFD.hpp
+# EchoMap common configuration
+add_executable(EchoMap
+        src/EchoMap.cpp
+        src/EchoMap.hpp
         src/App.cpp
         src/panels/IPanel.hpp
         src/RenderPanel.cpp
@@ -72,7 +72,7 @@ add_executable(WebCFD
         src/panels/ChannelMappingPanel.hpp
 )
 
-target_link_libraries(WebCFD PRIVATE
+target_link_libraries(EchoMap PRIVATE
         imgui::imgui
         implot::implot
         implot3d::implot3d
@@ -81,7 +81,7 @@ target_link_libraries(WebCFD PRIVATE
 
 # Update generated C++ to embed WGSL sources.
 include(cmake/EmbedWGSL.cmake)
-embed_wgsl_directory(WebCFD "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders")
+embed_wgsl_directory(EchoMap "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders")
 
 if (EMSCRIPTEN)
     # If configuring for an Emscripten/WebAssembly target, we need targets for the HTML shell and any extra web-side
@@ -91,7 +91,7 @@ if (EMSCRIPTEN)
     set(web_shell "${web_sources_root}/shell.html")
     set(web_extra "${web_sources_root}/shell.css")
 
-    target_sources(WebCFD PRIVATE
+    target_sources(EchoMap PRIVATE
             "${web_shell}"
             "${web_extra}"
     )
@@ -102,23 +102,23 @@ if (EMSCRIPTEN)
             PROPERTIES HEADER_FILE_ONLY ON
     )
 
-    set_property(TARGET WebCFD APPEND PROPERTY
+    set_property(TARGET EchoMap APPEND PROPERTY
             LINK_DEPENDS "${web_shell}")
 
-    set_target_properties(WebCFD PROPERTIES SUFFIX ".html")
-    target_compile_options(WebCFD PRIVATE "-fwasm-exceptions")
-    target_link_options(WebCFD PRIVATE
+    set_target_properties(EchoMap PROPERTIES SUFFIX ".html")
+    target_compile_options(EchoMap PRIVATE "-fwasm-exceptions")
+    target_link_options(EchoMap PRIVATE
             "-fwasm-exceptions"
             "-sJSPI"
             "-sUSE_GLFW=3"
             "-sFORCE_FILESYSTEM=1"
-            "-sEXPORTED_FUNCTIONS=['_main','_webcfd_on_wav_file_picked']"
+            "-sEXPORTED_FUNCTIONS=['_main','_echomap_on_wav_file_picked']"
             "-sEXPORTED_RUNTIME_METHODS=['FS','ccall']"
             "--shell-file=${web_shell}"
             $<$<CONFIG:Debug,RelWithDebInfo>:--profiling-funcs>
     )
 
-    # Define a target for each additional auxiliary file specified by web_extra to be replicated in the WebCFD target
+    # Define a target for each additional auxiliary file specified by web_extra to be replicated in the EchoMap target
     # output directory.
     set(web_extra_outputs)
 
@@ -136,10 +136,10 @@ if (EMSCRIPTEN)
         list(APPEND web_extra_outputs "${asset_output}")
     endforeach()
 
-    add_custom_target(WebCFDShellExtra DEPENDS ${web_extra_outputs})
-    add_dependencies(WebCFD WebCFDShellExtra)
+    add_custom_target(EchoMapShellExtra DEPENDS ${web_extra_outputs})
+    add_dependencies(EchoMap EchoMapShellExtra)
 else()
     set(CMAKE_LINKER_TYPE "native_ld")
     find_package(glfw3 REQUIRED)
-    target_link_libraries(WebCFD PRIVATE dawn::webgpu_dawn glfw)
+    target_link_libraries(EchoMap PRIVATE dawn::webgpu_dawn glfw)
 endif()

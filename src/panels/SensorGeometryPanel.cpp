@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD sensor geometry panel implementation
+ * @brief EchoMap sensor geometry panel implementation
  * @author Oliver Dixon
  * @date 2026-07-07
  */
@@ -10,7 +10,7 @@
 #include "../Logger.hpp"
 #include "../objects/Project.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 SensorGeometryPanel::SensorGeometryPanel(
@@ -164,4 +164,4 @@ void SensorGeometryPanel::draw_geometry_plot() const noexcept
     ImPlot3D::PopStyleColor();
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

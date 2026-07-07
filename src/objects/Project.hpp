@@ -2,8 +2,8 @@
 // Created by owd on 25/06/2026.
 //
 
-#ifndef WEBCFD_PROJECT_HPP
-#define WEBCFD_PROJECT_HPP
+#ifndef ECHOMAP_PROJECT_HPP
+#define ECHOMAP_PROJECT_HPP
 
 #include <implot3d.h>
 
@@ -16,7 +16,7 @@
 #include "Sensor.hpp"
 #include "Signal.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class Project : public Object<Project>
@@ -189,6 +189,6 @@ private:
     BidirectionalUnorderedMapping<Signal::id_type, Sensor::id_type> channel_mapping;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_PROJECT_HPP
+#endif // ECHOMAP_PROJECT_HPP

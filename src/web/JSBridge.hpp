@@ -5,22 +5,22 @@
  * @date 2026-06-24
  */
 
-#ifndef WEBCFD_JSBRIDGE_H
-#define WEBCFD_JSBRIDGE_H
+#ifndef ECHOMAP_JSBRIDGE_H
+#define ECHOMAP_JSBRIDGE_H
 
 #ifdef __EMSCRIPTEN__
 
-#include "../WebCFD.hpp"
+#include "../EchoMap.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
  * A set of static noexcept bindings for the JS runtime to call through exported functions with C linkage.
  *
  * <p>
- *  The JS bridge provides a static interface with C linkage helpers for JS APIs to manipulate the active WebCFD
- *  instance. Upon creating the active WebCFD instance, the application controller should JSBridge::bind the instance
+ *  The JS bridge provides a static interface with C linkage helpers for JS APIs to manipulate the active EchoMap
+ *  instance. Upon creating the active EchoMap instance, the application controller should JSBridge::bind the instance
  *  into the static context. The helpers can then forward requests from the JS runtime into the instance.
  * </p>
  * <p>
@@ -33,16 +33,16 @@ class JSBridge
 {
 public:
     /**
-     * Bind a WebCFD instance to the static bridge context.
+     * Bind a EchoMap instance to the static bridge context.
      *
      * Any existing binding is silently overwritten.
      *
      * @param new_instance A mutable raw pointer to the instance to bind.
      */
-    static void bind(WebCFD* new_instance) noexcept;
+    static void bind(EchoMap* new_instance) noexcept;
 
     /**
-     * Unbind the existing WebCFD instance from the static bridge context.
+     * Unbind the existing EchoMap instance from the static bridge context.
      */
     static void unbind() noexcept;
 
@@ -62,11 +62,11 @@ private:
      */
     static bool preamble() noexcept;
 
-    static WebCFD * instance;
+    static EchoMap * instance;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
 #endif // __EMSCRIPTEN__
 
-#endif // WEBCFD_JSBRIDGE_H
+#endif // ECHOMAP_JSBRIDGE_H

@@ -1,18 +1,18 @@
 /**
  * @file
- * @brief WebCFD portable logger specification
+ * @brief EchoMap portable logger specification
  * @author Oliver Dixon
  * @date 2026-06-20
  */
 
-#ifndef WEBCFD_LOGGER_H
-#define WEBCFD_LOGGER_H
+#ifndef ECHOMAP_LOGGER_H
+#define ECHOMAP_LOGGER_H
 
 #include <format>
 #include <source_location>
 #include <string_view>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -78,12 +78,12 @@ private:
     static std::string_view level_to_string(Level level);
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
 /**
  * @def LOG_F_DEBUG
  *
- * Conditionally logs a formatted debug-level message using WebCFD::Logger::log_f.
+ * Conditionally logs a formatted debug-level message using EchoMap::Logger::log_f.
  *
  * @param msg The format string, followed by formatted values.
  */
@@ -98,7 +98,7 @@ private:
 #endif
 
 /**
- * Logs a formatted info-level message using WebCFD::Logger::log_f.
+ * Logs a formatted info-level message using EchoMap::Logger::log_f.
  *
  * @param msg The format string, followed by formatted values.
  */
@@ -108,7 +108,7 @@ private:
     } while (0);
 
 /**
- * Logs a formatted warning-level message using WebCFD::Logger::log_f.
+ * Logs a formatted warning-level message using EchoMap::Logger::log_f.
  *
  * @param msg The format string, followed by formatted values.
  */
@@ -118,7 +118,7 @@ private:
     } while (0);
 
 /**
- * Logs a formatted error-level message using WebCFD::Logger::log_f.
+ * Logs a formatted error-level message using EchoMap::Logger::log_f.
  *
  * @param msg The format string, followed by formatted values.
  */
@@ -130,7 +130,7 @@ private:
 /**
  * @def LOG_DEBUG
  *
- * Conditionally logs an unformatted info-level message using WebCFD::Logger::log.
+ * Conditionally logs an unformatted info-level message using EchoMap::Logger::log.
  *
  * @param msg The string literal to log.
  */
@@ -145,7 +145,7 @@ private:
 #endif
 
 /**
- * Logs an unformatted info-level message using WebCFD::Logger::log.
+ * Logs an unformatted info-level message using EchoMap::Logger::log.
  *
  * @param msg The string literal to log.
  */
@@ -155,7 +155,7 @@ private:
     } while (0);
 
 /**
- * Logs an unformatted warning-level message using WebCFD::Logger::log.
+ * Logs an unformatted warning-level message using EchoMap::Logger::log.
  *
  * @param msg The string literal to log.
  */
@@ -165,7 +165,7 @@ private:
     } while (0);
 
 /**
- * Logs an unformatted error-level message using WebCFD::Logger::log.
+ * Logs an unformatted error-level message using EchoMap::Logger::log.
  *
  * @param msg The string literal to log.
  */
@@ -174,4 +174,4 @@ private:
         Logger::log(Logger::Level::Error, msg, std::source_location::current());                                       \
     } while (0);
 
-#endif // WEBCFD_LOGGER_H
+#endif // ECHOMAP_LOGGER_H

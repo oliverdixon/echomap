@@ -2,12 +2,12 @@
 // Created by owd on 24/06/2026.
 //
 
-#ifndef WEBCFD_SENSOR_HPP
-#define WEBCFD_SENSOR_HPP
+#ifndef ECHOMAP_SENSOR_HPP
+#define ECHOMAP_SENSOR_HPP
 
 #include "Object.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class Sensor : public Object<Sensor>
@@ -40,6 +40,6 @@ public:
     void set_colour(float r, float g, float b, float a) noexcept;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_SENSOR_HPP
+#endif // ECHOMAP_SENSOR_HPP

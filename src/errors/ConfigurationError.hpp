@@ -1,20 +1,20 @@
 /**
  * @file
- * @brief WebCFD ConfigurationError exception specification
+ * @brief EchoMap ConfigurationError exception specification
  * @author Oliver Dixon
  * @date 2026-06-19
  */
 
-#ifndef WEBCFD_CONFIGURATIONERROR_H
-#define WEBCFD_CONFIGURATIONERROR_H
+#ifndef ECHOMAP_CONFIGURATIONERROR_H
+#define ECHOMAP_CONFIGURATIONERROR_H
 
 #include "LocatableError.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
- * A ConfigurationError indicates an error encountered during the initial configuration of the WebCFD graphics context.
+ * A ConfigurationError indicates an error encountered during the initial configuration of the EchoMap graphics context.
  */
 class ConfigurationError : public LocatableError
 {
@@ -31,6 +31,6 @@ public:
     );
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_CONFIGURATIONERROR_H
+#endif // ECHOMAP_CONFIGURATIONERROR_H

@@ -44,7 +44,7 @@ auto get_root(
 
 auto get_metadata(
         simdjson::ondemand::object& root,
-        WebCFD::Project& project
+        EchoMap::Project& project
 )
 {
     simdjson::ondemand::object metadata;
@@ -62,13 +62,13 @@ auto get_metadata(
 
 auto get_signals(
         simdjson::ondemand::object& root,
-        WebCFD::Project& project,
+        EchoMap::Project& project,
         std::unordered_map<
                 std::string_view,
-                WebCFD::Signal::id_type>& loaded
+                EchoMap::Signal::id_type>& loaded
 )
 {
-    std::vector<std::unique_ptr<WebCFD::Signal>> signals;
+    std::vector<std::unique_ptr<EchoMap::Signal>> signals;
     if (const auto error = root["signals"].get(signals))
         return error;
 
@@ -80,7 +80,7 @@ auto get_signals(
      *
      * That is, the first slot stores the destination Signal for the Channel #1, the second for Channel #2, etc.
      */
-    std::unordered_map<std::string, std::vector<WebCFD::Signal*>> slots;
+    std::unordered_map<std::string, std::vector<EchoMap::Signal*>> slots;
 
     for (const auto& signal : signals) {
         if (!loaded.emplace(signal->get_name(), signal->get_id()).second)
@@ -114,7 +114,7 @@ auto get_signals(
 
     // Once we've constructed all the signals, we can finish loading the filesystem-sourced signals.
     for (const auto& [file_path, slot_vector] : slots)
-        WebCFD::SignalFactory::load_wave_file(file_path.c_str(), slot_vector);
+        EchoMap::SignalFactory::load_wave_file(file_path.c_str(), slot_vector);
 
     // Now we can give the fully constructed signals to the project.
     for (auto&& signal : signals)
@@ -125,13 +125,13 @@ auto get_signals(
 
 auto get_sensors(
         simdjson::ondemand::object& root,
-        WebCFD::Project& project,
+        EchoMap::Project& project,
         std::unordered_map<
                 std::string_view,
-                WebCFD::Sensor::id_type>& loaded
+                EchoMap::Sensor::id_type>& loaded
 )
 {
-    std::vector<std::unique_ptr<WebCFD::Sensor>> sensors;
+    std::vector<std::unique_ptr<EchoMap::Sensor>> sensors;
     if (const auto error = root["sensors"].get(sensors))
         return error;
 
@@ -146,13 +146,13 @@ auto get_sensors(
 
 auto get_mappings(
         simdjson::ondemand::object& root,
-        WebCFD::Project& project,
+        EchoMap::Project& project,
         const std::unordered_map<
                 std::string_view,
-                WebCFD::Signal::id_type>& signals,
+                EchoMap::Signal::id_type>& signals,
         const std::unordered_map<
                 std::string_view,
-                WebCFD::Sensor::id_type>& sensors
+                EchoMap::Sensor::id_type>& sensors
 )
 {
     simdjson::ondemand::array mappings;
@@ -197,7 +197,7 @@ template <typename simdjson_value>
 auto tag_invoke(
         deserialize_tag,
         simdjson_value& value,
-        WebCFD::Project& project
+        EchoMap::Project& project
 )
 {
     ondemand::object root;
@@ -210,12 +210,12 @@ auto tag_invoke(
         return error;
 
     // Signals
-    std::unordered_map<std::string_view, WebCFD::Signal::id_type> signal_ids;
+    std::unordered_map<std::string_view, EchoMap::Signal::id_type> signal_ids;
     if ((error = get_signals(root, project, signal_ids)))
         return error;
 
     // Sensors
-    std::unordered_map<std::string_view, WebCFD::Sensor::id_type> sensor_ids;
+    std::unordered_map<std::string_view, EchoMap::Sensor::id_type> sensor_ids;
     if ((error = get_sensors(root, project, sensor_ids)))
         return error;
 
@@ -230,7 +230,7 @@ template <typename simdjson_value>
 auto tag_invoke(
         deserialize_tag,
         simdjson_value& value,
-        WebCFD::Signal& signal
+        EchoMap::Signal& signal
 )
 {
     ondemand::object root;
@@ -274,7 +274,7 @@ auto tag_invoke(
             ondemand::object sample_obj;
             if ((error = sample.get_object().get(sample_obj)))
                 return error;
-            WebCFD::Signal::Sample sample_data;
+            EchoMap::Signal::Sample sample_data;
             if ((error = sample_obj["time"].get(sample_data.time)))
                 return error;
             if ((error = sample_obj["amplitude"].get(sample_data.amplitude)))
@@ -301,7 +301,7 @@ template <typename simdjson_value>
 auto tag_invoke(
         deserialize_tag,
         simdjson_value& value,
-        WebCFD::Sensor& sensor
+        EchoMap::Sensor& sensor
 )
 {
     ondemand::object root;
@@ -343,7 +343,7 @@ auto tag_invoke(
 
 } // namespace simdjson
 
-namespace WebCFD
+namespace EchoMap
 {
 
 std::unique_ptr<Project> JSONDeserialiser::deserialise_project(
@@ -360,4 +360,4 @@ std::unique_ptr<Project> JSONDeserialiser::deserialise_project(
     return std::move(project);
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

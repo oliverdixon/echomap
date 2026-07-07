@@ -2,14 +2,14 @@
 // Created by owd on 25/06/2026.
 //
 
-#ifndef WEBCFD_MENUPANEL_HPP
-#define WEBCFD_MENUPANEL_HPP
+#ifndef ECHOMAP_MENUPANEL_HPP
+#define ECHOMAP_MENUPANEL_HPP
 
 #include <string>
 
 #include "IPanel.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class MenuPanel final : public IPanel
@@ -25,6 +25,6 @@ private:
     std::string panel_name = "Menu";
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_MENUPANEL_HPP
+#endif // ECHOMAP_MENUPANEL_HPP

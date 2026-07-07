@@ -1,12 +1,12 @@
 /**
  * @file
- * @brief WebCFD class specification
+ * @brief EchoMap class specification
  * @author Oliver Dixon
  * @date 2026-05-05
  */
 
-#ifndef WEBCFD_WEBCFD_HPP
-#define WEBCFD_WEBCFD_HPP
+#ifndef ECHOMAP_ECHOMAP_HPP
+#define ECHOMAP_ECHOMAP_HPP
 
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -19,18 +19,18 @@
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
- * The WebCFD maintains state for the application including WebGPU and Dear ImGui context, encapsulating initialisation,
+ * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating initialisation,
  * game loop, interaction, and clean-up.
  */
-class WebCFD
+class EchoMap
 {
 public:
     /**
-     * Initialise a WebCFD application instance.
+     * Initialise a EchoMap application instance.
      *
      * Initialisation is a computationally substantial task. Context from all managed frameworks must be initialised
      * (GLFW, WebGPU/Dawn, and Dear ImGui) and their components registered. Once the constructor has completed, the game
@@ -38,10 +38,10 @@ public:
      *
      * @throws ConfigurationError Some part of initialisation, described in the exception message, did not succeed.
      */
-    WebCFD();
+    EchoMap();
 
     /**
-     * Runs the event loop to manage and propagate interaction with the WebCFD application.
+     * Runs the event loop to manage and propagate interaction with the EchoMap application.
      *
      * This function returns only once GLFW indicates that the window should close. Following closure, the event loop
      * could be re-run, or the application could clean up by calling the destructor.
@@ -51,7 +51,7 @@ public:
     /**
      * Clean up all persistent state registered by the application instance.
      */
-    ~WebCFD() noexcept;
+    ~EchoMap() noexcept;
 
     /**
      * Indicate to the wave form controllers that a new file has been selected.
@@ -142,18 +142,18 @@ private:
 
     // ReSharper disable once CppParameterMayBeConstPtrOrRef - Function signature enforced by Emscripten API.
     /**
-     * Invokes WebCFD::render from a static context given an untyped mutable pointer to the WebCFD object instance.
+     * Invokes EchoMap::render from a static context given an untyped mutable pointer to the EchoMap object instance.
      *
      * @note This function provided when targeting Emscripten only. It is intended to be used as a function callback
      *  from the Emscripten C API.
      *
-     * @param webcfd_instance The WebCFD application instance on which to invoke WebCFD::render.
+     * @param echomap_instance The EchoMap application instance on which to invoke EchoMap::render.
      */
     static void render_shim(
-            void* const webcfd_instance
+            void* const echomap_instance
     )
     {
-        auto* instance = static_cast<WebCFD*>(webcfd_instance);
+        auto* instance = static_cast<EchoMap*>(echomap_instance);
         instance->render();
     }
 #endif
@@ -177,6 +177,6 @@ private:
     bool dockspace_configured = false;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_WEBCFD_HPP
+#endif // ECHOMAP_ECHOMAP_HPP

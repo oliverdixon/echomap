@@ -2,13 +2,13 @@
 // Created by owd on 07/07/2026.
 //
 
-#ifndef WEBCFD_CHANNELMAPPINGPANEL_HPP
-#define WEBCFD_CHANNELMAPPINGPANEL_HPP
+#ifndef ECHOMAP_CHANNELMAPPINGPANEL_HPP
+#define ECHOMAP_CHANNELMAPPINGPANEL_HPP
 
 #include "ErrorModal.hpp"
 #include "IPanel.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class Signal;
@@ -44,6 +44,6 @@ private:
     Project* active_project = nullptr;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_CHANNELMAPPINGPANEL_HPP
+#endif // ECHOMAP_CHANNELMAPPINGPANEL_HPP

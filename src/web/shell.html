@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en-GB">
 <!--
-    WebCFD shell
+    EchoMap shell
 
     Author: Oliver Dixon
     Date: 2026-06-05
@@ -11,7 +11,7 @@
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
     <link href="shell.css" rel="stylesheet">
-    <title>WebCFD</title>
+    <title>EchoMap</title>
 </head>
 <body>
 <header>
@@ -55,7 +55,7 @@
                     Module.FS.writeFile(path, bytes);
 
                     const result = Module.ccall(
-                        "webcfd_on_wav_file_picked",
+                        "echomap_on_wav_file_picked",
                         "number",
                         ["string"],
                         [path]

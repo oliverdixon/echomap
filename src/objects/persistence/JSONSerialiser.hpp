@@ -2,14 +2,14 @@
 // Created by owd on 07/07/2026.
 //
 
-#ifndef WEBCFD_JSONSERIALISER_HPP
-#define WEBCFD_JSONSERIALISER_HPP
+#ifndef ECHOMAP_JSONSERIALISER_HPP
+#define ECHOMAP_JSONSERIALISER_HPP
 
 #include <simdjson.h>
 
 #include "ISerialiser.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class JSONSerialiser : public ISerialiser
@@ -23,6 +23,6 @@ private:
     simdjson::builder::string_builder sb;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_JSONSERIALISER_HPP
+#endif // ECHOMAP_JSONSERIALISER_HPP

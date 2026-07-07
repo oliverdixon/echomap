@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD class implementation
+ * @brief EchoMap class implementation
  * @author Oliver Dixon
  * @date 2026-05-05
  */
@@ -20,13 +20,13 @@
 #include "Logger.hpp"
 #include "RobotoMedium.hpp"
 #include "SurfaceFactory.hpp"
-#include "WebCFD.hpp"
+#include "EchoMap.hpp"
 #include "errors/ConfigurationError.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
-WebCFD::WebCFD() :
+EchoMap::EchoMap() :
     dockspace_id(ImHashStr("MainDockSpace"))
 {
     static constexpr auto timed_wait_any = wgpu::InstanceFeatureName::TimedWaitAny;
@@ -68,10 +68,10 @@ WebCFD::WebCFD() :
     channel_mapping_panel->set_active_project(project.get());
 }
 
-void WebCFD::run_event_loop()
+void EchoMap::run_event_loop()
 {
 #ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop_arg(&WebCFD::render_shim, this, 0, true);
+    emscripten_set_main_loop_arg(&EchoMap::render_shim, this, 0, true);
 #else
     render();
     instance.ProcessEvents();
@@ -84,7 +84,7 @@ void WebCFD::run_event_loop()
 #endif
 }
 
-WebCFD::~WebCFD() noexcept
+EchoMap::~EchoMap() noexcept
 {
     if (ImGui::GetCurrentContext()) {
         ImGui_ImplWGPU_Shutdown();
@@ -111,14 +111,14 @@ WebCFD::~WebCFD() noexcept
     glfwTerminate();
 }
 
-void WebCFD::update_wav_file(
+void EchoMap::update_wav_file(
         const char* const path
 )
 {
     throw std::runtime_error("Unimplemented");
 }
 
-GLFWwindow* WebCFD::create_window(
+GLFWwindow* EchoMap::create_window(
         // ReSharper disable once CppDFAConstantParameter
         const int width,
         // ReSharper disable once CppDFAConstantParameter
@@ -130,7 +130,7 @@ GLFWwindow* WebCFD::create_window(
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    const auto window = glfwCreateWindow(width, height, "WebCFD", nullptr, nullptr);
+    const auto window = glfwCreateWindow(width, height, "EchoMap", nullptr, nullptr);
 
     if (!window) {
         glfwTerminate();
@@ -140,7 +140,7 @@ GLFWwindow* WebCFD::create_window(
     return window;
 }
 
-void WebCFD::configure_surface(
+void EchoMap::configure_surface(
         const wgpu::Surface& surface,
         const wgpu::Device& device,
         const wgpu::SurfaceCapabilities& capabilities,
@@ -166,7 +166,7 @@ void WebCFD::configure_surface(
     surface.Configure(&config);
 }
 
-wgpu::Future WebCFD::request_adapter() noexcept
+wgpu::Future EchoMap::request_adapter() noexcept
 {
     const wgpu::RequestAdapterOptions options{.compatibleSurface = surface};
 
@@ -188,7 +188,7 @@ wgpu::Future WebCFD::request_adapter() noexcept
     );
 }
 
-wgpu::Future WebCFD::request_device() noexcept
+wgpu::Future EchoMap::request_device() noexcept
 {
     wgpu::DeviceDescriptor desc{};
     desc.SetDeviceLostCallback(
@@ -236,7 +236,7 @@ wgpu::Future WebCFD::request_device() noexcept
     );
 }
 
-void WebCFD::render() noexcept
+void EchoMap::render() noexcept
 {
     if (!handle_window_resize())
         return;
@@ -312,7 +312,7 @@ void WebCFD::render() noexcept
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst - Not semantically constant
-void WebCFD::setup_imgui()
+void EchoMap::setup_imgui()
 {
     if (!device)
         throw ConfigurationError("Cannot initialise ImGui: WebGPU device is null");
@@ -358,7 +358,7 @@ void WebCFD::setup_imgui()
 }
 
 // ReSharper disable once CppDFAUnreachableFunctionCall
-bool WebCFD::handle_window_resize() noexcept
+bool EchoMap::handle_window_resize() noexcept
 {
     int fb_width;
     int fb_height;
@@ -389,4 +389,4 @@ bool WebCFD::handle_window_resize() noexcept
     return true;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

@@ -13,7 +13,7 @@ template <typename builder_type>
 void tag_invoke(
         serialize_tag,
         builder_type& builder,
-        const WebCFD::Project& project
+        const EchoMap::Project& project
 )
 {
     static constexpr unsigned int schema_version = 1;
@@ -86,7 +86,7 @@ template <typename builder_type>
 void tag_invoke(
         serialize_tag,
         builder_type& builder,
-        const WebCFD::Sensor& sensor
+        const EchoMap::Sensor& sensor
 )
 {
     builder.start_object();
@@ -127,7 +127,7 @@ template <typename builder_type>
 void tag_invoke(
         serialize_tag,
         builder_type& builder,
-        const WebCFD::Signal& signal
+        const EchoMap::Signal& signal
 )
 {
     builder.start_object();
@@ -183,7 +183,7 @@ void tag_invoke(
 
 } // namespace simdjson
 
-namespace WebCFD
+namespace EchoMap
 {
 
 std::string_view JSONSerialiser::serialise_project(
@@ -205,4 +205,4 @@ std::string JSONSerialiser::pretty_print(
     return simdjson::fractured_json_string(data, options);
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

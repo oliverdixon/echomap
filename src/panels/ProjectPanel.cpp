@@ -6,7 +6,7 @@
 
 #include <imgui.h>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 ProjectPanel::ProjectPanel(
@@ -54,4 +54,4 @@ void ProjectPanel::set_active_project(
     active_project = new_active_project;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

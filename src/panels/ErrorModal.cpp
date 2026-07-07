@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD modal error panel implementation
+ * @brief EchoMap modal error panel implementation
  * @author Oliver Dixon
  * @date 2026-06-30
  */
@@ -11,7 +11,7 @@
 
 #include "../Logger.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 void ErrorModal::raise_error(
         const std::string_view message
@@ -85,4 +85,4 @@ void ErrorModal::set_active_project(
     std::ignore = new_active_project;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

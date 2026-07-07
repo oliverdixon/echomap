@@ -1,18 +1,18 @@
 /**
  * @file
- * @brief WebCFD WebGPU-GLFW Surface factory specification
+ * @brief EchoMap WebGPU-GLFW Surface factory specification
  * @author Oliver Dixon
  * @date 2026-07-05
  */
 
-#ifndef WEBCFD_SURFACEFACTORY_HPP
-#define WEBCFD_SURFACEFACTORY_HPP
+#ifndef ECHOMAP_SURFACEFACTORY_HPP
+#define ECHOMAP_SURFACEFACTORY_HPP
 
 #include <webgpu/webgpu_cpp.h>
 
 struct GLFWwindow;
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -57,6 +57,6 @@ private:
     static std::unique_ptr<wgpu::ChainedStruct> get_surface_descriptor(GLFWwindow* window);
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_SURFACEFACTORY_HPP
+#endif // ECHOMAP_SURFACEFACTORY_HPP

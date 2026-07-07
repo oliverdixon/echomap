@@ -1,18 +1,18 @@
 /**
  * @file
- * @brief WebCFD modal error panel specification
+ * @brief EchoMap modal error panel specification
  * @author Oliver Dixon
  * @date 2026-06-30
  */
 
-#ifndef WEBCFD_ERRORMODAL_HPP
-#define WEBCFD_ERRORMODAL_HPP
+#ifndef ECHOMAP_ERRORMODAL_HPP
+#define ECHOMAP_ERRORMODAL_HPP
 
 #include "IPanel.hpp"
 
 #include <string>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -60,6 +60,6 @@ private:
     const std::string panel_name = "Error!";
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_ERRORMODAL_HPP
+#endif // ECHOMAP_ERRORMODAL_HPP

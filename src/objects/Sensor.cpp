@@ -4,7 +4,7 @@
 
 #include "Sensor.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 template <> constexpr std::string Object<Sensor>::class_name = "Sensor";
@@ -59,4 +59,4 @@ void Sensor::set_colour(
     colour.a = a;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

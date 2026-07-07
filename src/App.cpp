@@ -1,12 +1,12 @@
 /**
  * @file
- * @brief WebCFD entry point
+ * @brief EchoMap entry point
  * @author Oliver Dixon
  * @date 2026-05-05
  */
 
 #include "Logger.hpp"
-#include "WebCFD.hpp"
+#include "EchoMap.hpp"
 #include "errors/ConfigurationError.hpp"
 
 #if defined(__EMSCRIPTEN__)
@@ -14,7 +14,7 @@
 #endif
 
 /**
- * WebCFD common entry point.
+ * EchoMap common entry point.
  *
  * @return OS status exit code. 0 for success, 1 for failure.
  */
@@ -33,23 +33,23 @@ int main()
          * https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop
          */
 #ifdef __EMSCRIPTEN__
-        auto* const application = new WebCFD::WebCFD();
-        WebCFD::JSBridge::bind(application);
+        auto* const application = new EchoMap::EchoMap();
+        EchoMap::JSBridge::bind(application);
         application->run_event_loop();
 #else
-        WebCFD::WebCFD application;
+        EchoMap::EchoMap application;
         application.run_event_loop();
 #endif
-    } catch (const WebCFD::ConfigurationError& error) {
+    } catch (const EchoMap::ConfigurationError& error) {
 #ifdef __EMSCRIPTEN__
-        WebCFD::JSBridge::unbind();
+        EchoMap::JSBridge::unbind();
 #endif
-        WebCFD::Logger::log(WebCFD::Logger::Level::Error, error.what(), error.where());
+        EchoMap::Logger::log(EchoMap::Logger::Level::Error, error.what(), error.where());
         return 1;
     }
 
 #ifdef __EMSCRIPTEN__
-    WebCFD::JSBridge::unbind();
+    EchoMap::JSBridge::unbind();
 #endif
     return 0;
 }

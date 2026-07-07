@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD ConfigurationError exception implementation
+ * @brief EchoMap ConfigurationError exception implementation
  * @author Oliver Dixon
  * @date 2026-06-19
  */
@@ -9,7 +9,7 @@
 
 #include <string>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 ConfigurationError::ConfigurationError(
@@ -20,4 +20,4 @@ ConfigurationError::ConfigurationError(
 {
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

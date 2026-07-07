@@ -1,19 +1,19 @@
 /**
  * @file
- * @brief WebCFD signal waveform preview panel specification
+ * @brief EchoMap signal waveform preview panel specification
  * @author Oliver Dixon
  * @date 2026-07-07
  */
 
-#ifndef WEBCFD_SIGNALWAVEFORMPANEL_HPP
-#define WEBCFD_SIGNALWAVEFORMPANEL_HPP
+#ifndef ECHOMAP_SIGNALWAVEFORMPANEL_HPP
+#define ECHOMAP_SIGNALWAVEFORMPANEL_HPP
 
 #include <implot.h>
 
 #include "../objects/Signal.hpp"
 #include "IPanel.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -76,6 +76,6 @@ private:
     Project* active_project = nullptr;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_SIGNALWAVEFORMPANEL_HPP
+#endif // ECHOMAP_SIGNALWAVEFORMPANEL_HPP

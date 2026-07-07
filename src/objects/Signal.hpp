@@ -5,8 +5,8 @@
  * @date 2026-06-24
  */
 
-#ifndef WEBCFD_SIGNAL_HPP
-#define WEBCFD_SIGNAL_HPP
+#ifndef ECHOMAP_SIGNAL_HPP
+#define ECHOMAP_SIGNAL_HPP
 
 #include <cstdint>
 #include <filesystem>
@@ -14,7 +14,7 @@
 
 #include "Object.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -221,6 +221,6 @@ private:
     std::optional<Source> fs_source; /**< External source, if any, of the Signal Sample stream. */
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_SIGNAL_HPP
+#endif // ECHOMAP_SIGNAL_HPP

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD portable logger implementation
+ * @brief EchoMap portable logger implementation
  * @author Oliver Dixon
  * @date 2026-06-20
  */
@@ -13,7 +13,7 @@
 #include <iostream>
 #endif
 
-namespace WebCFD
+namespace EchoMap
 {
 
 void Logger::log(
@@ -64,4 +64,4 @@ std::string_view Logger::level_to_string(
     return "Unknown";
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

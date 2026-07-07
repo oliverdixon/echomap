@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD rendering ImGui panel implementation
+ * @brief EchoMap rendering ImGui panel implementation
  * @author Oliver Dixon
  * @date 2026-06-20
  */
@@ -9,7 +9,7 @@
 
 #include <imgui.h>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 RenderPanel::RenderPanel(
@@ -66,4 +66,4 @@ void RenderPanel::update_gpu(
     renderer.render(command_encoder);
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

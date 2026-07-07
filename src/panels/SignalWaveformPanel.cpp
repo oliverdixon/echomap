@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD signal waveform preview panel implementation
+ * @brief EchoMap signal waveform preview panel implementation
  * @author Oliver Dixon
  * @date 2026-07-07
  */
@@ -9,7 +9,7 @@
 
 #include "../objects/Project.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 SignalWaveformPanel::SignalWaveformPanel(
@@ -108,4 +108,4 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
     return success ? &downsampled_it->second : nullptr;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

@@ -5,13 +5,13 @@
  * @date 2026-05-05
  */
 
-#ifndef WEBCFD_PANEL_HPP
-#define WEBCFD_PANEL_HPP
+#ifndef ECHOMAP_PANEL_HPP
+#define ECHOMAP_PANEL_HPP
 
 #include <webgpu/webgpu_cpp.h>
 #include <implot.h>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class Project;
@@ -61,7 +61,7 @@ public:
      *
      * @todo Panels should be able to get by with a constant pointer. The application should use an event-driven
      *       architecture, such that panels do not modify the Project directly, but post change requests to a queue
-     *       managed by the central WebCFD instance. This would also facilitiate moving to a multi-threaded
+     *       managed by the central EchoMap instance. This would also facilitiate moving to a multi-threaded
      *       architecture, since the render actions would have less data dependency on the Project state.
      */
     virtual void set_active_project(Project* new_active_project) noexcept = 0;
@@ -71,6 +71,6 @@ protected:
         ImGuiTableFlags_RowBg;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_PANEL_HPP
+#endif // ECHOMAP_PANEL_HPP

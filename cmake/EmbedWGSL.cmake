@@ -1,4 +1,4 @@
-# WGSL code-generation for WebCFD
+# WGSL code-generation for EchoMap
 #
 # Author: Oliver Dixon
 # Date: 2026-06-09
@@ -33,24 +33,24 @@ if(embed_wgsl_generate)
 
     file(WRITE "${hpp_output}" "#pragma once
 
-namespace WebCFD::Shaders
+namespace EchoMap::Shaders
 {
 
 extern const char ${symbol}[];
 
-} // namespace WebCFD::Shaders
+} // namespace EchoMap::Shaders
 ")
 
     file(WRITE "${cpp_output}" "#include \"${include_path}\"
 
-namespace WebCFD::Shaders
+namespace EchoMap::Shaders
 {
 
 const char ${symbol}[] = R\"${delimiter}(
 ${wgsl_source}
 )${delimiter}\";
 
-} // namespace WebCFD::Shaders
+} // namespace EchoMap::Shaders
 ")
 
     return()

@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD WebGPU-GLFW Surface factory implementation
+ * @brief EchoMap WebGPU-GLFW Surface factory implementation
  * @author Oliver Dixon
  * @date 2026-07-05
  */
@@ -64,7 +64,7 @@ T objc_call(const char *clazz, const char * const sel, Args... args) {
 
 #endif
 
-namespace WebCFD
+namespace EchoMap
 {
 
 wgpu::Surface SurfaceFactory::create_surface(
@@ -157,4 +157,4 @@ std::unique_ptr<wgpu::ChainedStruct> SurfaceFactory::get_surface_descriptor(
     return nullptr;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

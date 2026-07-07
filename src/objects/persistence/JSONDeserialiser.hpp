@@ -2,14 +2,14 @@
 // Created by owd on 07/07/2026.
 //
 
-#ifndef WEBCFD_JSONDESERIALISER_HPP
-#define WEBCFD_JSONDESERIALISER_HPP
+#ifndef ECHOMAP_JSONDESERIALISER_HPP
+#define ECHOMAP_JSONDESERIALISER_HPP
 
 #include <simdjson.h>
 
 #include "IDeserialiser.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class JSONDeserialiser : public IDeserialiser
@@ -21,6 +21,6 @@ private:
     simdjson::ondemand::parser parser;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_JSONDESERIALISER_HPP
+#endif // ECHOMAP_JSONDESERIALISER_HPP

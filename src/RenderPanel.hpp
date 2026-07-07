@@ -1,19 +1,19 @@
 /**
  * @file
- * @brief WebCFD rendering ImGui panel specification
+ * @brief EchoMap rendering ImGui panel specification
  * @author Oliver Dixon
  * @date 2026-06-20
  */
 
-#ifndef WEBCFD_RENDERPANEL_HPP
-#define WEBCFD_RENDERPANEL_HPP
+#ifndef ECHOMAP_RENDERPANEL_HPP
+#define ECHOMAP_RENDERPANEL_HPP
 
 #include <string>
 
 #include "ViewportRenderer.hpp"
 #include "panels/IPanel.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -21,8 +21,8 @@ namespace WebCFD
  *
  * The RenderPanel owns its own renderer, as a ViewportRenderer (or equivalent). The panel is notified when the GPU is
  * ready to accept more work on the given device through the interface methods. Note that, like the ParametersPanel,
- * RenderPanel instances are created subordinate to the WebCFD instance and contain weak references to its state.
- * Therefore, no RenderPanel should outlive its parent WebCFD.
+ * RenderPanel instances are created subordinate to the EchoMap instance and contain weak references to its state.
+ * Therefore, no RenderPanel should outlive its parent EchoMap.
  */
 class RenderPanel final : public IPanel
 {
@@ -57,6 +57,6 @@ private:
     std::string panel_name;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_RENDERPANEL_HPP
+#endif // ECHOMAP_RENDERPANEL_HPP

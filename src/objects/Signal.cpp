@@ -11,7 +11,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 template <> constexpr std::string Object<Signal>::class_name = "Signal";
@@ -245,4 +245,4 @@ void Signal::downsample_and_copy(
     assert(dest.size() == threshold);
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

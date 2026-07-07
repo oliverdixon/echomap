@@ -5,12 +5,12 @@
  * @date 2026-05-06
  */
 
-#ifndef WEBCFD_ROBOTOMEDIUM_HPP
-#define WEBCFD_ROBOTOMEDIUM_HPP
+#ifndef ECHOMAP_ROBOTOMEDIUM_HPP
+#define ECHOMAP_ROBOTOMEDIUM_HPP
 
 #include <cstdint>
 
-namespace WebCFD::data
+namespace EchoMap::data
 {
 
 static constexpr std::uint8_t RobotoMedium_compressed_data[115741] = {
@@ -5279,4 +5279,4 @@ static constexpr std::uint8_t RobotoMedium_compressed_data[115741] = {
 
 }
 
-#endif // WEBCFD_ROBOTOMEDIUM_HPP
+#endif // ECHOMAP_ROBOTOMEDIUM_HPP

@@ -2,8 +2,8 @@
 // Created by owd on 25/06/2026.
 //
 
-#ifndef WEBCFD_OBJECT_HPP
-#define WEBCFD_OBJECT_HPP
+#ifndef ECHOMAP_OBJECT_HPP
+#define ECHOMAP_OBJECT_HPP
 
 #include <format>
 #include <string>
@@ -11,7 +11,7 @@
 
 #include "IDAllocator.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -193,6 +193,6 @@ private:
     std::string name;           /**< Display name for the object */
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_OBJECT_HPP
+#endif // ECHOMAP_OBJECT_HPP

@@ -2,13 +2,13 @@
 // Created by owd on 25/06/2026.
 //
 
-#ifndef WEBCFD_PROJECTPANEL_HPP
-#define WEBCFD_PROJECTPANEL_HPP
+#ifndef ECHOMAP_PROJECTPANEL_HPP
+#define ECHOMAP_PROJECTPANEL_HPP
 
 #include "../objects/Project.hpp"
 #include "IPanel.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class ProjectPanel final : public IPanel
@@ -28,6 +28,6 @@ private:
     Project * active_project = nullptr;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_PROJECTPANEL_HPP
+#endif // ECHOMAP_PROJECTPANEL_HPP

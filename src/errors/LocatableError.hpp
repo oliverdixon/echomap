@@ -2,13 +2,13 @@
 // Created by owd on 05/07/2026.
 //
 
-#ifndef WEBCFD_LOCATABLEERROR_HPP
-#define WEBCFD_LOCATABLEERROR_HPP
+#ifndef ECHOMAP_LOCATABLEERROR_HPP
+#define ECHOMAP_LOCATABLEERROR_HPP
 
 #include <source_location>
 #include <stdexcept>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class LocatableError : public std::runtime_error
@@ -37,6 +37,6 @@ private:
     std::source_location location;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_LOCATABLEERROR_HPP
+#endif // ECHOMAP_LOCATABLEERROR_HPP

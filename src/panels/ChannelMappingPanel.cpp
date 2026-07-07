@@ -6,7 +6,7 @@
 
 #include "../objects/Project.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 ChannelMappingPanel::ChannelMappingPanel(
@@ -143,4 +143,4 @@ void ChannelMappingPanel::draw_existing_channel_mapping() const noexcept
     }
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

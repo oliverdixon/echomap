@@ -5,8 +5,8 @@
  * @date 2026-06-24
  */
 
-#ifndef WEBCFD_SIGNALFACTORY_H
-#define WEBCFD_SIGNALFACTORY_H
+#ifndef ECHOMAP_SIGNALFACTORY_H
+#define ECHOMAP_SIGNALFACTORY_H
 
 #include <dr_wav.h>
 
@@ -14,7 +14,7 @@
 #include <span>
 #include <vector>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class Signal;
@@ -76,6 +76,6 @@ private:
     );
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_SIGNALFACTORY_H
+#endif // ECHOMAP_SIGNALFACTORY_H

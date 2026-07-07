@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief WebCFD viewport renderer implementation
+ * @brief EchoMap viewport renderer implementation
  * @author Oliver Dixon
  * @date 2026-06-20
  */
@@ -10,7 +10,7 @@
 #include <chrono>
 #include <utility>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 ViewportRenderer::ViewportRenderer(
@@ -175,4 +175,4 @@ void ViewportRenderer::create_pipeline()
     bind_group = device.CreateBindGroup(&bind_group_descriptor);
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

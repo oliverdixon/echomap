@@ -1,16 +1,16 @@
 /**
  * @file
- * @brief WebCFD parameters structure specification
+ * @brief EchoMap parameters structure specification
  * @author Oliver Dixon
  * @date 2026-06-20
  */
 
-#ifndef WEBCFD_SIMULATIONPARAMETERS_H
-#define WEBCFD_SIMULATIONPARAMETERS_H
+#ifndef ECHOMAP_SIMULATIONPARAMETERS_H
+#define ECHOMAP_SIMULATIONPARAMETERS_H
 
 #include <random>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -45,7 +45,7 @@ private:
 };
 
 /**
- * WebCFD simulation parameters (animation and colouring) relevant to all shaders.
+ * EchoMap simulation parameters (animation and colouring) relevant to all shaders.
  *
  * Optional RNG services are provided through static members.
  */
@@ -100,6 +100,6 @@ private:
     static std::uniform_real_distribution<float> distribution;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_SIMULATIONPARAMETERS_H
+#endif // ECHOMAP_SIMULATIONPARAMETERS_H

@@ -6,7 +6,7 @@
 
 #include <imgui.h>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 void MenuPanel::draw() noexcept
@@ -65,4 +65,4 @@ void MenuPanel::set_active_project(
     std::ignore = new_active_project;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

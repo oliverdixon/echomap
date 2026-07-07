@@ -2,13 +2,13 @@
 // Created by owd on 25/06/2026.
 //
 
-#ifndef WEBCFD_IDALLOCATOR_HPP
-#define WEBCFD_IDALLOCATOR_HPP
+#ifndef ECHOMAP_IDALLOCATOR_HPP
+#define ECHOMAP_IDALLOCATOR_HPP
 
 #include <concepts>
 #include <cstdint>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 template<typename>
@@ -29,6 +29,6 @@ private:
 template<typename Class>
 IDAllocator<Class>::id_type IDAllocator<Class>::next_id = 0;
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_IDALLOCATOR_HPP
+#endif // ECHOMAP_IDALLOCATOR_HPP

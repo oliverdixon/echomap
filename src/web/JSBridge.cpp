@@ -14,13 +14,13 @@
 #include "../ConfigurationError.hpp"
 #include "../Logger.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
-WebCFD * JSBridge::instance = nullptr;
+EchoMap * JSBridge::instance = nullptr;
 
 void JSBridge::bind(
-        WebCFD* const new_instance
+        EchoMap* const new_instance
 ) noexcept
 {
     instance = new_instance;
@@ -56,14 +56,14 @@ int JSBridge::notify_wav_file_picked(
 bool JSBridge::preamble() noexcept
 {
     if (instance == nullptr) {
-        LOG_ERROR("No WebCFD app instance is registered");
+        LOG_ERROR("No EchoMap app instance is registered");
         return false;
     }
 
     return true;
 }
 
-} // namespace WebCFD
+} // namespace EchoMap
 
 /**
  * Action to handle a new wave file being selected on the DOM. This is exported and called from the JS.
@@ -72,9 +72,9 @@ bool JSBridge::preamble() noexcept
  * @return Numerical status code; non-zero on failure.
  * @see JSBridge::notify_wav_file_picked
  */
-extern "C" EMSCRIPTEN_KEEPALIVE int webcfd_on_wav_file_picked(const char * const path)
+extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_wav_file_picked(const char * const path)
 {
-    return WebCFD::JSBridge::notify_wav_file_picked(path);
+    return EchoMap::JSBridge::notify_wav_file_picked(path);
 }
 
 #endif // __EMSCRIPTEN__

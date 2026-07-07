@@ -17,7 +17,7 @@
 #include "../../errors/ConfigurationError.hpp"
 #include "../Signal.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
@@ -129,4 +129,4 @@ void SignalFactory::load_wave_file_into_channels(
         throw ConfigurationError("Cannot read entire WAV file at " + std::string(file_path) + ". Is it corrupted?");
 }
 
-} // namespace WebCFD
+} // namespace EchoMap

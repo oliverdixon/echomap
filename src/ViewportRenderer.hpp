@@ -1,18 +1,18 @@
 /**
  * @file
- * @brief WebCFD viewport renderer specification
+ * @brief EchoMap viewport renderer specification
  * @author Oliver Dixon
  * @date 2026-06-20
  */
 
-#ifndef WEBCFD_VIEWPORTRENDERER_HPP
-#define WEBCFD_VIEWPORTRENDERER_HPP
+#ifndef ECHOMAP_VIEWPORTRENDERER_HPP
+#define ECHOMAP_VIEWPORTRENDERER_HPP
 
 #include <webgpu/webgpu_cpp.h>
 
 #include "SimulationParameters.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 /**
@@ -100,6 +100,6 @@ private:
     wgpu::TextureView texture_view;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_VIEWPORTRENDERER_HPP
+#endif // ECHOMAP_VIEWPORTRENDERER_HPP

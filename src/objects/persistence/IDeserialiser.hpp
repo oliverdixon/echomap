@@ -2,13 +2,13 @@
 // Created by owd on 07/07/2026.
 //
 
-#ifndef WEBCFD_IDESERIALISER_HPP
-#define WEBCFD_IDESERIALISER_HPP
+#ifndef ECHOMAP_IDESERIALISER_HPP
+#define ECHOMAP_IDESERIALISER_HPP
 
 #include <memory>
 #include <string_view>
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class Project;
@@ -23,6 +23,6 @@ public:
     virtual std::unique_ptr<Project> deserialise_project(std::string_view path) = 0;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_IDESERIALISER_HPP
+#endif // ECHOMAP_IDESERIALISER_HPP

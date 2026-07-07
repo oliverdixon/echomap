@@ -1,18 +1,18 @@
 /**
  * @file
- * @brief WebCFD sensor geometry panel specification
+ * @brief EchoMap sensor geometry panel specification
  * @author Oliver Dixon
  * @date 2026-07-07
  */
 
-#ifndef WEBCFD_SENSORGEOMETRYPANEL_HPP
-#define WEBCFD_SENSORGEOMETRYPANEL_HPP
+#ifndef ECHOMAP_SENSORGEOMETRYPANEL_HPP
+#define ECHOMAP_SENSORGEOMETRYPANEL_HPP
 
 #include <implot3d.h>
 
 #include "IPanel.hpp"
 
-namespace WebCFD
+namespace EchoMap
 {
 
 class Project;
@@ -43,6 +43,6 @@ private:
     Project * active_project = nullptr;
 };
 
-} // namespace WebCFD
+} // namespace EchoMap
 
-#endif // WEBCFD_SENSORGEOMETRYPANEL_HPP
+#endif // ECHOMAP_SENSORGEOMETRYPANEL_HPP
