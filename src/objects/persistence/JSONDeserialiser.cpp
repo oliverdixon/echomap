@@ -5,7 +5,7 @@
 
 #include "../Project.hpp"
 #include "../Signal.hpp"
-#include "SignalFactory.hpp"
+#include "../SignalFactory.hpp"
 
 /**
  * Free helper functions for simdjson customisation points.
@@ -260,26 +260,29 @@ auto tag_invoke(
         if ((error = source["channel"].get(channel_num)))
             return error;
 
-        signal.provide_source(path, channel_num);
+        signal.set_source(path, channel_num);
     } else if (kind == "embedded") {
         std::size_t reported_sample_count;
         if ((error = source["sample_count"].get(reported_sample_count)))
+            return error;
+
+        std::size_t sample_rate;
+        if ((error = source["sample_rate"].get(sample_rate)))
+            return error;
+
+        float time_offset;
+        if ((error = source["time_offset"].get(time_offset)))
             return error;
 
         ondemand::array samples;
         if ((error = source["samples"].get_array().get(samples)))
             return error;
 
-        for (auto sample : samples) {
-            ondemand::object sample_obj;
-            if ((error = sample.get_object().get(sample_obj)))
+        for (auto sample_wrapper : samples) {
+            float amplitude;
+            if ((error = sample_wrapper.get(amplitude)))
                 return error;
-            EchoMap::Signal::Sample sample_data;
-            if ((error = sample_obj["time"].get(sample_data.time)))
-                return error;
-            if ((error = sample_obj["amplitude"].get(sample_data.amplitude)))
-                return error;
-            signal.emplace_sample(sample_data.time, sample_data.amplitude);
+            signal.emplace_sample(amplitude);
         }
 
         if (reported_sample_count != signal.get_sample_count())

@@ -94,6 +94,8 @@
       "additionalProperties": false,
       "required": [
         "kind",
+        "time_offset",
+        "sample_rate",
         "sample_count",
         "samples"
       ],
@@ -101,14 +103,22 @@
         "kind": {
           "const": "embedded"
         },
-        "sample_count": {
+        "time_offset": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sample_rate": {
           "type": "number",
           "exclusiveMinimum": 0
+        },
+        "sample_count": {
+          "type": "number",
+          "minimum": 0
         },
         "samples": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/audio_sample"
+            "type": "number"
           }
         }
       }
@@ -132,23 +142,6 @@
         "channel": {
           "type": "integer",
           "minimum": 0
-        }
-      }
-    },
-    "audio_sample": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "time",
-        "amplitude"
-      ],
-      "properties": {
-        "time": {
-          "type": "number",
-          "minimum": 0
-        },
-        "amplitude": {
-          "type": "number"
         }
       }
     },

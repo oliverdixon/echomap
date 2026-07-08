@@ -153,7 +153,15 @@ void tag_invoke(
 
     // ... for embedded or dirty sources, append samples in situ.
     else {
+        if (!signal.is_uniformly_sampled())
+            // TODO
+            throw std::runtime_error("Cannot currently serialise embedded variably sampled signals.");
+
         builder.append_key_value("kind", "embedded");
+        builder.append_comma();
+        builder.append_key_value("time_offset", signal.get_time_offset());
+        builder.append_comma();
+        builder.append_key_value("sample_rate", signal.get_sample_rate());
         builder.append_comma();
         builder.append_key_value("sample_count", signal.get_sample_count());
         builder.append_comma();
@@ -164,13 +172,7 @@ void tag_invoke(
         for (const auto sample : signal) {
             if (!first_element)
                 builder.append_comma();
-
-            builder.start_object();
-            builder.append_key_value("time", sample.time);
-            builder.append_comma();
-            builder.append_key_value("amplitude", sample.amplitude);
-            builder.end_object();
-
+            builder.append(sample);
             first_element = false;
         }
 
