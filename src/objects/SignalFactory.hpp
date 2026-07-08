@@ -19,6 +19,9 @@ namespace EchoMap
 
 class Signal;
 
+/**
+ * Provides various convenience functions for constructing Signal objects in exotic ways.
+ */
 class SignalFactory
 {
 public:
@@ -57,6 +60,20 @@ public:
             std::span<Signal* const> channels
     );
 
+    /**
+     * Downsamples an existing Signal instance across all channels to the given number of samples.
+     *
+     * @param source The existing Signal to downsample.
+     * @param downsample_factor The factor by which the number of samples should be reduced during downsampling.
+     * @param name Optional display name. If omitted, a sensible default based on the source signal and downsampling
+     *  factor will be used.
+     */
+    [[nodiscard]] static std::unique_ptr<Signal> downsample(
+            const Signal& source,
+            float downsample_factor,
+            std::string_view name = {}
+    );
+
 private:
     /**
      * Loads the time-series sampled data into the given Signal objects.
@@ -73,6 +90,32 @@ private:
             drwav& drwav_info,
             std::string_view file_path,
             std::span<Signal* const> channels
+    );
+
+    /**
+     * Create a new Signal by downsampling the data points of an existing Signal to the given threshold.
+     *
+     * <p>
+     *  This helper uses the well-known Largest-Triangle Three-Buckets (LTTB) downsampling algorithm, described in
+     *  detail by the Master's Thesis <a href="https://skemman.is/handle/1946/15343"><i>Downsampling Time Series for
+     *  Visual Representation</i>, Sveinn Steinarsson (2013)</a>.
+     * </p>
+     * <p>
+     *  In addition to the thesis, reference implementations in all major languages are available online. This function
+     *  uses a specialised implementation for the AudioPoint structure:
+     *  https://github.com/sveinn-steinarsson/flot-downsample.
+     * </p>
+     *
+     * @param source The original Signal to be downsampled.
+     * @param threshold The number of samples in the downsampled data.
+     * @param name Name of the downsampled Signal.
+     * @return The downsampled Signal, detained in an owning container.
+     * @post The number of samples in the returned signal matches the threshold parameter.
+     */
+    [[nodiscard]] static std::unique_ptr<Signal> lttb_downsample(
+            const Signal& source,
+            size_t threshold,
+            std::string_view name
     );
 };
 

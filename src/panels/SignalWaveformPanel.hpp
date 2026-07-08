@@ -60,12 +60,18 @@ private:
     /**
      * The duplicated Signal objects, downsampled for visualisation.
      *
-     * It is typically undesirable for the panels to own any non-trivial state. In this case, however, the data is
-     * generated exclusively for the purposes of visualisation on this panel, and the elements' construction and
-     * destruction is at the whim of the renderer such that downsampled time series are only created ad-hoc when they
-     * need to be visualised. Therefore, the SignalWaveformPanel seems to be the natural owner.
+     * <p>
+     *  This map associates the IDs of the original Signal objects with owning containers of their downsampled
+     *  counterparts.
+     * </p>
+     * <p>
+     *  It is typically undesirable for the panels to own any non-trivial state. In this case, however, the data is
+     *  generated exclusively for the purposes of visualisation on this panel, and the elements' construction and
+     *  destruction is at the whim of the renderer such that downsampled time series are only created ad-hoc when they
+     *  need to be visualised. Therefore, the SignalWaveformPanel seems to be the natural owner.
+     * </p>
      */
-    std::unordered_map<Signal::id_type, Signal> downsample_cache;
+    std::unordered_map<Signal::id_type, std::unique_ptr<Signal>> downsample_cache;
 
     /**
      * The maximum bounding box of a LTTB-downsampled wave form plot.

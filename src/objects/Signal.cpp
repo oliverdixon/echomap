@@ -26,41 +26,6 @@ Signal::Signal(
 {
 }
 
-Signal::Signal(
-        const Signal& source,
-        const std::uint64_t sample_count,
-        const std::string_view name
-) :
-    Object(name),
-    timing_baseline(source.timing_baseline),
-    fs_source(source.fs_source)
-{
-    downsample_and_copy(source, sample_count);
-
-    if (fs_source.has_value())
-        fs_source->dirty = true;
-}
-
-Signal::Signal(
-        const Signal& source,
-        const float downsample_factor,
-        const std::string_view name
-) :
-    Object(name),
-    timing_baseline(source.timing_baseline),
-    fs_source(source.fs_source)
-{
-    auto sample_count = static_cast<std::uint64_t>(static_cast<float>(source.get_sample_count()) / downsample_factor);
-
-    if (sample_count < downsample_factor)
-        sample_count = static_cast<std::uint64_t>(downsample_factor);
-
-    downsample_and_copy(source, sample_count);
-
-    if (fs_source.has_value())
-        fs_source->dirty = true;
-}
-
 void Signal::emplace_sample(
         const Sample::AmplitudeT amplitude
 )
@@ -176,6 +141,11 @@ decltype(Signal::samples)::const_iterator Signal::cend() const noexcept
     return samples.cend();
 }
 
+Signal::Sample::AmplitudeT Signal::operator[](const std::size_t index) const noexcept
+{
+    return samples[index];
+}
+
 bool Signal::is_uniformly_sampled() const noexcept
 {
     return !time_offsets.has_value();
@@ -243,111 +213,10 @@ void Signal::emplace_time(
         if (time_offsets.has_value())
             time_offsets->emplace_back(offset);
         else {
-            LOG_F_DEBUG("Signal \"{}\" is no longer uniformly sampled.", get_name());
             time_offsets.emplace(samples.size(), 0.0f);
             time_offsets->back() = offset;
         }
     }
-}
-
-void Signal::downsample_and_copy(
-        const Signal& source_channel,
-        const size_t threshold
-)
-{
-    auto& dest = samples;
-    const auto& source = source_channel.samples;
-
-    samples.clear();
-    time_offsets.reset();
-
-    // We don't need to assert for the post-condition on these trivial cases.
-
-    if (threshold == 0 || source.empty())
-        return;
-
-    if (threshold >= source.size()) {
-        samples = source_channel.samples;
-        time_offsets = source_channel.time_offsets;
-        return;
-    }
-
-    dest.reserve(threshold);
-
-    if (threshold == 1) {
-        emplace_sample(source_channel.get_time_at_index(0), source.front());
-        return;
-    }
-
-    if (threshold == 2) {
-        emplace_sample(source_channel.get_time_at_index(0), source.front());
-        emplace_sample(source_channel.get_time_at_index(source.size() - 1), source.back());
-        return;
-    }
-
-    const double bucket_size = static_cast<double>(source.size() - 2) / static_cast<double>(threshold - 2);
-    std::size_t fixed_point_idx = 0;
-
-    // Always add the first point.
-    emplace_sample(source_channel.get_time_at_index(0), source.front());
-
-    for (std::size_t i = 0; i < threshold - 2; ++i) {
-        Sample::TimeT average_time = 0.0f;
-        Sample::AmplitudeT average_amplitude = 0.0f;
-
-        // Calculate the point-average for the next bucket, containing our fixed point.
-
-        const auto average_range_start = static_cast<std::size_t>(std::floor((i + 1) * bucket_size)) + 1;
-        const auto average_range_end =
-                std::min(static_cast<std::size_t>(std::floor((i + 2) * bucket_size)) + 1, source.size());
-        const auto average_range_length = average_range_end - average_range_start;
-
-        for (auto range_idx = average_range_start; range_idx < average_range_end; ++range_idx) {
-            average_time += source_channel.get_time_at_index(range_idx);
-            average_amplitude += source[range_idx];
-        }
-
-        average_time /= static_cast<Sample::TimeT>(average_range_length);
-        average_amplitude /= static_cast<Sample::AmplitudeT>(average_range_length);
-
-        // Store the sample data at the fixed point.
-        const auto fp_time = source_channel.get_time_at_index(fixed_point_idx);
-        const auto fp_amplitude = source[fixed_point_idx];
-
-        // Get the range for the current bucket and compute triangle areas over the three buckets.
-        const auto range_lower = static_cast<std::size_t>(std::floor(i * bucket_size)) + 1;
-        const auto range_upper =
-                std::min(static_cast<std::size_t>(std::floor((i + 1) * bucket_size)) + 1, source.size() - 1);
-
-        // (C++ note: we need to combine Sample::TimeT and Sample::AmplitudeT here, so float seems like a safe choice.)
-        auto max_area = std::numeric_limits<float>::lowest();
-        auto next_fixed_point_idx = range_lower;
-
-        // Calculate triangle area formed by the vertices in the adjacent buckets, tracking the maximum.
-        for (auto range_idx = range_lower; range_idx < range_upper; ++range_idx) {
-            const float area = std::abs(
-                    (fp_time - average_time) * (source[range_idx] - fp_amplitude) -
-                    (fp_time - source_channel.get_time_at_index(range_idx)) * (average_amplitude - fp_amplitude)
-            );
-
-            if (area > max_area) {
-                max_area = area;
-                next_fixed_point_idx = range_idx;
-            }
-        }
-
-        /*
-         * Pick the point from the bucket to include in the downsampled data, and set the index as our next starting
-         * point.
-         */
-        emplace_sample(source_channel.get_time_at_index(next_fixed_point_idx), source[next_fixed_point_idx]);
-        fixed_point_idx = next_fixed_point_idx;
-    }
-
-    // Always add the last point.
-    emplace_sample(source_channel.get_time_at_index(source.size() - 1), source.back());
-
-    assert(dest.size() == threshold);
 }
 
 } // namespace EchoMap

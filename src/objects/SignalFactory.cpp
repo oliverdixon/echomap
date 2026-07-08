@@ -12,6 +12,7 @@
 #include <dr_wav.h>
 
 #include <algorithm>
+#include <cmath>
 #include <ranges>
 
 #include "../Logger.hpp"
@@ -63,7 +64,7 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
 
 void SignalFactory::load_wave_file(
         const char* const file_path,
-        std::span<Signal* const> channels
+        const std::span<Signal* const> channels
 )
 {
     drwav drwav_info;
@@ -78,6 +79,34 @@ void SignalFactory::load_wave_file(
     }
 
     drwav_uninit(&drwav_info);
+}
+
+std::unique_ptr<Signal> SignalFactory::downsample(
+        const Signal& source,
+        const float downsample_factor,
+        const std::string_view name
+)
+{
+    auto sample_count = static_cast<std::uint64_t>(static_cast<float>(source.get_sample_count()) / downsample_factor);
+    if (sample_count < downsample_factor)
+        sample_count = static_cast<std::uint64_t>(downsample_factor);
+
+    auto downsampled = name.empty() ? lttb_downsample(
+                                              source,
+                                              sample_count,
+                                              std::format("{} ({}x downsampled)", source.get_name(), downsample_factor)
+                                      )
+                                    : lttb_downsample(source, sample_count, name);
+
+    LOG_F_DEBUG(
+            "Created {} as {}x-LTTB variant of {} with {} samples.",
+            downsampled->get_name(),
+            downsample_factor,
+            source.get_name(),
+            downsampled->get_sample_count()
+    );
+
+    return std::move(downsampled);
 }
 
 void SignalFactory::load_wave_file_into_channels(
@@ -135,6 +164,107 @@ void SignalFactory::load_wave_file_into_channels(
                 channel->get_sample_rate(),
                 channel->get_time_offset()
         );
+}
+
+std::unique_ptr<Signal> SignalFactory::lttb_downsample(
+        const Signal& source,
+        const size_t threshold,
+        const std::string_view name
+)
+{
+    const auto source_size = source.get_sample_count();
+
+    // We don't need to assert for the post-condition on these trivial cases.
+
+    if (threshold == 0 || source_size == 0)
+        // Base case: the user requested zero samples (empty signal), or there were no samples available in the source.
+        return std::make_unique<Signal>(name);
+
+    if (threshold >= source_size)
+        // Base case: the destination wants more samples than are available. Just copy the source signal.
+        return std::make_unique<Signal>(source, name);
+
+    auto downsampled = std::make_unique<Signal>(name);
+    downsampled->reserve_samples(threshold);
+
+    if (threshold == 1) {
+        // Base case: the user only wants one sample. We choose the first by convention.
+        downsampled->emplace_sample(source.get_time_at_index(0), source[0]);
+        return std::move(downsampled);
+    }
+
+    if (threshold == 2) {
+        // Base case: the user only wants two samples. We choose the first and last by necessity.
+        downsampled->emplace_sample(source.get_time_at_index(0), source[0]);
+        downsampled->emplace_sample(source.get_time_at_index(source_size - 1), source[source_size - 1]);
+        return std::move(downsampled);
+    }
+
+    const double bucket_size = static_cast<double>(source_size - 2) / static_cast<double>(threshold - 2);
+    std::size_t fixed_point_idx = 0;
+
+    // Always add the first point.
+    downsampled->emplace_sample(source.get_time_at_index(0), source[0]);
+
+    for (std::size_t i = 0; i < threshold - 2; ++i) {
+        Signal::Sample::TimeT average_time = 0.0f;
+        Signal::Sample::AmplitudeT average_amplitude = 0.0f;
+
+        // Calculate the point-average for the next bucket, containing our fixed point.
+
+        const auto average_range_start = static_cast<std::size_t>(std::floor((i + 1) * bucket_size)) + 1;
+        const auto average_range_end =
+                std::min(static_cast<std::size_t>(std::floor((i + 2) * bucket_size)) + 1, source_size);
+        const auto average_range_length = average_range_end - average_range_start;
+
+        for (auto range_idx = average_range_start; range_idx < average_range_end; ++range_idx) {
+            average_time += source.get_time_at_index(range_idx);
+            average_amplitude += source[range_idx];
+        }
+
+        average_time /= static_cast<Signal::Sample::TimeT>(average_range_length);
+        average_amplitude /= static_cast<Signal::Sample::AmplitudeT>(average_range_length);
+
+        // Store the sample data at the fixed point.
+        const auto fp_time = source.get_time_at_index(fixed_point_idx);
+        const auto fp_amplitude = source[fixed_point_idx];
+
+        // Get the range for the current bucket and compute triangle areas over the three buckets.
+        const auto range_lower = static_cast<std::size_t>(std::floor(i * bucket_size)) + 1;
+        const auto range_upper =
+                std::min(static_cast<std::size_t>(std::floor((i + 1) * bucket_size)) + 1, source_size - 1);
+
+        // (C++ note: we need to combine Sample::TimeT and Sample::AmplitudeT here, so float seems like a safe choice.)
+        auto max_area = std::numeric_limits<float>::lowest();
+        auto next_fixed_point_idx = range_lower;
+
+        // Calculate triangle area formed by the vertices in the adjacent buckets, tracking the maximum.
+        for (auto range_idx = range_lower; range_idx < range_upper; ++range_idx) {
+            const float area = std::abs(
+                    (fp_time - average_time) * (source[range_idx] - fp_amplitude) -
+                    (fp_time - source.get_time_at_index(range_idx)) * (average_amplitude - fp_amplitude)
+            );
+
+            if (area > max_area) {
+                max_area = area;
+                next_fixed_point_idx = range_idx;
+            }
+        }
+
+        /*
+         * Pick the point from the bucket to include in the downsampled data, and set the index as our next starting
+         * point.
+         */
+        downsampled->emplace_sample(source.get_time_at_index(next_fixed_point_idx), source[next_fixed_point_idx]);
+
+        fixed_point_idx = next_fixed_point_idx;
+    }
+
+    // Always add the last point.
+    downsampled->emplace_sample(source.get_time_at_index(source_size - 1), source[source_size - 1]);
+
+    assert(downsampled->get_sample_count() == threshold);
+    return std::move(downsampled);
 }
 
 } // namespace EchoMap

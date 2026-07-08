@@ -31,7 +31,21 @@ namespace EchoMap
  */
 class Signal : public Object<Signal>
 {
-    std::vector<float> samples; /**< Amplitude sample stream. */
+public:
+    /**
+     * A PCM float-32 sampled audio point at an explicit time offset.
+     */
+    struct Sample
+    {
+        using TimeT = float;      /**< Type for sample times */
+        using AmplitudeT = float; /**< Type for sample amplitudes. */
+
+        TimeT time;               /**< Time, in ms. */
+        AmplitudeT amplitude;     /**< Amplitude at the time, normalised in the range [-1, 1]. */
+    };
+
+private:
+    std::vector<Sample::AmplitudeT> samples; /**< Amplitude sample stream. */
 
 public:
     /**
@@ -45,18 +59,6 @@ public:
     };
 
     /**
-     * A PCM float-32 sampled audio point at an explicit time offset.
-     */
-    struct Sample
-    {
-        using TimeT = float;      /**< Type for sample times */
-        using AmplitudeT = float; /**< Type for sample amplitudes. */
-
-        TimeT time;               /**< Time, in ms. */
-        AmplitudeT amplitude;     /**< Amplitude at the time, normalised in the range [-1, 1]. */
-    };
-
-    /**
      * Creates an empty optionally named Signal.
      *
      * @param name Optional display name.
@@ -66,31 +68,6 @@ public:
             std::string_view name = {},
             const std::optional<Source>& source = {}
     );
-
-    /**
-     * Downsamples an existing Signal instance across all channels to the given number of samples.
-     *
-     * @param source The existing Signal to downsample.
-     * @param sample_count The desired number of samples in the downsampled data.
-     * @param name Optional display name.
-     */
-    Signal(const Signal& source,
-           std::uint64_t sample_count,
-           std::string_view name = {});
-
-    /**
-     * Downsamples an existing Signal instance across all channels by the given factor.
-     *
-     * If the downsampling factor would cause the downsampled series to consist of fewer samples than the factor, the
-     * source is copied and no downsampled is performed.
-     *
-     * @param source The existing Signal to downsample.
-     * @param downsample_factor The factor by which the number of samples should be reduced during downsampling.
-     * @param name Optional display name.
-     */
-    Signal(const Signal& source,
-           float downsample_factor,
-           std::string_view name = {});
 
     /**
      * Emplace a sample to the back of the channel sample data.
@@ -170,6 +147,8 @@ public:
                });
     }
 
+    [[nodiscard]] Sample::AmplitudeT operator[](std::size_t index) const noexcept;
+
     [[nodiscard]] bool is_uniformly_sampled() const noexcept;
 
     /**
@@ -198,32 +177,6 @@ private:
     };
 
     void emplace_time(Sample::TimeT given_time);
-
-    /**
-     * Downsample the data points of a Signal to the given threshold.
-     *
-     * <p>
-     *  This helper uses the well-known Largest-Triangle Three-Buckets (LTTB) downsampling algorithm, described in
-     *  detail by the Master's Thesis <a href="https://skemman.is/handle/1946/15343"><i>Downsampling Time Series for
-     *  Visual Representation</i>, Sveinn Steinarsson (2013)</a>.
-     * </p>
-     * <p>
-     *  In addition to the thesis, reference implementations in all major languages are available online. This function
-     *  uses a specialised implementation for the AudioPoint structure:
-     *  https://github.com/sveinn-steinarsson/flot-downsample.
-     * </p>
-     *
-     * @param source_channel The original Signal to be downsampled.
-     * @param threshold The number of samples in the downsampled data.
-     * @return The downsampled Signal.
-     * @post The number of samples in the returned signal matches the threshold parameter.
-     *
-     * @todo Move to the SignalFactory with FFT.
-     */
-    void downsample_and_copy(
-            const Signal& source_channel,
-            size_t threshold
-    );
 
     Baseline timing_baseline;        /**< A baseline of timing parameters. */
     std::optional<Source> fs_source; /**< External source, if any, of the Signal Sample stream. */

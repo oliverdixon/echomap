@@ -8,6 +8,7 @@
 #include "SignalWaveformPanel.hpp"
 
 #include "../objects/Project.hpp"
+#include "../objects/SignalFactory.hpp"
 
 namespace EchoMap
 {
@@ -93,27 +94,17 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
 
     if (downsampled_it == downsample_cache.end()) {
 
-        // This is a bit cryptic - https://stackoverflow.com/a/27960637.
-        auto [added_it, was_added] = downsample_cache.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(signal.get_id()),
-                std::forward_as_tuple(
-                        signal,
-                        default_downsample_factor,
-                        std::format(
-                                "{} ({}x LTTB Preview)",
-                                signal.get_name(),
-                                static_cast<int>(default_downsample_factor)
-                        )
-                )
-        );
+        // If the source signal hasn't already been downsampled and cached, do it now.
+
+        auto downsampled = SignalFactory::downsample(signal, default_downsample_factor);
+        auto [added_it, was_added] = downsample_cache.emplace(signal.get_id(), std::move(downsampled));
 
         downsampled_it = added_it;
         success = was_added;
 
         if (success) {
             // Update the horizontal extent of the bounding box of the downsampled signals.
-            const auto& ds_signal = added_it->second;
+            const auto& ds_signal = *added_it->second;
             const auto local_min = ds_signal.get_time_at_index(0);
             const auto local_max = ds_signal.get_time_at_index(ds_signal.get_sample_count() - 1);
 
@@ -126,7 +117,7 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
     } else
         success = true;
 
-    return success ? &downsampled_it->second : nullptr;
+    return success ? downsampled_it->second.get() : nullptr;
 }
 
 } // namespace EchoMap
