@@ -62,7 +62,7 @@ Signal::Signal(
 }
 
 void Signal::emplace_sample(
-        const float amplitude
+        const Sample::AmplitudeT amplitude
 )
 {
     samples.emplace_back(amplitude);
@@ -74,8 +74,8 @@ void Signal::emplace_sample(
 }
 
 void Signal::emplace_sample(
-        const float time,
-        const float amplitude
+        const Sample::TimeT time,
+        const Sample::AmplitudeT amplitude
 )
 {
     samples.emplace_back(amplitude);
@@ -86,7 +86,7 @@ void Signal::emplace_sample(
 }
 
 void Signal::emplace_sample_from_source(
-        const float amplitude
+        const Sample::AmplitudeT amplitude
 )
 {
     samples.emplace_back(amplitude);
@@ -95,8 +95,8 @@ void Signal::emplace_sample_from_source(
 }
 
 void Signal::emplace_sample_from_source(
-        const float time,
-        const float amplitude
+        const Sample::TimeT time,
+        const Sample::AmplitudeT amplitude
 )
 {
     samples.emplace_back(amplitude);
@@ -131,13 +131,13 @@ void Signal::set_source(
     fs_source = Source(path, channel);
 }
 
-float Signal::get_time_offset() const noexcept
+Signal::Sample::TimeT Signal::get_time_offset() const noexcept
 {
     return timing_baseline.time_offset;
 }
 
 void Signal::set_time_offset(
-        const float new_time_offset
+        const Sample::TimeT new_time_offset
 ) noexcept
 {
     timing_baseline.time_offset = new_time_offset;
@@ -207,22 +207,23 @@ Signal::Signal(
 {
 }
 
-float Signal::get_time_at_index(
+Signal::Sample::TimeT Signal::get_time_at_index(
         const std::size_t index
 ) const noexcept
 {
     assert(index < samples.size());
-    const float baseline_time = timing_baseline.time_offset + static_cast<float>(index) * timing_baseline.sample_rate_r;
+    const Sample::TimeT baseline_time =
+            timing_baseline.time_offset + static_cast<Sample::TimeT>(index) * timing_baseline.sample_rate_r;
     return time_offsets.has_value() ? baseline_time + (*time_offsets)[index] : baseline_time;
 }
 
 void Signal::emplace_time(
-        const float given_time
+        const Sample::TimeT given_time
 )
 {
     assert(!samples.empty());
 
-    constexpr float epsilon = 1.0e-6f;
+    constexpr Sample::TimeT epsilon = 1.0e-6f;
     const auto expected = timing_baseline.time_offset + (samples.size() - 1) * timing_baseline.sample_rate_r;
 
     // Check the time derived from the baseline, as if we're continuing with a uniformly sampled signal.
@@ -291,8 +292,8 @@ void Signal::downsample_and_copy(
     emplace_sample(source_channel.get_time_at_index(0), source.front());
 
     for (std::size_t i = 0; i < threshold - 2; ++i) {
-        float average_time = 0.0f;
-        float average_amplitude = 0.0f;
+        Sample::TimeT average_time = 0.0f;
+        Sample::AmplitudeT average_amplitude = 0.0f;
 
         // Calculate the point-average for the next bucket, containing our fixed point.
 
@@ -306,8 +307,8 @@ void Signal::downsample_and_copy(
             average_amplitude += source[range_idx];
         }
 
-        average_time /= static_cast<float>(average_range_length);
-        average_amplitude /= static_cast<float>(average_range_length);
+        average_time /= static_cast<Sample::TimeT>(average_range_length);
+        average_amplitude /= static_cast<Sample::AmplitudeT>(average_range_length);
 
         // Store the sample data at the fixed point.
         const auto fp_time = source_channel.get_time_at_index(fixed_point_idx);
@@ -318,6 +319,7 @@ void Signal::downsample_and_copy(
         const auto range_upper =
                 std::min(static_cast<std::size_t>(std::floor((i + 1) * bucket_size)) + 1, source.size() - 1);
 
+        // (C++ note: we need to combine Sample::TimeT and Sample::AmplitudeT here, so float seems like a safe choice.)
         auto max_area = std::numeric_limits<float>::lowest();
         auto next_fixed_point_idx = range_lower;
 

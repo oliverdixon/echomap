@@ -49,8 +49,11 @@ public:
      */
     struct Sample
     {
-        float time;      /**< Time, in ms. */
-        float amplitude; /**< Amplitude at the time, normalised in the range [-1, 1]. */
+        using TimeT = float;      /**< Type for sample times */
+        using AmplitudeT = float; /**< Type for sample amplitudes. */
+
+        TimeT time;               /**< Time, in ms. */
+        AmplitudeT amplitude;     /**< Amplitude at the time, normalised in the range [-1, 1]. */
     };
 
     /**
@@ -94,10 +97,10 @@ public:
      *
      * @param amplitude Amplitude of the sample to insert
      */
-    void emplace_sample(float amplitude);
+    void emplace_sample(Sample::AmplitudeT amplitude);
     void emplace_sample(
-            float time,
-            float amplitude
+            Sample::TimeT time,
+            Sample::AmplitudeT amplitude
     );
 
     /**
@@ -105,10 +108,10 @@ public:
      *
      * @param amplitude Amplitude of the sample to insert
      */
-    void emplace_sample_from_source(float amplitude);
+    void emplace_sample_from_source(Sample::AmplitudeT amplitude);
     void emplace_sample_from_source(
-            float time,
-            float amplitude
+            Sample::TimeT time,
+            Sample::AmplitudeT amplitude
     );
 
     /**
@@ -148,8 +151,8 @@ public:
             std::size_t channel
     );
 
-    [[nodiscard]] float get_time_offset() const noexcept;
-    void set_time_offset(float new_time_offset) noexcept;
+    [[nodiscard]] Sample::TimeT get_time_offset() const noexcept;
+    void set_time_offset(Sample::TimeT new_time_offset) noexcept;
 
     [[nodiscard]] std::size_t get_sample_rate() const noexcept;
     void set_sample_rate(std::size_t new_sample_rate) noexcept;
@@ -177,7 +180,7 @@ public:
      *
      * @pre The index is within the bounds of the sample array.
      */
-    [[nodiscard]] float get_time_at_index(std::size_t index) const noexcept;
+    [[nodiscard]] Sample::TimeT get_time_at_index(std::size_t index) const noexcept;
 
     Signal(const Signal& old_signal);
     Signal(const Signal& old_signal,
@@ -189,12 +192,12 @@ private:
      */
     struct Baseline
     {
-        float time_offset = 0.0f;    /**< Timestamp, in seconds, of the first sample. */
-        std::size_t sample_rate = 0; /**< Constant sample rate, in Hz, of the signal. */
-        float sample_rate_r = 0.0f;  /**< Reciprocal of the sample rate; zero if sample rate is zero. */
+        Sample::TimeT time_offset = 0.0f; /**< Timestamp, in seconds, of the first sample. */
+        std::size_t sample_rate = 0;      /**< Constant sample rate, in Hz, of the signal. */
+        float sample_rate_r = 0.0f;       /**< Reciprocal of the sample rate; zero if sample rate is zero. */
     };
 
-    void emplace_time(float given_time);
+    void emplace_time(Sample::TimeT given_time);
 
     /**
      * Downsample the data points of a Signal to the given threshold.
@@ -247,7 +250,7 @@ private:
      *
      * @invariant Timestamp elements are in bijective correspondence with the amplitude samples.
      */
-    std::optional<std::vector<float>> time_offsets;
+    std::optional<std::vector<Sample::TimeT>> time_offsets;
 };
 
 } // namespace EchoMap
