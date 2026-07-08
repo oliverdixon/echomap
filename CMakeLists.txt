@@ -29,8 +29,8 @@ add_executable(EchoMap
         src/Logger.hpp
         src/errors/ConfigurationError.cpp
         src/errors/ConfigurationError.hpp
-        src/objects/persistence/SignalFactory.cpp
-        src/objects/persistence/SignalFactory.hpp
+        src/objects/SignalFactory.cpp
+        src/objects/SignalFactory.hpp
         src/web/JSBridge.cpp
         src/web/JSBridge.hpp
         src/objects/Signal.cpp

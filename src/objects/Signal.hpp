@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <ranges>
 #include <vector>
 
 #include "Object.hpp"
@@ -24,22 +25,14 @@ namespace EchoMap
  * currently a file specification on the local file system, and an internal channel number, indicating the origin of the
  * sample data.
  *
- * @invariant All samples are stored contiguously in memory: iterators model <code>contiguous_iterator</code> and the
- *  internal representation models <code>contiguous_range</code>. This eases integration with C APIs, for example:
- *  <pre>
- *     ImPlot::PlotLine(
- *         "f(x)",
- *         &downsampled_channel.begin()->time,
- *         &downsampled_channel.begin()->amplitude,
- *         static_cast<int>(downsampled_channel.get_sample_count()),
- *         plotting_spec
- *      );
- *  </pre>
- *
- * @invariant The time series is monotonically increasing. This is enforced with exceptions at runtime.
+ * @invariant Amplitude samples are stored contiguously in memory. Timing information may either be inferred from the
+ *  baseline sampling model or adjusted by an optional per-sample offset array. The timed samples range is a lazy
+ *  logical view and is not contiguous.
  */
 class Signal : public Object<Signal>
 {
+    std::vector<float> samples; /**< Amplitude sample stream. */
+
 public:
     /**
      * Indicates an external source of a Signal on the filesystem.
@@ -50,12 +43,6 @@ public:
         std::size_t channel;        /**< The channel number of the Signal within the given file. */
         bool dirty = false;         /**< Does the Signal contain additional samples? */
     };
-
-    /**
-     * Tag to use in function despatch, indicating that the given Sample is derived from the external Source.
-     */
-    struct ExternalSampleTag
-    {};
 
     /**
      * A PCM float-32 sampled audio point at an explicit time offset.
@@ -103,31 +90,11 @@ public:
            std::string_view name = {});
 
     /**
-     * Add a sample to the end of the channel sample data.
-     *
-     * @param sample Sample to insert
-     * @throws std::runtime_error if the sample would violate the monotonically increasing invariant.
-     */
-    void add_sample(const Sample& sample);
-
-    /**
-     * Add an externally sourced sample to the end of the channel sample data.
-     *
-     * @param sample The Sample, sourced from the external Signal source, to insert
-     * @throws std::runtime_error if the sample would violate the monotonically increasing invariant.
-     */
-    void add_sample(
-            ExternalSampleTag,
-            const Sample& sample
-    );
-
-    /**
      * Emplace a sample to the back of the channel sample data.
      *
-     * @param time Time of the sample to insert
      * @param amplitude Amplitude of the sample to insert
-     * @throws std::runtime_error if the sample would violate the monotonically increasing invariant.
      */
+    void emplace_sample(float amplitude);
     void emplace_sample(
             float time,
             float amplitude
@@ -136,12 +103,10 @@ public:
     /**
      * Emplace an externally sourced sample to the back of the channel sample data.
      *
-     * @param time Time of the sample to insert
      * @param amplitude Amplitude of the sample to insert
-     * @throws std::runtime_error if the sample would violate the monotonically increasing invariant.
      */
-    void emplace_sample(
-            ExternalSampleTag,
+    void emplace_sample_from_source(float amplitude);
+    void emplace_sample_from_source(
             float time,
             float amplitude
     );
@@ -178,21 +143,59 @@ public:
      */
     [[nodiscard]] const std::optional<Source>& observe_source() const noexcept;
 
-    void provide_source(
+    void set_source(
             const std::filesystem::path& path,
             std::size_t channel
     );
 
-    [[nodiscard]] std::vector<Sample>::const_iterator begin() const;
-    [[nodiscard]] std::vector<Sample>::const_iterator end() const;
-    [[nodiscard]] std::vector<Sample>::const_iterator cbegin() const noexcept;
-    [[nodiscard]] std::vector<Sample>::const_iterator cend() const noexcept;
+    [[nodiscard]] float get_time_offset() const noexcept;
+    void set_time_offset(float new_time_offset) noexcept;
+
+    [[nodiscard]] std::size_t get_sample_rate() const noexcept;
+    void set_sample_rate(std::size_t new_sample_rate) noexcept;
+
+    [[nodiscard]] decltype(samples)::const_iterator begin() const;
+    [[nodiscard]] decltype(samples)::const_iterator end() const;
+    [[nodiscard]] decltype(samples)::const_iterator cbegin() const noexcept;
+    [[nodiscard]] decltype(samples)::const_iterator cend() const noexcept;
+
+    [[nodiscard]] auto timed_samples() const
+    {
+        return std::views::iota(std::size_t{0}, samples.size()) |
+               std::views::transform([this](const std::size_t index) -> Sample {
+                   return {.time = get_time_at_index(index), .amplitude = samples[index]};
+               });
+    }
+
+    [[nodiscard]] bool is_uniformly_sampled() const noexcept;
+
+    /**
+     * Determines the corresponding time of the amplitude appearing at the given index in the sample array.
+     *
+     * @param index The index of the amplitude in the sample array.
+     * @return The timestamp corresponding to the referenced sample.
+     *
+     * @pre The index is within the bounds of the sample array.
+     */
+    [[nodiscard]] float get_time_at_index(std::size_t index) const noexcept;
 
     Signal(const Signal& old_signal);
     Signal(const Signal& old_signal,
            std::string_view new_name);
 
 private:
+    /**
+     * Provides basic timing information relating to the Signal samples.
+     */
+    struct Baseline
+    {
+        float time_offset = 0.0f;    /**< Timestamp, in seconds, of the first sample. */
+        std::size_t sample_rate = 0; /**< Constant sample rate, in Hz, of the signal. */
+        float sample_rate_r = 0.0f;  /**< Reciprocal of the sample rate; zero if sample rate is zero. */
+    };
+
+    void emplace_time(float given_time);
+
     /**
      * Downsample the data points of a Signal to the given threshold.
      *
@@ -211,14 +214,40 @@ private:
      * @param threshold The number of samples in the downsampled data.
      * @return The downsampled Signal.
      * @post The number of samples in the returned signal matches the threshold parameter.
+     *
+     * @todo Move to the SignalFactory with FFT.
      */
     void downsample_and_copy(
             const Signal& source_channel,
             size_t threshold
     );
 
-    std::vector<Sample> samples;     /**< Sample stream. */
+    Baseline timing_baseline;        /**< A baseline of timing parameters. */
     std::optional<Source> fs_source; /**< External source, if any, of the Signal Sample stream. */
+
+    /**
+     * An optional vector of explicit timestamps for each sample.
+     *
+     * <p>
+     *  If provided, the timestamps provide a sample-by-sample indication of the time corresponding with amplitudes in
+     *  the sample time series data. The scalars are specified as offsets relative to the baseline time, which is
+     *  computed as @f$ b_i = t_0 + i \delta t @f$, where @f$ t_0 @f$ is the global time offset, @f$ \delta t @f$ is the
+     *  reciprocal of the sample rate, and @f$ i @f$ is the integer zero-based index such that
+     *  @f$ 0 < i \leq \vert S \vert @f$, where @f$ \vert S \vert @f$ denotes the size of the sample set @f$ S @f$.
+     * </p>
+     * <p>
+     *  This is useful to support variably sampled time series, such as in the result of LTTB downsampling. Whether
+     *  explicit timestamps are provided is rather opaque to the user: they can request timing information, which may be
+     *  inferred from the baseline or indexed from this array as appropriate.
+     * </p>
+     * <p>
+     *  When a new sample is emplaced, a time can be provided. If the given time is different than what would be
+     *  expected from the baseline, this vector is updated with the suitable offset. If it doesn't exist, it is created.
+     * </p>
+     *
+     * @invariant Timestamp elements are in bijective correspondence with the amplitude samples.
+     */
+    std::optional<std::vector<float>> time_offsets;
 };
 
 } // namespace EchoMap

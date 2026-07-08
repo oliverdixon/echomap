@@ -35,6 +35,16 @@ public:
 private:
     static constexpr float default_downsample_factor = 50.0f;
 
+    struct CallbackData
+    {
+        const Signal * signal;
+    };
+
+    static ImPlotPoint get_indexed_signal_point(
+            int index,
+            void* user_data
+    ) noexcept;
+
     /**
      * Retrieves a downsampled Signal from the cache. If the downsampled variant is not present, it is computed and
      * cached.
@@ -63,7 +73,7 @@ private:
      * The Y axis (amplitude) is fixed, since our PCM-normalised values, given as a constraint from the Signal samples,
      * are within the range [-1, 1]. The X range is variable and should be updated as new Signal objects are received.
      */
-    ImPlotRect waveform_bounding_cache{
+    ImPlotRect waveform_bounding_box{
             std::numeric_limits<double>::max(),
             std::numeric_limits<double>::lowest(),
             -1.0,

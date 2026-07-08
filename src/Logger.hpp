@@ -93,7 +93,7 @@ private:
 #else
 #define LOG_F_DEBUG(msg, ...)                                                                                          \
     do {                                                                                                               \
-        Logger::log_f(Logger::Level::Info, std::source_location::current(), msg, __VA_ARGS__);                         \
+        Logger::log_f(Logger::Level::Debug, std::source_location::current(), msg, __VA_ARGS__);                         \
     } while (0);
 #endif
 
@@ -130,7 +130,7 @@ private:
 /**
  * @def LOG_DEBUG
  *
- * Conditionally logs an unformatted info-level message using EchoMap::Logger::log.
+ * Conditionally logs an unformatted debug-level message using EchoMap::Logger::log.
  *
  * @param msg The string literal to log.
  */
@@ -140,7 +140,7 @@ private:
 #else
 #define LOG_DEBUG(msg, ...)                                                                                            \
     do {                                                                                                               \
-        Logger::log(Logger::Level::Info, msg, std::source_location::current());                                        \
+        Logger::log(Logger::Level::Debug, msg, std::source_location::current());                                        \
     } while (0);
 #endif
 

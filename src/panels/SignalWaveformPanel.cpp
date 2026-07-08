@@ -17,7 +17,6 @@ SignalWaveformPanel::SignalWaveformPanel(
 ) :
     active_project(initial_project)
 {
-    plotting_spec_2d.Stride = sizeof(Signal::Sample);
 }
 
 const char* SignalWaveformPanel::get_imgui_name() const noexcept
@@ -37,12 +36,16 @@ void SignalWaveformPanel::draw() noexcept
                 if (const auto downsampled = get_downsampled_signal(signal); downsampled == nullptr)
                     ImGui::Text("Could not downsample %s due to system error.", signal.get_imgui_name());
                 else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
-                    ImPlot::SetupAxisLinks(ImAxis_X1, &waveform_bounding_cache.X.Min, &waveform_bounding_cache.X.Max);
-                    ImPlot::SetupAxisLinks(ImAxis_Y1, &waveform_bounding_cache.Y.Min, &waveform_bounding_cache.Y.Max);
-                    ImPlot::PlotLine(
+
+                    ImPlot::SetupAxes("Time (seconds)", "Amplitude");
+                    ImPlot::SetupAxisLinks(ImAxis_X1, &waveform_bounding_box.X.Min, &waveform_bounding_box.X.Max);
+                    ImPlot::SetupAxisLinks(ImAxis_Y1, &waveform_bounding_box.Y.Min, &waveform_bounding_box.Y.Max);
+
+                    CallbackData callback_data = {.signal = downsampled};
+                    ImPlot::PlotLineG(
                             "",
-                            &downsampled->begin()->time,
-                            &downsampled->begin()->amplitude,
+                            &SignalWaveformPanel::get_indexed_signal_point,
+                            &callback_data,
                             static_cast<int>(downsampled->get_sample_count()),
                             plotting_spec_2d
                     );
@@ -63,6 +66,22 @@ void SignalWaveformPanel::set_active_project(
 ) noexcept
 {
     active_project = new_active_project;
+
+    waveform_bounding_box.X.Min = std::numeric_limits<double>::max();
+    waveform_bounding_box.X.Max = std::numeric_limits<double>::lowest();
+    waveform_bounding_box.Y.Min = -1.0;
+    waveform_bounding_box.Y.Max = 1.0;
+}
+
+ImPlotPoint SignalWaveformPanel::get_indexed_signal_point(
+        const int index,
+        // ReSharper disable once CppParameterMayBeConstPtrOrRef - Signature enforced by ImPlot.
+        void* const user_data
+) noexcept
+{
+    const auto signal = static_cast<CallbackData*>(user_data)->signal;
+
+    return {signal->get_time_at_index(index), signal->begin()[index]};
 }
 
 const Signal* SignalWaveformPanel::get_downsampled_signal(
@@ -93,14 +112,16 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
         success = was_added;
 
         if (success) {
-            const auto local_min = added_it->second.begin()->time;
-            const auto local_max = std::prev(added_it->second.end())->time;
+            // Update the horizontal extent of the bounding box of the downsampled signals.
+            const auto& ds_signal = added_it->second;
+            const auto local_min = ds_signal.get_time_at_index(0);
+            const auto local_max = ds_signal.get_time_at_index(ds_signal.get_sample_count() - 1);
 
-            if (local_min < waveform_bounding_cache.X.Min)
-                waveform_bounding_cache.X.Min = local_min;
+            if (local_min < waveform_bounding_box.X.Min)
+                waveform_bounding_box.X.Min = local_min;
 
-            if (local_max > waveform_bounding_cache.X.Max)
-                waveform_bounding_cache.X.Max = local_max;
+            if (local_max > waveform_bounding_box.X.Max)
+                waveform_bounding_box.X.Max = local_max;
         }
     } else
         success = true;

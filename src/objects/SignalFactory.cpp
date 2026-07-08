@@ -14,8 +14,9 @@
 #include <algorithm>
 #include <ranges>
 
-#include "../../errors/ConfigurationError.hpp"
-#include "../Signal.hpp"
+#include "../Logger.hpp"
+#include "../errors/ConfigurationError.hpp"
+#include "Signal.hpp"
 
 namespace EchoMap
 {
@@ -88,9 +89,11 @@ void SignalFactory::load_wave_file_into_channels(
     const auto channel_count = std::ranges::size(channels);
     assert(drwav_info.channels <= channel_count);
 
-    for (auto channel : channels)
-        if (channel != nullptr)
+    for (const auto channel : channels)
+        if (channel != nullptr) {
             channel->reserve_samples(drwav_info.totalPCMFrameCount);
+            channel->set_sample_rate(drwav_info.sampleRate);
+        }
 
     /*
      * Dr_WAV provides audio data as amplitudes uniformly interleaved across the channels. That is, for a stereo signal,
@@ -115,11 +118,7 @@ void SignalFactory::load_wave_file_into_channels(
                      * The audio data is uniformly spaced, so we can infer the time values by taking the current frame
                      * offset for the chunk (total frames - remaining frames) and adding the current frame index.
                      */
-                    destination->emplace_sample(
-                            Signal::ExternalSampleTag{},
-                            drwav_info.totalPCMFrameCount - remaining_frames + frame_idx,
-                            interleaved[frame_idx * drwav_info.channels + channel_idx]
-                    );
+                    destination->emplace_sample_from_source(interleaved[frame_idx * drwav_info.channels + channel_idx]);
             }
 
         remaining_frames -= frame_count;
@@ -127,6 +126,15 @@ void SignalFactory::load_wave_file_into_channels(
 
     if (remaining_frames != 0)
         throw ConfigurationError("Cannot read entire WAV file at " + std::string(file_path) + ". Is it corrupted?");
+
+    for (const auto channel : channels)
+        LOG_F_DEBUG(
+                "Loaded signal \"{}\" with {} samples at {} Hz, starting at {} s.",
+                channel->get_name(),
+                channel->get_sample_count(),
+                channel->get_sample_rate(),
+                channel->get_time_offset()
+        );
 }
 
 } // namespace EchoMap
