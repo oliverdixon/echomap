@@ -8,15 +8,17 @@ TODO: detailed description.
 
 1. Source the `/bootstrap.sh` script into a Bash-compatible shell.
 
-    * If the `VCPKG_ROOT` environment variable is unset, or does not indicate a valid vcpkg installation, the bootstrap
-      script will fetch and configure the upstream into `/third-party/vcpkg` and export `VCPKG_ROOT` in the environment.
-    * Likewise, if `EMSDK` is unset or does not indicate a valid Emscripten SDK installation, the bootstrap script will
+    * If the `VCPKG_ROOT` environment variable is unset, or does not indicate a valid [vcpkg](https://vcpkg.io/en/)
+      installation, the bootstrap script will fetch and configure the upstream into `/third-party/vcpkg` and export
+      `VCPKG_ROOT` in the environment.
+    * Likewise, if `EMSDK` is unset or does not indicate a valid
+      [Emscripten SDK](https://emscripten.org/docs/tools_reference/emsdk.html) installation, the bootstrap script will
       fetch, install, and activate the upstream SDK into `/third-party/emsdk`. `EMSDK` will be exported into the
       environment.
-    * If you're using an IntelliJ-based IDE (CLion etc.), configure your toolchain to source `/bootstrap.sh` as an
-      environment file. The script is sourced into a non-interactive shell, so a wrapper should be used to export any
-      local
-      enviornment variables prior to running the bootstrapper.
+    * If you're using an IntelliJ-based IDE (CLion etc.),
+      [configure your toolchain](https://www.jetbrains.com/help/clion/how-to-create-toolchain-in-clion.html#env-scripts)
+      to source `/bootstrap.sh` as an environment file. The script is sourced into a non-interactive shell, so a wrapper
+      should be used to export any local enviornment variables prior to running the bootstrapper.
 
 2. Run CMake on one of the presets defined in `/CMakePresets.json` depending on build type and target type:
 
@@ -33,5 +35,7 @@ TODO: detailed description.
 
     * For `native` targets, this produces a statically linked Dawn executable in the build directory.
     * For `wasm` targets, this produces a WebAssembly bundle (WASM code and some HTML/CSS/JS boilerplate) in the build
-      directory. Run `npx http-server` in the build directory to start a web server serving the CWD
-      on http://localhost:8080.
+      directory. Use any HTTP server, such as [miniserve](https://github.com/svenstaro/miniserve), to host the build
+      directory. Note that since the Emscripten threading implementation uses a
+      [SharedArrayBuffer](https://emscripten.org/docs/porting/pthreads.html), the site must be cross-origin isolated. A
+      helper script is provided for this purpose: `/miniserve.sh cmake-build-wasm-debug`.

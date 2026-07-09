@@ -11,9 +11,9 @@
 #
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    echo "error: this script must be sourced, not executed." >&2
-    echo "usage: source $0" >&2
-    exit 1
+  echo "error: this script must be sourced, not executed." >&2
+  echo "usage: source $0" >&2
+  exit 1
 fi
 
 #
