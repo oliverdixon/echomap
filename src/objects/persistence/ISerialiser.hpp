@@ -7,7 +7,7 @@
 
 #include <string_view>
 
-namespace EchoMap
+namespace echomap
 {
 
 class Project;
@@ -22,6 +22,6 @@ public:
     virtual std::string_view serialise_project(const Project& project) = 0;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_ISERIALISER_HPP

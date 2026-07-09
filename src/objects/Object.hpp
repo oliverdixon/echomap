@@ -11,7 +11,7 @@
 
 #include "IDAllocator.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -193,6 +193,6 @@ private:
     std::string name;           /**< Display name for the object */
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_OBJECT_HPP

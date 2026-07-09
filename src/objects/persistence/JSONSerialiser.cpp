@@ -13,7 +13,7 @@ template <typename builder_type>
 void tag_invoke(
         serialize_tag,
         builder_type& builder,
-        const EchoMap::Project& project
+        const echomap::Project& project
 )
 {
     static constexpr unsigned int schema_version = 1;
@@ -86,7 +86,7 @@ template <typename builder_type>
 void tag_invoke(
         serialize_tag,
         builder_type& builder,
-        const EchoMap::Sensor& sensor
+        const echomap::Sensor& sensor
 )
 {
     builder.start_object();
@@ -127,7 +127,7 @@ template <typename builder_type>
 void tag_invoke(
         serialize_tag,
         builder_type& builder,
-        const EchoMap::Signal& signal
+        const echomap::Signal& signal
 )
 {
     builder.start_object();
@@ -204,7 +204,7 @@ void tag_invoke(
 
 } // namespace simdjson
 
-namespace EchoMap
+namespace echomap
 {
 
 std::string_view JSONSerialiser::serialise_project(
@@ -226,4 +226,4 @@ std::string JSONSerialiser::pretty_print(
     return simdjson::fractured_json_string(data, options);
 }
 
-} // namespace EchoMap
+} // namespace echomap

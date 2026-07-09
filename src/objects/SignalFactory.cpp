@@ -19,7 +19,7 @@
 #include "../errors/ConfigurationError.hpp"
 #include "Signal.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
@@ -267,4 +267,4 @@ std::unique_ptr<Signal> SignalFactory::lttb_downsample(
     return std::move(downsampled);
 }
 
-} // namespace EchoMap
+} // namespace echomap

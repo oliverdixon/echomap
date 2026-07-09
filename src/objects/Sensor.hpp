@@ -7,7 +7,7 @@
 
 #include "Object.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class Sensor : public Object<Sensor>
@@ -40,6 +40,6 @@ public:
     void set_colour(float r, float g, float b, float a) noexcept;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_SENSOR_HPP

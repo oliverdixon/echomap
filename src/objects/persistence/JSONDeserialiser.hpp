@@ -9,7 +9,7 @@
 
 #include "IDeserialiser.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class JSONDeserialiser : public IDeserialiser
@@ -21,6 +21,6 @@ private:
     simdjson::ondemand::parser parser;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_JSONDESERIALISER_HPP

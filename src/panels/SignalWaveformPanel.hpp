@@ -13,7 +13,7 @@
 #include "../objects/Signal.hpp"
 #include "IPanel.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -92,6 +92,6 @@ private:
     Project* active_project = nullptr;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_SIGNALWAVEFORMPANEL_HPP

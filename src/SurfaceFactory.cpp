@@ -64,7 +64,7 @@ T objc_call(const char *clazz, const char * const sel, Args... args) {
 
 #endif
 
-namespace EchoMap
+namespace echomap
 {
 
 wgpu::Surface SurfaceFactory::create_surface(
@@ -157,4 +157,4 @@ std::unique_ptr<wgpu::ChainedStruct> SurfaceFactory::get_surface_descriptor(
     return nullptr;
 }
 
-} // namespace EchoMap
+} // namespace echomap

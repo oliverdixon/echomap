@@ -12,7 +12,7 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
-namespace EchoMap
+namespace echomap
 {
 
 class Project;
@@ -143,12 +143,12 @@ private:
 
     // ReSharper disable once CppParameterMayBeConstPtrOrRef - Function signature enforced by Emscripten API.
     /**
-     * Invokes EchoMap::render from a static context given an untyped mutable pointer to the EchoMap object instance.
+     * Invokes echomap::render from a static context given an untyped mutable pointer to the EchoMap object instance.
      *
      * @note This function provided when targeting Emscripten only. It is intended to be used as a function callback
      *  from the Emscripten C API.
      *
-     * @param echomap_instance The EchoMap application instance on which to invoke EchoMap::render.
+     * @param echomap_instance The EchoMap application instance on which to invoke echomap::render.
      */
     static void render_shim(
             void* const echomap_instance
@@ -178,6 +178,6 @@ private:
     bool dockspace_configured = false;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_ECHOMAP_HPP

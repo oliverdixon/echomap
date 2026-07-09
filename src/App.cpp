@@ -33,23 +33,23 @@ int main()
          * https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop
          */
 #ifdef __EMSCRIPTEN__
-        auto* const application = new EchoMap::EchoMap();
-        EchoMap::JSBridge::bind(application);
+        auto* const application = new echomap::EchoMap();
+        echomap::JSBridge::bind(application);
         application->run_event_loop();
 #else
-        EchoMap::EchoMap application;
+        echomap::EchoMap application;
         application.run_event_loop();
 #endif
-    } catch (const EchoMap::ConfigurationError& error) {
+    } catch (const echomap::ConfigurationError& error) {
 #ifdef __EMSCRIPTEN__
-        EchoMap::JSBridge::unbind();
+        echomap::JSBridge::unbind();
 #endif
-        EchoMap::Logger::log(EchoMap::Logger::Level::Error, error.what(), error.where());
+        echomap::Logger::log(echomap::Logger::Level::Error, error.what(), error.where());
         return 1;
     }
 
 #ifdef __EMSCRIPTEN__
-    EchoMap::JSBridge::unbind();
+    echomap::JSBridge::unbind();
 #endif
     return 0;
 }

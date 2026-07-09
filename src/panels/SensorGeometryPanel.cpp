@@ -10,7 +10,7 @@
 #include "../Logger.hpp"
 #include "../objects/Project.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 SensorGeometryPanel::SensorGeometryPanel(
@@ -164,4 +164,4 @@ void SensorGeometryPanel::draw_geometry_plot() const noexcept
     ImPlot3D::PopStyleColor();
 }
 
-} // namespace EchoMap
+} // namespace echomap

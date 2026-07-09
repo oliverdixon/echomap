@@ -4,7 +4,7 @@
 
 #include "LocatableError.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 LocatableError::LocatableError(
@@ -21,4 +21,4 @@ const std::source_location& LocatableError::where() const noexcept
     return location;
 }
 
-} // namespace EchoMap
+} // namespace echomap

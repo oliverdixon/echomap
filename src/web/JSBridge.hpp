@@ -12,7 +12,7 @@
 
 #include "../EchoMap.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -65,7 +65,7 @@ private:
     static EchoMap * instance;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // __EMSCRIPTEN__
 

@@ -10,7 +10,7 @@
 
 #include "LocatableError.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -31,6 +31,6 @@ public:
     );
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_CONFIGURATIONERROR_H

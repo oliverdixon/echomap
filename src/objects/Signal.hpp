@@ -15,7 +15,7 @@
 
 #include "Object.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -206,6 +206,6 @@ private:
     std::optional<std::vector<Sample::TimeT>> time_offsets;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_SIGNAL_HPP

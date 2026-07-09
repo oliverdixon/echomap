@@ -12,7 +12,7 @@
 
 #include "IPanel.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class Project;
@@ -43,6 +43,6 @@ private:
     Project * active_project = nullptr;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_SENSORGEOMETRYPANEL_HPP

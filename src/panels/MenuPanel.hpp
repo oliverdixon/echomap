@@ -9,7 +9,7 @@
 
 #include "IPanel.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class MenuPanel final : public IPanel
@@ -25,6 +25,6 @@ private:
     std::string panel_name = "Menu";
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_MENUPANEL_HPP

@@ -12,7 +12,7 @@
 
 #include "../Logger.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 template <> constexpr std::string Object<Signal>::class_name = "Signal";
@@ -219,4 +219,4 @@ void Signal::emplace_time(
     }
 }
 
-} // namespace EchoMap
+} // namespace echomap

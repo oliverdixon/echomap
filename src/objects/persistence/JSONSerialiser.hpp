@@ -9,7 +9,7 @@
 
 #include "ISerialiser.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class JSONSerialiser : public ISerialiser
@@ -23,6 +23,6 @@ private:
     simdjson::builder::string_builder sb;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_JSONSERIALISER_HPP

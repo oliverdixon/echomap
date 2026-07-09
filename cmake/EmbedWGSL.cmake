@@ -33,24 +33,24 @@ if(embed_wgsl_generate)
 
     file(WRITE "${hpp_output}" "#pragma once
 
-namespace EchoMap::Shaders
+namespace echomap::Shaders
 {
 
 extern const char ${symbol}[];
 
-} // namespace EchoMap::Shaders
+} // namespace echomap::Shaders
 ")
 
     file(WRITE "${cpp_output}" "#include \"${include_path}\"
 
-namespace EchoMap::Shaders
+namespace echomap::Shaders
 {
 
 const char ${symbol}[] = R\"${delimiter}(
 ${wgsl_source}
 )${delimiter}\";
 
-} // namespace EchoMap::Shaders
+} // namespace echomap::Shaders
 ")
 
     return()

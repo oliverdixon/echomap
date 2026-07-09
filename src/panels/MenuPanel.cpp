@@ -6,7 +6,7 @@
 
 #include <imgui.h>
 
-namespace EchoMap
+namespace echomap
 {
 
 void MenuPanel::draw() noexcept
@@ -65,4 +65,4 @@ void MenuPanel::set_active_project(
     std::ignore = new_active_project;
 }
 
-} // namespace EchoMap
+} // namespace echomap

@@ -12,7 +12,7 @@
 
 struct GLFWwindow;
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -57,6 +57,6 @@ private:
     static std::unique_ptr<wgpu::ChainedStruct> get_surface_descriptor(GLFWwindow* window);
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_SURFACEFACTORY_HPP

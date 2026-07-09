@@ -10,7 +10,7 @@
 
 #include <cstdint>
 
-namespace EchoMap::data
+namespace echomap::data
 {
 
 static constexpr std::uint8_t RobotoMedium_compressed_data[115741] = {

@@ -9,9 +9,10 @@
 #define ECHOMAP_PANEL_HPP
 
 #include <webgpu/webgpu_cpp.h>
+ // ReSharper disable once CppUnusedIncludeDirective - False positive. Required for flags.
 #include <implot.h>
 
-namespace EchoMap
+namespace echomap
 {
 
 class Project;
@@ -71,6 +72,6 @@ protected:
         ImGuiTableFlags_RowBg;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_PANEL_HPP

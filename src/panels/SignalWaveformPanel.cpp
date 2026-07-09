@@ -10,7 +10,7 @@
 #include "../objects/Project.hpp"
 #include "../objects/SignalFactory.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 SignalWaveformPanel::SignalWaveformPanel(
@@ -120,4 +120,4 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
     return success ? downsampled_it->second.get() : nullptr;
 }
 
-} // namespace EchoMap
+} // namespace echomap

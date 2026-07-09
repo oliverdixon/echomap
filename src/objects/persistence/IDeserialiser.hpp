@@ -8,7 +8,7 @@
 #include <memory>
 #include <string_view>
 
-namespace EchoMap
+namespace echomap
 {
 
 class Project;
@@ -23,6 +23,6 @@ public:
     virtual std::unique_ptr<Project> deserialise_project(std::string_view path) = 0;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_IDESERIALISER_HPP

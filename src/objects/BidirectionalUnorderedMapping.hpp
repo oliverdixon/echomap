@@ -11,7 +11,7 @@
 #include <cassert>
 #include <unordered_map>
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -221,6 +221,6 @@ public:
     }
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_BIDIRECTIONALUNORDEREDMAPPING_HPP

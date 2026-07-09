@@ -8,7 +8,7 @@
 #include "ErrorModal.hpp"
 #include "IPanel.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class Signal;
@@ -44,6 +44,6 @@ private:
     Project* active_project = nullptr;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_CHANNELMAPPINGPANEL_HPP

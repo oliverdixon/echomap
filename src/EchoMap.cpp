@@ -30,7 +30,7 @@
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 EchoMap::EchoMap() :
@@ -405,4 +405,4 @@ bool EchoMap::handle_window_resize() noexcept
     return true;
 }
 
-} // namespace EchoMap
+} // namespace echomap

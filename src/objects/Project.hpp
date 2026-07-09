@@ -16,7 +16,7 @@
 #include "Sensor.hpp"
 #include "Signal.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class Project : public Object<Project>
@@ -189,6 +189,6 @@ private:
     BidirectionalUnorderedMapping<Signal::id_type, Sensor::id_type> channel_mapping;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_PROJECT_HPP

@@ -13,7 +13,7 @@
 #include <iostream>
 #endif
 
-namespace EchoMap
+namespace echomap
 {
 
 void Logger::log(
@@ -64,4 +64,4 @@ std::string_view Logger::level_to_string(
     return "Unknown";
 }
 
-} // namespace EchoMap
+} // namespace echomap

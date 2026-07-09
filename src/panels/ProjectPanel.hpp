@@ -8,7 +8,7 @@
 #include "../objects/Project.hpp"
 #include "IPanel.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 class ProjectPanel final : public IPanel
@@ -28,6 +28,6 @@ private:
     Project * active_project = nullptr;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_PROJECTPANEL_HPP

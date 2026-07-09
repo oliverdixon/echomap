@@ -8,7 +8,7 @@
 #include <source_location>
 #include <stdexcept>
 
-namespace EchoMap
+namespace echomap
 {
 
 class LocatableError : public std::runtime_error
@@ -37,6 +37,6 @@ private:
     std::source_location location;
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_LOCATABLEERROR_HPP

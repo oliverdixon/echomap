@@ -8,7 +8,7 @@
 
 #include "Sensor.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 template <> constexpr std::string Object<Project>::class_name = "Project";
@@ -141,4 +141,4 @@ Project::resolve_pair(
     return {*signal_it->second, *sensor_it->second};
 }
 
-} // namespace EchoMap
+} // namespace echomap

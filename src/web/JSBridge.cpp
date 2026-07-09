@@ -14,7 +14,7 @@
 #include "../ConfigurationError.hpp"
 #include "../Logger.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 
 EchoMap * JSBridge::instance = nullptr;
@@ -63,7 +63,7 @@ bool JSBridge::preamble() noexcept
     return true;
 }
 
-} // namespace EchoMap
+} // namespace echomap
 
 /**
  * Action to handle a new wave file being selected on the DOM. This is exported and called from the JS.
@@ -74,7 +74,7 @@ bool JSBridge::preamble() noexcept
  */
 extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_wav_file_picked(const char * const path)
 {
-    return EchoMap::JSBridge::notify_wav_file_picked(path);
+    return echomap::JSBridge::notify_wav_file_picked(path);
 }
 
 #endif // __EMSCRIPTEN__

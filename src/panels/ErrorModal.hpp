@@ -12,7 +12,7 @@
 
 #include <string>
 
-namespace EchoMap
+namespace echomap
 {
 
 /**
@@ -60,6 +60,6 @@ private:
     const std::string panel_name = "Error!";
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_ERRORMODAL_HPP

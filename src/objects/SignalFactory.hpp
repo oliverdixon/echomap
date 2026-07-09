@@ -14,7 +14,7 @@
 #include <span>
 #include <vector>
 
-namespace EchoMap
+namespace echomap
 {
 
 class Signal;
@@ -119,6 +119,6 @@ private:
     );
 };
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_SIGNALFACTORY_H

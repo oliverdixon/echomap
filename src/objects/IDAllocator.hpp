@@ -8,7 +8,7 @@
 #include <concepts>
 #include <cstdint>
 
-namespace EchoMap
+namespace echomap
 {
 
 template<typename>
@@ -29,6 +29,6 @@ private:
 template<typename Class>
 IDAllocator<Class>::id_type IDAllocator<Class>::next_id = 0;
 
-} // namespace EchoMap
+} // namespace echomap
 
 #endif // ECHOMAP_IDALLOCATOR_HPP

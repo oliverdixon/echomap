@@ -9,7 +9,7 @@
 
 #include <string>
 
-namespace EchoMap
+namespace echomap
 {
 
 ConfigurationError::ConfigurationError(
@@ -20,4 +20,4 @@ ConfigurationError::ConfigurationError(
 {
 }
 
-} // namespace EchoMap
+} // namespace echomap

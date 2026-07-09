@@ -11,7 +11,7 @@
 
 #include "../Logger.hpp"
 
-namespace EchoMap
+namespace echomap
 {
 void ErrorModal::raise_error(
         const std::string_view message
@@ -85,4 +85,4 @@ void ErrorModal::set_active_project(
     std::ignore = new_active_project;
 }
 
-} // namespace EchoMap
+} // namespace echomap
