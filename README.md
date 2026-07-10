@@ -24,6 +24,10 @@ widely available. Most will lack one of the above features, but will likely exce
 
 ## Build Instructions
 
+All build environments must have git and CMake >=4.0 available on the `$PATH`. Additional third-party dependencies are
+automatically fetched or recovered from the system cache during the bootstrap phase, which must be sourced for each
+terminal session in which CMake is invoked.
+
 ### Quick Start for Desktop Users
 
 ```bash
@@ -45,6 +49,11 @@ $ # Interact with EchoMap in the browser...
 $ fg
 $ # Control-C to kill the server.
 ```
+
+[miniserve](https://github.com/svenstaro/miniserve) is used to host the files in the above example, but any HTTP server
+will work. Users without a Rust toolchain installed may look to Python's
+[http.server](https://docs.python.org/3/library/http.server.html#command-line-interface) or Node's
+[http-server](https://www.npmjs.com/package/http-server).
 
 ### Detailed Procedure
 
@@ -78,7 +87,7 @@ $ # Control-C to kill the server.
 
     * For `native` targets, this produces a statically linked Dawn executable in the build directory.
     * For `wasm` targets, this produces a WebAssembly bundle (WASM code and some HTML/CSS/JS boilerplate) in the build
-      directory. Use any HTTP server, such as [miniserve](https://github.com/svenstaro/miniserve), to host the build
-      directory. Note that since the Emscripten threading implementation uses a
-      [SharedArrayBuffer](https://emscripten.org/docs/porting/pthreads.html), the site must be cross-origin isolated. A
-      helper script is provided for this purpose: `/miniserve.sh cmake-build-wasm-debug`.
+      directory. Use any HTTP server, such as miniserve, to host the build directory. Note that since the Emscripten
+      threading implementation uses a [SharedArrayBuffer](https://emscripten.org/docs/porting/pthreads.html), the site
+      must be cross-origin isolated. A helper script is provided for this purpose:
+      `/miniserve.sh cmake-build-wasm-debug`.
