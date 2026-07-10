@@ -2,7 +2,8 @@
 
 ## Summary
 
-**EchoMap is a work in progress.**
+> [!NOTE]
+> EchoMap is a work in progress.
 
 EchoMap is an experimental cross-platform digital signal processing application for sound-source localisation (SSL). In
 particular, given a series of co-located audio sensors (such as a
