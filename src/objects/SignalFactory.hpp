@@ -14,6 +14,8 @@
 #include <span>
 #include <vector>
 
+#include "Signal.hpp"
+
 namespace echomap
 {
 
@@ -21,10 +23,17 @@ class Signal;
 
 /**
  * Provides various convenience functions for constructing Signal objects in exotic ways.
+ *
+ * The SignalFactory is the <b>unique</b> source of a Signal: they may not be constructed in any other way.
  */
 class SignalFactory
 {
 public:
+    /**
+     * Begin constructing a new Signal.
+     */
+    SignalFactory();
+
     /**
      * Loads a WAV file from the file system.
      *
@@ -40,24 +49,25 @@ public:
     /**
      * Loads a WAV file from the file system.
      *
-     * The Signal objects are not constructed by this function. As many constructed Signal objects as there are channels
-     * in the wave file must be provided through the mutable Signal range.
+     * The Signal objects are not directly constructed by this function. As many constructed SignalFactory objects as
+     * there are channels in the wave file must be provided through the SignalFactory spanning range.
      *
      * @param file_path The location of the WAV on the local file system.
-     * @param channels Destination of the Signal channels. In particular, a list of pointers to Signal. For each entry
-     *  at index <code>idx</code>:
+     * @param channel_factories Destination factories of the Signal channels. In particular, a list of pointers to
+     *  SignalFactory, each of which is constructing the Signal to receive the channel at the corresponding index. For
+     *  each entry at index <code>idx</code>:
      *  <ul>
      *      <li>If <code>channels[idx] == nullptr</code>, the wave file channel <code>idx</code> is ignored; or</li>
      *      <li>If <code>channels[idx] != nullptr</code>, the wave file channel <code>idx</code> is written to
-     *          <code>*channels[idx]</code>.</li>
+     *          the Signal being constructed by the SignalFactory <code>channels[idx]</code>.</li>
      *  </ul>
      *
      * @throws ConfigurationError The WAV file could not be loaded.
-     * @pre There are sufficient Signal objects in the destination range to store channels in the wave file.
+     * @pre There are sufficient SignalFactory objects in the destination range to store channels in the wave file.
      */
     static void load_wave_file(
             const char* file_path,
-            std::span<Signal* const> channels
+            std::span<SignalFactory* const> channel_factories
     );
 
     /**
@@ -73,6 +83,31 @@ public:
             float downsample_factor,
             std::string_view name = {}
     );
+
+    [[nodiscard]] std::unique_ptr<Signal> take_signal() noexcept;
+    [[nodiscard]] const Signal& observe_signal() const noexcept;
+
+    void emplace_sample(Signal::Sample::AmplitudeT amplitude) const;
+    void emplace_sample(const Signal::Sample& sample) const;
+    void emplace_sample(
+            Signal::Sample::TimeT time,
+            Signal::Sample::AmplitudeT amplitude
+    ) const;
+
+    void emplace_sample_from_source(Signal::Sample::AmplitudeT amplitude) const;
+    void emplace_sample_from_source(const Signal::Sample& sample) const;
+    void emplace_sample_from_source(
+            Signal::Sample::TimeT time,
+            Signal::Sample::AmplitudeT amplitude
+    ) const;
+
+    void set_signal_name(std::string_view name) const;
+    void set_time_offset(Signal::Sample::TimeT time_offset) const noexcept;
+    void set_sample_rate(std::size_t sample_rate) const noexcept;
+    void set_source(
+            const std::filesystem::path& path,
+            std::size_t channel
+    ) const;
 
 private:
     /**
@@ -117,6 +152,13 @@ private:
             size_t threshold,
             std::string_view name
     );
+
+    /**
+     * The Signal being built by the factory.
+     *
+     * @invariant The target container always contains a valid Signal object, such that dereferencing is safe.
+     */
+    std::unique_ptr<Signal> target;
 };
 
 } // namespace echomap

@@ -63,6 +63,7 @@ public:
     void put_project(std::unique_ptr<Project> new_project) noexcept;
 
     void handle(LoadProjectResult& result) override;
+    void handle(DownsampleResult& result) override;
 
 private:
     static constexpr auto operation_timeout = std::numeric_limits<std::uint64_t>::max();

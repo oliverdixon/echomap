@@ -7,15 +7,20 @@
 
 #include "SignalWaveformPanel.hpp"
 
+#include "../Logger.hpp"
 #include "../objects/Project.hpp"
-#include "../objects/SignalFactory.hpp"
+#include "../tasks/DownsampleResult.hpp"
+#include "../tasks/DownsampleTask.hpp"
+#include "../tasks/Worker.hpp"
 
 namespace echomap
 {
 
 SignalWaveformPanel::SignalWaveformPanel(
+        Worker& parent_worker,
         Project* const initial_project
 ) :
+    parent_worker(parent_worker),
     active_project(initial_project)
 {
 }
@@ -33,9 +38,9 @@ void SignalWaveformPanel::draw() noexcept
         else if (active_project->get_signal_count() > 0 && ImPlot::BeginAlignedPlots("##WaveformAlignedGroup")) {
             ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-            for (const auto& signal : active_project->observe_signals())
+            for (const auto& signal : active_project->share_signals())
                 if (const auto downsampled = get_downsampled_signal(signal); downsampled == nullptr)
-                    ImGui::Text("Could not downsample %s due to system error.", signal.get_imgui_name());
+                    ImGui::Text("Could not downsample %s due to system error.", signal->get_imgui_name());
                 else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
 
                     ImPlot::SetupAxes("Time (seconds)", "Amplitude");
@@ -74,6 +79,39 @@ void SignalWaveformPanel::set_active_project(
     waveform_bounding_box.Y.Max = 1.0;
 }
 
+void SignalWaveformPanel::handle(
+        DownsampleResult& result
+)
+{
+    auto ds_slot_it = downsample_cache.find(result.get_source_id());
+    auto signal = result.take_downsampled();
+
+    if (ds_slot_it == downsample_cache.end()) {
+        LOG_F_WARN("Received an unexpected result for the downsampled Signal {}.", signal->get_name());
+        const auto signal_name_view = signal->get_name();
+        auto [it, success] = downsample_cache.emplace(result.get_source_id(), std::move(signal));
+
+        if (!success) {
+            LOG_F_ERROR("Could not store the downsampled Signal {} in the cache.", signal_name_view);
+            return;
+        }
+
+        ds_slot_it = it;
+    } else
+        ds_slot_it->second = std::move(signal);
+
+    // Update the bounding box for the signal graphical representation.
+    const auto& ds_signal = *ds_slot_it->second;
+    const auto local_min = ds_signal.get_time_at_index(0);
+    const auto local_max = ds_signal.get_time_at_index(ds_signal.get_sample_count() - 1);
+
+    if (local_min < waveform_bounding_box.X.Min)
+        waveform_bounding_box.X.Min = local_min;
+
+    if (local_max > waveform_bounding_box.X.Max)
+        waveform_bounding_box.X.Max = local_max;
+}
+
 ImPlotPoint SignalWaveformPanel::get_indexed_signal_point(
         const int index,
         // ReSharper disable once CppParameterMayBeConstPtrOrRef - Signature enforced by ImPlot.
@@ -81,43 +119,31 @@ ImPlotPoint SignalWaveformPanel::get_indexed_signal_point(
 ) noexcept
 {
     const auto signal = static_cast<CallbackData*>(user_data)->signal;
-
     return {signal->get_time_at_index(index), signal->begin()[index]};
 }
 
 const Signal* SignalWaveformPanel::get_downsampled_signal(
-        const Signal& signal
+        std::shared_ptr<Signal> signal
 )
 {
-    auto downsampled_it = downsample_cache.find(signal.get_id());
-    bool success;
+    assert(signal != nullptr);
+    const auto downsampled_it = downsample_cache.find(signal->get_id());
 
     if (downsampled_it == downsample_cache.end()) {
+        /*
+         * If the source signal hasn't already been downsampled and cached, submit a job to do it ASAP.
+         *
+         * The result won't be picked up on this render cycle, so return nullptr to indicate the "Loading" state, but it
+         * should come through shortly. We emplace a nullptr in the slot to indicate that the work has been requested,
+         * but not yet completed.
+         */
 
-        // If the source signal hasn't already been downsampled and cached, do it now.
+        downsample_cache.emplace(signal->get_id(), nullptr);
+        parent_worker.submit(std::make_unique<DownsampleTask>(std::move(signal)));
+        return nullptr;
+    }
 
-        auto downsampled = SignalFactory::downsample(signal, default_downsample_factor);
-        auto [added_it, was_added] = downsample_cache.emplace(signal.get_id(), std::move(downsampled));
-
-        downsampled_it = added_it;
-        success = was_added;
-
-        if (success) {
-            // Update the horizontal extent of the bounding box of the downsampled signals.
-            const auto& ds_signal = *added_it->second;
-            const auto local_min = ds_signal.get_time_at_index(0);
-            const auto local_max = ds_signal.get_time_at_index(ds_signal.get_sample_count() - 1);
-
-            if (local_min < waveform_bounding_box.X.Min)
-                waveform_bounding_box.X.Min = local_min;
-
-            if (local_max > waveform_bounding_box.X.Max)
-                waveform_bounding_box.X.Max = local_max;
-        }
-    } else
-        success = true;
-
-    return success ? downsampled_it->second.get() : nullptr;
+    return downsampled_it->second.get();
 }
 
 } // namespace echomap

@@ -22,6 +22,12 @@
 namespace echomap
 {
 
+SignalFactory::SignalFactory() :
+    // Cannot use make_unique here since Signal c'tor is private, and SignalFactory is "just a friend".
+    target(std::unique_ptr<Signal>(new Signal()))
+{
+}
+
 std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
         const char* const file_path
 )
@@ -37,7 +43,7 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
     std::size_t channel_num = 1;
     for (auto& channel : signals) {
         const auto formatted_name = std::format("{}#{}", typed_path.stem().c_str(), channel_num);
-        channel = std::make_unique<Signal>(formatted_name, Signal::Source(typed_path, channel_num));
+        channel = std::unique_ptr<Signal>(new Signal(formatted_name, Signal::Source(typed_path, channel_num)));
         ++channel_num;
     }
 
@@ -64,14 +70,26 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
 
 void SignalFactory::load_wave_file(
         const char* const file_path,
-        const std::span<Signal* const> channels
+        const std::span<SignalFactory* const> channel_factories
 )
 {
     drwav drwav_info;
     if (!drwav_init_file(&drwav_info, file_path, nullptr))
         throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
 
+    assert(channel_factories.size() >= drwav_info.channels);
+
     try {
+        /*
+         * For convenience of callers, this function takes a span of factories responsible for constructing the signals
+         * for each of the channel slots, rather than the signals themselves. But for portability and simplicity, our
+         * internal functions need the signals directly. Hence, we cheaply construct a span-compliant collection of the
+         * mutating signal pointers, accessible to us as private member variables.
+         */
+        std::vector<Signal*> channels;
+        channels.reserve(channel_factories.size());
+        for (const auto factory : channel_factories)
+            channels.push_back(factory->target.get());
         load_wave_file_into_channels(drwav_info, file_path, channels);
     } catch (const std::runtime_error&) {
         drwav_uninit(&drwav_info);
@@ -107,6 +125,91 @@ std::unique_ptr<Signal> SignalFactory::downsample(
     );
 
     return std::move(downsampled);
+}
+
+std::unique_ptr<Signal> SignalFactory::take_signal() noexcept
+{
+    auto signal = std::move(target);
+    target = std::unique_ptr<Signal>(new Signal());
+    return std::move(signal);
+}
+
+const Signal& SignalFactory::observe_signal() const noexcept
+{
+    return *target;
+}
+
+void SignalFactory::emplace_sample(
+        const Signal::Sample::AmplitudeT amplitude
+) const
+{
+    target->emplace_sample(amplitude);
+}
+
+void SignalFactory::emplace_sample(
+        const Signal::Sample& sample
+) const
+{
+    target->emplace_sample(sample);
+}
+
+void SignalFactory::emplace_sample(
+        const Signal::Sample::TimeT time,
+        const Signal::Sample::AmplitudeT amplitude
+) const
+{
+    target->emplace_sample(time, amplitude);
+}
+
+void SignalFactory::emplace_sample_from_source(
+        const Signal::Sample::AmplitudeT amplitude
+) const
+{
+    target->emplace_sample_from_source(amplitude);
+}
+
+void SignalFactory::emplace_sample_from_source(
+        const Signal::Sample& sample
+) const
+{
+    target->emplace_sample_from_source(sample);
+}
+
+void SignalFactory::emplace_sample_from_source(
+        const Signal::Sample::TimeT time,
+        const Signal::Sample::AmplitudeT amplitude
+) const
+{
+    target->emplace_sample_from_source(time, amplitude);
+}
+
+void SignalFactory::set_signal_name(
+        const std::string_view name
+) const
+{
+    target->set_name(name);
+}
+
+void SignalFactory::set_time_offset(
+        const Signal::Sample::TimeT time_offset
+) const noexcept
+{
+    target->set_time_offset(time_offset);
+}
+
+void SignalFactory::set_sample_rate(
+        const std::size_t sample_rate
+) const noexcept
+{
+    target->set_sample_rate(sample_rate);
+}
+
+void SignalFactory::set_source(
+        const std::filesystem::path& path,
+        const std::size_t channel
+) const
+{
+    target->set_source(path, channel);
 }
 
 void SignalFactory::load_wave_file_into_channels(
@@ -178,13 +281,13 @@ std::unique_ptr<Signal> SignalFactory::lttb_downsample(
 
     if (threshold == 0 || source_size == 0)
         // Base case: the user requested zero samples (empty signal), or there were no samples available in the source.
-        return std::make_unique<Signal>(name);
+        return std::unique_ptr<Signal>(new Signal(name));
 
     if (threshold >= source_size)
         // Base case: the destination wants more samples than are available. Just copy the source signal.
         return std::make_unique<Signal>(source, name);
 
-    auto downsampled = std::make_unique<Signal>(name);
+    auto downsampled = std::unique_ptr<Signal>(new Signal(name));
     downsampled->reserve_samples(threshold);
 
     if (threshold == 1) {

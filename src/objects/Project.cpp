@@ -21,7 +21,7 @@ Project::Project(
 }
 
 const Signal* Project::add_signal(
-        std::unique_ptr<Signal>&& signal
+        std::shared_ptr<Signal>&& signal
 )
 {
     const auto [it, success] = signals.emplace(signal->get_id(), std::move(signal));

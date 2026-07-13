@@ -68,8 +68,8 @@ auto get_signals(
                 echomap::Signal::id_type>& loaded
 )
 {
-    std::vector<std::unique_ptr<echomap::Signal>> signals;
-    if (const auto error = root["signals"].get(signals))
+    std::vector<std::unique_ptr<echomap::SignalFactory>> factories;
+    if (const auto error = root["signals"].get(factories))
         return error;
 
     /*
@@ -80,35 +80,36 @@ auto get_signals(
      *
      * That is, the first slot stores the destination Signal for the Channel #1, the second for Channel #2, etc.
      */
-    std::unordered_map<std::string, std::vector<echomap::Signal*>> slots;
+    std::unordered_map<std::string, std::vector<echomap::SignalFactory*>> slots;
 
-    for (const auto& signal : signals) {
-        if (!loaded.emplace(signal->get_name(), signal->get_id()).second)
-            throw std::runtime_error(std::format("Project contains duplicate signal {}.", signal->get_name()));
+    for (const auto& factory : factories) {
+        const auto& signal = factory->observe_signal();
+        if (!loaded.emplace(signal.get_name(), signal.get_id()).second)
+            throw std::runtime_error(std::format("Project contains duplicate signal {}.", signal.get_name()));
 
-        if (signal->observe_source().has_value()) {
+        if (signal.observe_source().has_value()) {
             /*
              * If the Signal has a Source, it comes from the filesystem. Register the Signal as a destination for its
              * source file for its channel number.
              */
-            auto& slot_vector = slots[signal->observe_source()->path.c_str()];
-            const auto channel_num = signal->observe_source()->channel;
+            auto& slot_vector = slots[signal.observe_source()->path.c_str()];
+            const auto channel_num = signal.observe_source()->channel;
 
             // Reminder: channel numbers are 1-based.
             if (channel_num > slot_vector.size())
                 slot_vector.resize(channel_num, nullptr);
-            else if (slot_vector[channel_num] != nullptr)
+            else if (slot_vector[channel_num - 1] != nullptr)
                 throw std::runtime_error(
                         std::format(
                                 "Both signals {} and {} have requested the same channel {} from {}.",
-                                slot_vector[channel_num]->get_name(),
-                                signal->get_name(),
+                                slot_vector[channel_num - 1]->observe_signal().get_name(),
+                                signal.get_name(),
                                 channel_num,
-                                signal->observe_source()->path.c_str()
+                                signal.observe_source()->path.c_str()
                         )
                 );
 
-            slot_vector[channel_num - 1] = signal.get();
+            slot_vector[channel_num - 1] = factory.get();
         }
     }
 
@@ -117,8 +118,10 @@ auto get_signals(
         echomap::SignalFactory::load_wave_file(file_path.c_str(), slot_vector);
 
     // Now we can give the fully constructed signals to the project.
-    for (auto&& signal : signals)
+    for (auto&& factory : factories) {
+        std::shared_ptr signal = std::move(factory->take_signal());
         project.add_signal(std::move(signal));
+    }
 
     return simdjson::SUCCESS;
 }
@@ -224,7 +227,7 @@ simdjson::error_code get_or_default(
 
 auto get_uniformly_sampled_signal_source(
         simdjson::ondemand::object& source,
-        echomap::Signal& signal
+        const echomap::SignalFactory& signal_factory
 )
 {
     std::uint64_t reported_sample_count;
@@ -235,12 +238,12 @@ auto get_uniformly_sampled_signal_source(
     std::size_t sample_rate;
     if ((error = source["sample_rate"].get(sample_rate)))
         return error;
-    signal.set_sample_rate(sample_rate);
+    signal_factory.set_sample_rate(sample_rate);
 
     float time_offset;
     if ((error = source["time_offset"].get(time_offset)))
         return error;
-    signal.set_time_offset(time_offset);
+    signal_factory.set_time_offset(time_offset);
 
     simdjson::ondemand::array samples;
     if ((error = source["samples"].get_array().get(samples)))
@@ -250,16 +253,16 @@ auto get_uniformly_sampled_signal_source(
         float amplitude;
         if ((error = sample_wrapper.get(amplitude)))
             return error;
-        signal.emplace_sample(amplitude);
+        signal_factory.emplace_sample(amplitude);
     }
 
-    verify_sample_count(reported_sample_count, signal);
+    verify_sample_count(reported_sample_count, signal_factory.observe_signal());
     return error;
 }
 
 auto get_variably_sampled_signal_source(
         simdjson::ondemand::object& source,
-        echomap::Signal& signal
+        const echomap::SignalFactory& signal_factory
 )
 {
     std::uint64_t reported_sample_count;
@@ -270,12 +273,12 @@ auto get_variably_sampled_signal_source(
     std::size_t sample_rate;
     if ((error = get_or_default(source, "sample_rate", sample_rate, std::size_t{0})))
         return error;
-    signal.set_sample_rate(sample_rate);
+    signal_factory.set_sample_rate(sample_rate);
 
     float time_offset;
     if ((error = get_or_default(source, "time_offset", time_offset, 0.0f)))
         return error;
-    signal.set_time_offset(time_offset);
+    signal_factory.set_time_offset(time_offset);
 
     simdjson::ondemand::array samples;
     if ((error = source["samples"].get_array().get(samples)))
@@ -290,10 +293,10 @@ auto get_variably_sampled_signal_source(
             return error;
         if ((error = sample_obj["amplitude"].get(sample_data.amplitude)))
             return error;
-        signal.emplace_sample(sample_data.time, sample_data.amplitude);
+        signal_factory.emplace_sample(sample_data.time, sample_data.amplitude);
     }
 
-    verify_sample_count(reported_sample_count, signal);
+    verify_sample_count(reported_sample_count, signal_factory.observe_signal());
     return error;
 }
 
@@ -339,7 +342,7 @@ template <typename simdjson_value>
 auto tag_invoke(
         deserialize_tag,
         simdjson_value& value,
-        echomap::Signal& signal
+        echomap::SignalFactory& signal_factory
 )
 {
     ondemand::object root;
@@ -350,7 +353,7 @@ auto tag_invoke(
     std::string_view name;
     if ((error = root["name"].get(name)))
         return error;
-    signal.set_name(name);
+    signal_factory.set_signal_name(name);
 
     ondemand::object source;
     if ((error = root["source"].get_object().get(source)))
@@ -371,14 +374,14 @@ auto tag_invoke(
         if ((error = source["channel"].get(channel_num)))
             return error;
 
-        signal.set_source(path, channel_num);
+        signal_factory.set_source(path, channel_num);
     } else if (kind == "embeddedUniform") {
         // Embedded signals with uniform sampling are constructed by the parser with the mandatory timing information.
-        if ((error = get_uniformly_sampled_signal_source(source, signal)))
+        if ((error = get_uniformly_sampled_signal_source(source, signal_factory)))
             return error;
     } else if (kind == "embeddedVariable") {
         // Embedded signals with variable sampling are constructed by the parser with the optional timing information.
-        if ((error = get_variably_sampled_signal_source(source, signal)))
+        if ((error = get_variably_sampled_signal_source(source, signal_factory)))
             return error;
     } else
         throw std::runtime_error(std::format("Signal {} specifies unknown source kind \"{}\".", name, kind));

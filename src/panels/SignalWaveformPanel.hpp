@@ -16,6 +16,8 @@
 namespace echomap
 {
 
+class Worker;
+
 /**
  * The SignalWaveformPanel provides a preview of downsampled time-series waveforms of each Signal in the active Project.
  *
@@ -24,13 +26,15 @@ namespace echomap
 class SignalWaveformPanel final : public IPanel
 {
 public:
-    explicit SignalWaveformPanel(Project* initial_project = nullptr);
+    explicit SignalWaveformPanel(Worker& parent_worker, Project* initial_project = nullptr);
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
 
     void set_active_project(Project* new_active_project) noexcept override;
+
+    void handle(DownsampleResult& result) override;
 
 private:
     static constexpr float default_downsample_factor = 50.0f;
@@ -50,12 +54,11 @@ private:
      * cached.
      *
      * @param signal The original Signal to downsample.
-     * @return A stable observing pointer to the downsampled Signal, or null if it could not be produced.
+     * @return A stable observing pointer to the downsampled Signal, or null if it could not be produced at this time.
      *
-     * @todo It would be nice if this could run in the background, and not hold up the render thread. At least, the
-     *       cache miss (downsampling algorithm) case shouldn't be done in the render thread.
+     * @pre The given Signal container must detain a valid Signal object.
      */
-    const Signal* get_downsampled_signal(const Signal& signal);
+    const Signal* get_downsampled_signal(std::shared_ptr<Signal> signal);
 
     /**
      * The duplicated Signal objects, downsampled for visualisation.
@@ -89,6 +92,7 @@ private:
     const std::string panel_name = "Signal Waveform Preview";
 
     ImPlotSpec plotting_spec_2d;
+    Worker& parent_worker;
     Project* active_project = nullptr;
 };
 

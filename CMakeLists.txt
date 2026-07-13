@@ -76,6 +76,10 @@ add_executable(EchoMap
         src/tasks/LoadProjectResult.cpp
         src/tasks/LoadProjectResult.hpp
         src/tasks/IResultHandler.hpp
+        src/tasks/DownsampleTask.cpp
+        src/tasks/DownsampleTask.hpp
+        src/tasks/DownsampleResult.cpp
+        src/tasks/DownsampleResult.hpp
 )
 
 target_link_libraries(EchoMap PRIVATE

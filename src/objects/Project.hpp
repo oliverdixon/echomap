@@ -21,7 +21,7 @@ namespace echomap
 
 class Project : public Object<Project>
 {
-    std::flat_map<Signal::id_type, std::unique_ptr<Signal>> signals;
+    std::flat_map<Signal::id_type, std::shared_ptr<Signal>> signals;
     std::flat_map<Sensor::id_type, std::unique_ptr<Sensor>> sensors;
 
 public:
@@ -35,10 +35,10 @@ public:
     /**
      * Transfers ownership of a Signal into the Project.
      *
-     * @param signal The owning container of the Signal object to transfer.
+     * @param signal The shared-ownership container of the Signal object to transfer.
      * @return An observing pointer to the inserted Signal, or <code>nullptr</code> if insertion was de-duplicated.
      */
-    const Signal* add_signal(std::unique_ptr<Signal>&& signal);
+    const Signal* add_signal(std::shared_ptr<Signal>&& signal);
 
     /**
      * Transfers ownership of a Sensor into the Project.
@@ -88,7 +88,7 @@ public:
     [[nodiscard]] auto observe_signals() const noexcept
     {
         return signals | std::views::values |
-               std::views::transform([](const std::unique_ptr<Signal>& container) -> const Signal& {
+               std::views::transform([](const std::shared_ptr<Signal>& container) -> const Signal& {
                    /*
                     * N.B. for this functor and all similar ones: this is an assertion, not an exception. If the Project
                     * possesses a container for something, but that container is empty, it's definitely violated an
@@ -101,6 +101,16 @@ public:
                    assert(container);
                    return *container;
                });
+    }
+
+    /**
+     * Provides a view of Signal objects detained in shared-ownership containers.
+     *
+     * @return A view containing mutable sharable references to all stored Signal objects.
+     */
+    [[nodiscard]] auto share_signals() const noexcept
+    {
+        return signals | std::views::values;
     }
 
     /**

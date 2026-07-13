@@ -21,9 +21,15 @@ namespace echomap
 /**
  * A single channel of discretely sampled audio data.
  *
- * Signals always store their sampled time series in memory, but they optionally express an external source. This is
- * currently a file specification on the local file system, and an internal channel number, indicating the origin of the
- * sample data.
+ * <p>
+ *  Signals always store their sampled time series in memory, but they optionally express an external source. This is
+ *  currently a file specification on the local file system, and an internal channel number, indicating the origin of
+ *  the sample data.
+ * </p>
+ * <p>
+ *  Signal objects must be constructed by a SignalFactory. Following release from the factory, all non-metadata state
+ *  is immutable, particularly the Sample time series.
+ * </p>
  *
  * @invariant Amplitude samples are stored contiguously in memory. Timing information may either be inferred from the
  *  baseline sampling model or adjusted by an optional per-sample offset array. The timed samples range is a lazy
@@ -59,17 +65,6 @@ public:
     };
 
     /**
-     * Creates an empty optionally named Signal.
-     *
-     * @param name Optional display name.
-     * @param source Optional file system source path indicating the origin of the file.
-     */
-    explicit Signal(
-            std::string_view name = {},
-            const std::optional<Source>& source = {}
-    );
-
-    /**
      * Retrieves the total number of samples in the Signal stream.
      *
      * @return The number of samples detained by the Signal.
@@ -95,7 +90,6 @@ public:
     [[nodiscard]] const std::optional<Source>& observe_source() const noexcept;
 
     [[nodiscard]] Sample::TimeT get_time_offset() const noexcept;
-
     [[nodiscard]] std::size_t get_sample_rate() const noexcept;
 
     [[nodiscard]] decltype(samples)::const_iterator begin() const;
@@ -141,6 +135,17 @@ private:
     };
 
     friend class SignalFactory;
+
+    /**
+     * Creates an empty optionally named Signal.
+     *
+     * @param name Optional display name.
+     * @param source Optional file system source path indicating the origin of the file.
+     */
+    explicit Signal(
+            std::string_view name = {},
+            const std::optional<Source>& source = {}
+    );
 
     /**
      * Emplace a sample to the back of the channel sample data.

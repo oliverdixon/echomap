@@ -76,7 +76,7 @@ EchoMap::EchoMap() :
 
     panels.push_back(std::make_unique<MenuPanel>());
     panels.push_back(std::make_unique<ProjectPanel>());
-    panels.push_back(std::make_unique<SignalWaveformPanel>());
+    panels.push_back(std::make_unique<SignalWaveformPanel>(worker));
     panels.push_back(std::make_unique<SensorGeometryPanel>());
     panels.push_back(std::make_unique<ChannelMappingPanel>());
 
@@ -446,6 +446,17 @@ void EchoMap::handle(
 )
 {
     put_project(result.take_project());
+
+    for (const auto& panel : panels)
+        panel->handle(result);
+}
+
+void EchoMap::handle(
+        DownsampleResult& result
+)
+{
+    for (const auto& panel : panels)
+        panel->handle(result);
 }
 
 } // namespace echomap
