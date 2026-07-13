@@ -23,7 +23,9 @@ class Project;
  * Represents a panel or window on the GUI.
  *
  * Panels may render from a static context, typically through a configured ImGui context, or despatch work to the GPU
- *  through a WebGPU CommandEncoder.
+ * through a WebGPU CommandEncoder.
+ *
+ * @todo All panels shouldn't necessarily implement IResultHandler. We might want a more "precise" pub-sub model.
  */
 class IPanel : public IResultHandler
 {

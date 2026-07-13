@@ -12,8 +12,8 @@
 
 #include <memory>
 
-#include "IResult.hpp"
 #include "../objects/Signal.hpp"
+#include "IResult.hpp"
 
 namespace echomap
 {
@@ -24,7 +24,10 @@ namespace echomap
 class DownsampleResult : public IResult
 {
 public:
-    explicit DownsampleResult(Signal::id_type source_id, std::unique_ptr<Signal> downsampled);
+    explicit DownsampleResult(
+            Signal::id_type source_id,
+            std::unique_ptr<Signal> downsampled
+    );
 
     void despatch(IResultHandler& handler) override;
 

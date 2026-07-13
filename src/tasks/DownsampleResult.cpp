@@ -13,6 +13,7 @@
 
 namespace echomap
 {
+
 DownsampleResult::DownsampleResult(
         const Signal::id_type source_id,
         std::unique_ptr<Signal> downsampled

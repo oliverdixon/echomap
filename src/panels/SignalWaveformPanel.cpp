@@ -73,6 +73,7 @@ void SignalWaveformPanel::set_active_project(
 {
     active_project = new_active_project;
 
+    downsample_cache.clear();
     waveform_bounding_box.X.Min = std::numeric_limits<double>::max();
     waveform_bounding_box.X.Max = std::numeric_limits<double>::lowest();
     waveform_bounding_box.Y.Min = -1.0;
@@ -101,15 +102,16 @@ void SignalWaveformPanel::handle(
         ds_slot_it->second = std::move(signal);
 
     // Update the bounding box for the signal graphical representation.
-    const auto& ds_signal = *ds_slot_it->second;
-    const auto local_min = ds_signal.get_time_at_index(0);
-    const auto local_max = ds_signal.get_time_at_index(ds_signal.get_sample_count() - 1);
+    if (const auto& ds_signal = *ds_slot_it->second; ds_signal.get_sample_count() > 0) {
+        const auto local_min = ds_signal.get_time_at_index(0);
+        const auto local_max = ds_signal.get_time_at_index(ds_signal.get_sample_count() - 1);
 
-    if (local_min < waveform_bounding_box.X.Min)
-        waveform_bounding_box.X.Min = local_min;
+        if (local_min < waveform_bounding_box.X.Min)
+            waveform_bounding_box.X.Min = local_min;
 
-    if (local_max > waveform_bounding_box.X.Max)
-        waveform_bounding_box.X.Max = local_max;
+        if (local_max > waveform_bounding_box.X.Max)
+            waveform_bounding_box.X.Max = local_max;
+    }
 }
 
 ImPlotPoint SignalWaveformPanel::get_indexed_signal_point(

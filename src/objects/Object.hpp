@@ -1,6 +1,11 @@
-//
-// Created by owd on 25/06/2026.
-//
+/**
+ * @file
+ *
+ * Object specification
+ *
+ * @author Oliver Dixon
+ * @date 2026-06-25
+ */
 
 #ifndef ECHOMAP_OBJECT_HPP
 #define ECHOMAP_OBJECT_HPP
@@ -18,9 +23,13 @@ namespace echomap
  * A participant in a runtime object model with a numerically unique identifier and display name.
  *
  * <p>
- *  A design invariant, which is not realistically possible to enforce, requires that no two objects co-exist for any
- *  non-trivial duration with matching IDs. In this context, a "non-trivial lifetime" would be any state that outlives a
- *  function as a member or global variable.
+ *  A design invariant, which is not realistically possible to enforce, requires that no two objects of the same class
+ *  co-exist for any non-trivial duration with matching IDs. In this context, a "non-trivial lifetime" would be any
+ *  state that outlives a function as a member or global variable.
+ * </p>
+ * <p>
+ *  In general, users should refer to objects by their stable numerical ID as opposed to iterators, pointers, or
+ *  references. Transparent hashing on ordered and unordered STL containers allows fast and convenient lookup in the ID.
  * </p>
  *
  * @tparam Derived The concrete derived type, used for CRTP static polymorphism.

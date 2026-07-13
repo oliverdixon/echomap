@@ -89,7 +89,7 @@ void SignalFactory::load_wave_file(
         std::vector<Signal*> channels;
         channels.reserve(channel_factories.size());
         for (const auto factory : channel_factories)
-            channels.push_back(factory->target.get());
+            channels.push_back(factory->target == nullptr ? nullptr : factory->target.get());
         load_wave_file_into_channels(drwav_info, file_path, channels);
     } catch (const std::runtime_error&) {
         drwav_uninit(&drwav_info);

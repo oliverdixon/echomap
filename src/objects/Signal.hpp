@@ -28,7 +28,8 @@ namespace echomap
  * </p>
  * <p>
  *  Signal objects must be constructed by a SignalFactory. Following release from the factory, all non-metadata state
- *  is immutable, particularly the Sample time series.
+ *  is immutable, particularly the Sample time series. Trivial metadata (such as the display name from Object) may be
+ *  modified at will.
  * </p>
  *
  * @invariant Amplitude samples are stored contiguously in memory. Timing information may either be inferred from the
