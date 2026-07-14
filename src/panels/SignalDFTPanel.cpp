@@ -83,39 +83,58 @@ void SignalDFTPanel::handle(
 }
 
 ImPlotPoint SignalDFTPanel::get_indexed_frequency_bin(
-        const int index,
-        void* user_data
+        int index,
+        void* const user_data
 ) noexcept
 {
-    const auto spectrum = static_cast<CallbackData*>(user_data)->spectrum;
-    return {spectrum->bins[index].frequency, spectrum->bins[index].magnitude};
+    const auto info = static_cast<CallbackData*>(user_data);
+    index += info->index_offset;
+    return {info->spectrum->cbegin()[index].frequency, info->spectrum->cbegin()[index].magnitude};
 }
 
 void SignalDFTPanel::draw_options_section() noexcept
 {
     ImGui::SeparatorText("DFT Configuration");
 
-    ImGui::AlignTextToFramePadding();
-    ImGui::TextUnformatted("Window Function");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
+    if (ImGui::BeginTable("##DFTOptionsTable", 2, table_flags)) {
+        ImGui::TableSetupColumn("##DFTOptionsTableLabel", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("##DFTOptionsTableControl", ImGuiTableColumnFlags_WidthStretch);
 
-    if (auto combo_selected_idx = std::to_underlying(selected_window_function);
-        ImGui::BeginCombo("##DFTOptionsWindowFunction", window_function_names[combo_selected_idx].c_str())) {
-        for (unsigned int item_idx = 0; item_idx < window_function_names.size(); ++item_idx) {
-            const auto is_selected = item_idx == combo_selected_idx;
-            if (ImGui::Selectable(window_function_names[item_idx].c_str(), is_selected) &&
-                combo_selected_idx != item_idx) {
-                combo_selected_idx = item_idx;
-                selected_window_function = static_cast<FrequencySpectrum::WindowFunction>(combo_selected_idx);
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+
+        ImGui::TextUnformatted("Input Window Function");
+        ImGui::TableNextColumn();
+
+        ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
+        if (auto combo_selected_idx = std::to_underlying(selected_window_function);
+            ImGui::BeginCombo("##DFTOptionsWindowFunction", window_function_names[combo_selected_idx].c_str())) {
+            for (unsigned int item_idx = 0; item_idx < window_function_names.size(); ++item_idx) {
+                const auto is_selected = item_idx == combo_selected_idx;
+                if (ImGui::Selectable(window_function_names[item_idx].c_str(), is_selected) &&
+                    combo_selected_idx != item_idx) {
+                    combo_selected_idx = item_idx;
+                    selected_window_function = static_cast<FrequencySpectrum::WindowFunction>(combo_selected_idx);
+                }
+
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
             }
 
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
+            ImGui::EndCombo();
+            app.increment_forced_frames(4);
         }
 
-        ImGui::EndCombo();
-        app.increment_forced_frames(4);
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+
+        ImGui::TextUnformatted("Logarithmic Frequency Scale");
+        ImGui::TableNextColumn();
+
+        if (ImGui::Checkbox("##DFTOptionsLogScale", &use_log_scale))
+            update_bounding_box();
+
+        ImGui::EndTable();
     }
 }
 
@@ -136,15 +155,24 @@ void SignalDFTPanel::draw_preview_section() noexcept
             else if (ImPlot::BeginPlot(spectrum->get_imgui_name())) {
 
                 ImPlot::SetupAxes("Frequency (Hz)", "Magnitude");
+                ImPlot::SetupAxisScale(ImAxis_X1, use_log_scale ? ImPlotScale_Log10 : ImPlotScale_Linear);
                 ImPlot::SetupAxisLinks(ImAxis_X1, &bounding_box.X.Min, &bounding_box.X.Max);
                 ImPlot::SetupAxisLinks(ImAxis_Y1, &bounding_box.Y.Min, &bounding_box.Y.Max);
 
-                CallbackData callback_data = {.spectrum = spectrum};
+                int plottable_bin_count = static_cast<int>(spectrum->get_bin_count());
+                CallbackData callback_data = {.spectrum = spectrum, .index_offset = 0};
+
+                if (plottable_bin_count > 0 && use_log_scale) {
+                    // If we're plotting on the log scale, discount the DC component if it exists.
+                    --plottable_bin_count;
+                    callback_data.index_offset = 1;
+                }
+
                 ImPlot::PlotLineG(
                         "",
                         &SignalDFTPanel::get_indexed_frequency_bin,
                         &callback_data,
-                        static_cast<int>(spectrum->bins.size()),
+                        plottable_bin_count,
                         plotting_spec_2d
                 );
 
@@ -160,29 +188,22 @@ void SignalDFTPanel::update_bounding_box(
         const FrequencySpectrum& spectrum
 ) noexcept
 {
-    if (const auto& bins = spectrum.bins; !bins.empty()) {
-        if (const auto local_min_x = bins.front().frequency; local_min_x < bounding_box.X.Min)
-            bounding_box.X.Min = local_min_x;
+    using BoundType = decltype(bounding_box.X.Min);
 
-        if (const auto local_max_x = bins.back().frequency; local_max_x > bounding_box.X.Max)
-            bounding_box.X.Max = local_max_x;
+    if (spectrum.get_bin_count() == 0)
+        return;
 
-        auto local_min_y = bins.front().magnitude;
-        for (const auto bin : bins)
-            if (bin.magnitude < local_min_y)
-                local_min_y = bin.magnitude;
+    if (use_log_scale) {
+        if (spectrum.get_bin_count() > 1) {
+            if (const auto x_min = static_cast<BoundType>(std::next(spectrum.cbegin())->frequency); x_min > 0.0)
+                bounding_box.X.Min = std::min(x_min, bounding_box.X.Min);
+        }
+    } else
+        bounding_box.X.Min = std::min(static_cast<BoundType>(spectrum.get_minimum_frequency()), bounding_box.X.Min);
 
-        if (local_min_y < bounding_box.Y.Min)
-            bounding_box.Y.Min = local_min_y;
-
-        auto local_max_y = bins.front().magnitude;
-        for (const auto bin : bins)
-            if (bin.magnitude > local_max_y)
-                local_max_y = bin.magnitude;
-
-        if (local_max_y > bounding_box.Y.Max)
-            bounding_box.Y.Max = local_max_y;
-    }
+    bounding_box.X.Max = std::max(static_cast<BoundType>(spectrum.get_maximum_frequency()), bounding_box.X.Max);
+    bounding_box.Y.Min = std::min(static_cast<BoundType>(spectrum.get_minimum_magnitude()), bounding_box.Y.Min);
+    bounding_box.Y.Max = std::max(static_cast<BoundType>(spectrum.get_maximum_magnitude()), bounding_box.Y.Max);
 }
 
 void SignalDFTPanel::update_bounding_box() noexcept
@@ -191,6 +212,11 @@ void SignalDFTPanel::update_bounding_box() noexcept
     bounding_box.X.Max = std::numeric_limits<double>::lowest();
     bounding_box.Y.Min = std::numeric_limits<double>::max();
     bounding_box.Y.Max = std::numeric_limits<double>::lowest();
+
+    for (const auto& group : spectra_cache | std::views::values)
+        for (const auto& spectrum : group.spectra)
+            if (spectrum != nullptr)
+                update_bounding_box(*spectrum);
 }
 
 const FrequencySpectrum* SignalDFTPanel::get_spectra(

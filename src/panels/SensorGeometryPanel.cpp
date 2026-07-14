@@ -85,8 +85,8 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
 {
     ImGui::SeparatorText("Geometry Summary");
     if (ImGui::BeginTable("##GeometrySummary", 5, table_flags)) {
-        ImGui::TableSetupColumn("##SensorColourColumn", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("Sensor", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("##SensorColourColumn", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Sensor", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("X Position", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Y Position", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Z Position", ImGuiTableColumnFlags_WidthStretch);

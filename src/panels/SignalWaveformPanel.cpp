@@ -40,7 +40,7 @@ void SignalWaveformPanel::draw() noexcept
 
             for (const auto& signal : active_project->share_signals())
                 if (const auto downsampled = get_downsampled_signal(signal); downsampled == nullptr)
-                    ImGui::Text("Could not downsample %s due to system error.", signal->get_imgui_name());
+                    ImGui::Text("Loading downsampled variant of %s...", signal->get_imgui_name());
                 else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
 
                     ImPlot::SetupAxes("Time (seconds)", "Amplitude");

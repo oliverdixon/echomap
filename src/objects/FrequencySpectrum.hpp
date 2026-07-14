@@ -25,6 +25,17 @@ class FrequencySpectrumFactory;
 class FrequencySpectrum : public Object<FrequencySpectrum>
 {
 public:
+    struct Bin
+    {
+        float frequency;
+        float magnitude;
+        float phase;
+    };
+
+private:
+    std::vector<Bin> bins;
+
+public:
     /**
      * Selector for pre-processing window functions.
      */
@@ -35,14 +46,6 @@ public:
         Hamming,  /**< Hamming raised-cosine window. */
     };
 
-    struct Bin
-    {
-        float frequency;
-        float magnitude;
-        float phase;
-    };
-
-    std::vector<Bin> bins;
     const WindowFunction preprocessor;
 
     /**
@@ -53,6 +56,18 @@ public:
      */
     static std::string get_window_function_name(WindowFunction function) noexcept;
 
+    [[nodiscard]] decltype(bins)::const_iterator begin() const;
+    [[nodiscard]] decltype(bins)::const_iterator end() const;
+    [[nodiscard]] decltype(bins)::const_iterator cbegin() const noexcept;
+    [[nodiscard]] decltype(bins)::const_iterator cend() const noexcept;
+
+    [[nodiscard]] std::size_t get_bin_count() const noexcept;
+
+    [[nodiscard]] float get_minimum_frequency() const noexcept;
+    [[nodiscard]] float get_maximum_frequency() const noexcept;
+    [[nodiscard]] float get_minimum_magnitude() const noexcept;
+    [[nodiscard]] float get_maximum_magnitude() const noexcept;
+
 private:
     friend FrequencySpectrumFactory;
 
@@ -60,6 +75,19 @@ private:
             WindowFunction preprocessor,
             std::string_view name
     );
+
+    void reserve_bins(std::size_t bin_count);
+
+    void emplace_bin(
+            float frequency,
+            float magnitude,
+            float phase
+    );
+
+    float minimum_frequency = std::numeric_limits<float>::max();
+    float maximum_frequency = std::numeric_limits<float>::min();
+    float minimum_magnitude = std::numeric_limits<float>::max();
+    float maximum_magnitude = std::numeric_limits<float>::min();
 };
 
 } // namespace echomap

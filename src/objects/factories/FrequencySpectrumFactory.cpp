@@ -57,7 +57,7 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
     // Construct the FrequencySpectrum from the coefficients.
     const auto bin_count = sample_count / 2 + 1;
     auto spectrum = std::unique_ptr<FrequencySpectrum>(new FrequencySpectrum(window_function, display_name));
-    spectrum->bins.reserve(bin_count);
+    spectrum->reserve_bins(bin_count);
 
     for (std::size_t bin_idx = 0; bin_idx < bin_count; ++bin_idx) {
         const auto is_dc = bin_idx == 0;
@@ -67,7 +67,7 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
         const auto real = context.coefficients[bin_idx][0];
         const auto imag = context.coefficients[bin_idx][1];
 
-        spectrum->bins.emplace_back(
+        spectrum->emplace_bin(
                 static_cast<float>(bin_idx) * static_cast<float>(signal.get_sample_rate()) /
                         static_cast<float>(sample_count),
                 std::sqrt(real * real + imag * imag) * scale,

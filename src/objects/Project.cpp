@@ -68,13 +68,30 @@ void Project::add_association(
         const Sensor::id_type sensor_id
 )
 {
-    if (!signals.contains(signal_id))
+    const auto signal_it = signals.find(signal_id);
+    if (signal_it == signals.end())
         throw std::runtime_error(std::format("Signal with ID {} does not exist in the Project.", signal_id));
 
-    if (!sensors.contains(sensor_id))
+    const auto sensor_it = sensors.find(sensor_id);
+    if (sensor_it == sensors.end())
         throw std::runtime_error(std::format("Sensor with ID {} does not exist in the Project.", sensor_id));
 
-    if (!channel_mapping.emplace(signal_id, sensor_id).second)
+    if (!channel_mapping.emplace(signal_id, sensor_id).second) {
+        /*
+         * Solely to improve the quality of the exception message, we'll try to look up the display names since we know
+         * they refer to objects owned by the project (otherwise the previous exceptions would've fired), except in the
+         * generate case that the managed pointers do not detain an actual object.
+         */
+        if (signal_it->second != nullptr && sensor_it->second != nullptr)
+            throw std::runtime_error(
+                    std::format(
+                            "Could not associate {} with {}: a component is already mapped.",
+                            signal_it->second->get_name(),
+                            sensor_it->second->get_name()
+                    )
+            );
+
+        // Well, we tried!
         throw std::runtime_error(
                 std::format(
                         "Could not associate Signal with ID {} to Sensor with ID {}: a component is already mapped.",
@@ -82,6 +99,7 @@ void Project::add_association(
                         sensor_id
                 )
         );
+    }
 }
 
 std::size_t Project::get_signal_count() const noexcept

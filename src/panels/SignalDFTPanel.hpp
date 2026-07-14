@@ -44,6 +44,7 @@ private:
     struct CallbackData
     {
         const FrequencySpectrum* spectrum;
+        int index_offset;
     };
 
     static ImPlotPoint get_indexed_frequency_bin(
@@ -98,6 +99,7 @@ private:
 
     std::array<std::string, all_window_functions.size()> window_function_names;
     FrequencySpectrum::WindowFunction selected_window_function = all_window_functions.front();
+    bool use_log_scale = false;
 };
 
 } // namespace echomap
