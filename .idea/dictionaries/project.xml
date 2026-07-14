@@ -8,6 +8,7 @@
       <w>imgui</w>
       <w>implot</w>
       <w>implot3d</w>
+      <w>libsigcpp</w>
       <w>miniserve</w>
       <w>portfiles</w>
       <w>simdjson</w>

@@ -10,6 +10,8 @@
 
 * Use heuristics to offload FFT work to the GPU via WebGPU for large transforms where the benefits outweigh the costs
   of memory transaction overhead.
+  * https://github.com/DTolm/VkFFT could be used, but it doesn't currently have a WebGPU backend. However the API seems
+    fairly straightforward, so it may be feasible to add one. https://github.com/DTolm/VkFFT/issues/144
 
 * Investigate SRP-PHAT.
   * Procure example data from European project.

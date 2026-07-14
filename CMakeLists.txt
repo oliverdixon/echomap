@@ -14,6 +14,7 @@ find_package(simdjson REQUIRED)
 find_package(ImPlot REQUIRED)
 find_package(ImPlot3D REQUIRED)
 find_package(FFTW3f CONFIG REQUIRED)
+find_package(sigc++-3 CONFIG REQUIRED)
 
 if(EMSCRIPTEN AND TARGET dawn_glfw)
     target_compile_definitions(dawn_glfw PRIVATE EMSCRIPTEN=1)
@@ -104,6 +105,7 @@ target_link_libraries(EchoMap PRIVATE
         implot3d::implot3d
         simdjson::simdjson
         FFTW3::fftw3f
+        sigc-3.0
 )
 
 # Update generated C++ to embed WGSL sources.
