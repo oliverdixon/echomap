@@ -275,8 +275,11 @@ wgpu::Future EchoMap::request_device() noexcept
 
 void EchoMap::render() noexcept
 {
+    // Process any events that have arrived since the last cycle.
+    process_lightweight_tasks();
     process_worker_results();
 
+    // Handle system/graphics changes.
     if (!handle_window_resize())
         return;
 
@@ -306,23 +309,24 @@ void EchoMap::render() noexcept
     ImGui::NewFrame();
 
     const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    if (!dockspace_configured) {
+    if (!dockspace_configured)
         dockspace_configured = true;
-    }
 
     ImGui::DockSpaceOverViewport(dockspace_id, viewport, ImGuiDockNodeFlags_None);
 
+    // Draw the panels and express any applicable error state.
     for (const auto& panel : panels)
         panel->draw();
 
+    error_modal.draw();
     ImGui::Render();
 
-    // Step 2. Set up a command encoder for the render and allow Dear ImGui panels to provide work.
+    // Set up a command encoder for the render and allow Dear ImGui panels to provide work.
     const wgpu::CommandEncoder encoder = device.CreateCommandEncoder();
 
     // TODO no panels use GPU yet.
 
-    // Step 3. Provide the framebuffer to the WebGPU driver.
+    // Provide the framebuffer to the WebGPU driver.
     wgpu::RenderPassColorAttachment attachment{
             .view = surface_view,
             .loadOp = wgpu::LoadOp::Clear,
@@ -338,7 +342,7 @@ void EchoMap::render() noexcept
 
     const wgpu::CommandBuffer commands = encoder.Finish();
 
-    // Step 4. Submit batched work to the GPU.
+    // Submit batched work to the GPU.
     device.GetQueue().Submit(1, &commands);
 
 #ifndef __EMSCRIPTEN__
@@ -353,7 +357,7 @@ void EchoMap::setup_imgui()
     if (!device)
         throw ConfigurationError("Cannot initialise ImGui: WebGPU device is null");
 
-    // Step 1. Bring up the Dear ImGui context and initialise the GLFW backend.
+    // Bring up the Dear ImGui context and initialise the GLFW backend.
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImPlot::CreateContext();
@@ -371,7 +375,7 @@ void EchoMap::setup_imgui()
     if (!ImGui_ImplGlfw_InitForOther(window, true))
         throw ConfigurationError("ImGui_ImplGlfw_InitForOther failed");
 
-    // Step 2. Configure the WebGPU backend for Dear ImGui.
+    // Configure the WebGPU backend for Dear ImGui.
     ImGui_ImplWGPU_InitInfo init_info{};
     init_info.Device = device.Get();
     // ReSharper disable once CppDFAConstantConditions
@@ -425,36 +429,53 @@ bool EchoMap::handle_window_resize() noexcept
     return true;
 }
 
-void EchoMap::process_worker_results()
+void EchoMap::process_lightweight_tasks()
 {
     while (!lightweight_tasks.empty()) {
-        LOG_F_DEBUG(
-                "Consuming lightweight task with hint {} at position {}.",
-                static_cast<void*>(&lightweight_tasks.back()),
-                lightweight_tasks.size() - 1
-        );
+        const auto task_hint = static_cast<void*>(&lightweight_tasks.back());
+        const auto task_position = lightweight_tasks.size() - 1;
 
-        // TODO try..catch to display ErrorModal in here.
-        std::visit(
-                [this]<typename T>(T&& task) {
-                    using TaskT = std::decay_t<T>;
+        LOG_F_DEBUG("Consuming lightweight task with hint {} (#{}).", task_hint, task_position);
 
-                    if constexpr (std::is_same_v<TaskT, AddChannelMappingTask>) {
-                        if (project != nullptr)
+        try {
+            std::visit(
+                    [this, hint = task_hint, position = task_position]<typename T>(T&& task) {
+                        if (project == nullptr) {
+                            /*
+                             * Lightweight tasks aren't necessarily dependent on an active project being defined, but
+                             * currently they are...
+                             */
+                            LOG_F_DEBUG("Dropping lightweight task with hint {} (#{}).", hint, position);
+                            return;
+                        }
+
+                        using TaskT = std::decay_t<T>;
+
+                        if constexpr (std::is_same_v<TaskT, AddChannelMappingTask>)
                             project->add_association(task.signal_id, task.sensor_id);
-                    } else if constexpr (std::is_same_v<TaskT, ModifySensorColourTask>) {
-                        if (project != nullptr)
+                        else if constexpr (std::is_same_v<TaskT, ModifySensorColourTask>)
                             project->get_mutable_sensor(task.sensor_id).set_colour(std::move(task.colour));
-                    } else if constexpr (std::is_same_v<TaskT, ModifySensorPositionTask>) {
-                        if (project != nullptr)
+                        else if constexpr (std::is_same_v<TaskT, ModifySensorPositionTask>)
                             project->get_mutable_sensor(task.sensor_id).set_position(std::move(task.position));
-                    }
-                },
-                lightweight_tasks.back()
-        );
+                    },
+                    lightweight_tasks.back()
+            );
+        } catch (const std::exception& exception) {
+            error_modal.raise_error(exception.what());
+            LOG_F_ERROR(
+                    "LWT with hint {} (#{}) was responsible for error: {}.",
+                    task_hint,
+                    task_position,
+                    exception.what()
+            );
+        }
+
         lightweight_tasks.pop_back();
     }
+}
 
+void EchoMap::process_worker_results()
+{
     while (const auto result = worker.try_get_result())
         try {
             result->despatch(*this);

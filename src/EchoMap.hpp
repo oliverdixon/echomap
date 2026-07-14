@@ -12,6 +12,7 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
+#include "panels/ErrorModal.hpp"
 #include "tasks/IResultHandler.hpp"
 #include "tasks/Worker.hpp"
 #include "tasks/lightweight/AddChannelMappingTask.hpp"
@@ -31,6 +32,9 @@ class Project;
 class EchoMap : IResultHandler
 {
 public:
+    /**
+     * A lightweight task is a trivial message sent to the EchoMap controller.
+     */
     using LightweightTask = std::variant<AddChannelMappingTask, ModifySensorColourTask, ModifySensorPositionTask>;
 
     /**
@@ -69,6 +73,8 @@ public:
 
     /**
      * Submit a new lightweight task to the application queue.
+     *
+     * LWTs are processed at the beginning of render cycles in a first-come first-served ordering.
      *
      * @param task The trivial task to schedule.
      */
@@ -156,8 +162,19 @@ private:
      */
     bool handle_window_resize() noexcept;
 
+    /**
+     * Handle any unconsumed events from the lightweight task queue.
+     */
+    void process_lightweight_tasks();
+
+    /**
+     * Handle any unconsumed events from the Worker.
+     */
     void process_worker_results();
 
+    /**
+     * Propagate updates of the active Project to the panels.
+     */
     void update_panel_project() const;
 
 #ifdef __EMSCRIPTEN__
@@ -189,6 +206,7 @@ private:
 
     std::unique_ptr<Project> project;
     std::vector<std::unique_ptr<IPanel>> panels;
+    ErrorModal error_modal;
 
     Worker worker;
     std::vector<LightweightTask> lightweight_tasks;
