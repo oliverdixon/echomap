@@ -21,12 +21,16 @@ namespace echomap
 
 /**
  * Simple RAII wrapper for commonly used C types from FFTW(f).
+ *
+ * This interface is intentionally "raw" (e.g. direct access to member variables) since it's often used in hot loops. We
+ * want to make it as easy as possible for the optimiser.
  */
 class FFTWBuffers
 {
 public:
-    fftwf_complex* const coefficients = nullptr; /**< Complex coefficients (output of real-to-complex FFT). */
-    float* const input = nullptr; /**< Real-valued inputs, either managed by us or aliased by the user. */
+    fftwf_complex* const coefficients; /**< Complex coefficients (output of real-to-complex FFT). */
+    float* const input;                /**< Real-valued inputs, either managed by us or aliased by the user. */
+    const std::size_t input_size;      /**< Size of the input vector. */
 
     /**
      * Setup contextual buffers for FFTW.

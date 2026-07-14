@@ -124,14 +124,14 @@ std::unique_ptr<Signal> SignalFactory::downsample(
             downsampled->get_sample_count()
     );
 
-    return std::move(downsampled);
+    return downsampled;
 }
 
 std::unique_ptr<Signal> SignalFactory::take_signal() noexcept
 {
     auto signal = std::move(target);
     target = std::unique_ptr<Signal>(new Signal());
-    return std::move(signal);
+    return signal;
 }
 
 const Signal& SignalFactory::observe_signal() const noexcept
@@ -293,14 +293,14 @@ std::unique_ptr<Signal> SignalFactory::lttb_downsample(
     if (threshold == 1) {
         // Base case: the user only wants one sample. We choose the first by convention.
         downsampled->emplace_sample(source.get_time_at_index(0), source[0]);
-        return std::move(downsampled);
+        return downsampled;
     }
 
     if (threshold == 2) {
         // Base case: the user only wants two samples. We choose the first and last by necessity.
         downsampled->emplace_sample(source.get_time_at_index(0), source[0]);
         downsampled->emplace_sample(source.get_time_at_index(source_size - 1), source[source_size - 1]);
-        return std::move(downsampled);
+        return downsampled;
     }
 
     const auto bucket_size =
@@ -370,7 +370,7 @@ std::unique_ptr<Signal> SignalFactory::lttb_downsample(
     downsampled->emplace_sample(source.get_time_at_index(source_size - 1), source[source_size - 1]);
 
     assert(downsampled->get_sample_count() == threshold);
-    return std::move(downsampled);
+    return downsampled;
 }
 
 } // namespace echomap

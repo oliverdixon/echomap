@@ -449,7 +449,7 @@ std::unique_ptr<Project> JSONDeserialiser::deserialise_project(
     if (const auto error = doc.get(*project); error)
         return nullptr;
 
-    return std::move(project);
+    return project;
 }
 
 } // namespace echomap

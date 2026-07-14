@@ -40,7 +40,7 @@ std::unique_ptr<IResult> Worker::try_get_result()
 {
     if (std::unique_ptr<IResult> result; result_queue.try_consume(result)) {
         LOG_F_DEBUG("Consuming {} {}: {}.", result->get_class_name(), result->get_id(), result->get_name());
-        return std::move(result);
+        return result;
     }
 
     return nullptr;
