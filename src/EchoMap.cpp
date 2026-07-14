@@ -461,4 +461,12 @@ void EchoMap::handle(
         panel->handle(result);
 }
 
+void EchoMap::handle(
+        DFTResult& result
+)
+{
+    for (const auto& panel : panels)
+        panel->handle(result);
+}
+
 } // namespace echomap

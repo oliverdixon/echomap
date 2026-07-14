@@ -36,6 +36,8 @@ public:
 
     void set_active_project(Project* new_active_project) noexcept override;
 
+    void handle(DFTResult& result) override;
+
 private:
     struct CallbackData
     {

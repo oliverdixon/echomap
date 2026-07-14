@@ -64,6 +64,7 @@ public:
 
     void handle(LoadProjectResult& result) override;
     void handle(DownsampleResult& result) override;
+    void handle(DFTResult& result) override;
 
 private:
     static constexpr auto operation_timeout = std::numeric_limits<std::uint64_t>::max();

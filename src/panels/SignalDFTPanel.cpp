@@ -10,8 +10,11 @@
 #include "SignalDFTPanel.hpp"
 
 #include "../objects/FrequencySpectrum.hpp"
-#include "../objects/FrequencySpectrumFactory.hpp"
 #include "../objects/Project.hpp"
+#include "../tasks/DFTTask.hpp"
+#include "../tasks/DFTResult.hpp"
+#include "../tasks/Worker.hpp"
+#include "../Logger.hpp"
 
 namespace echomap
 {
@@ -76,6 +79,31 @@ void SignalDFTPanel::set_active_project(
     update_bounding_box();
 }
 
+void SignalDFTPanel::handle(
+        DFTResult& result
+)
+{
+    auto spectrum_slot_it = spectra_cache.find(result.get_source_id());
+    auto spectrum = result.take_spectrum();
+
+    if (spectrum_slot_it == spectra_cache.end()) {
+        LOG_F_WARN("Received an unexpected result for the DFT of Signal {}.", spectrum->get_name());
+        const auto spectrum_name_view = spectrum->get_name();
+        auto [it, success] = spectra_cache.emplace(result.get_source_id(), std::move(spectrum));
+
+        if (!success) {
+            LOG_F_ERROR("Could not store the DFT of Signal {} in the cache.", spectrum_name_view);
+            return;
+        }
+
+        spectrum_slot_it = it;
+    } else
+        spectrum_slot_it->second = std::move(spectrum);
+
+    // Update the bounding box for the graphical representation.
+    update_bounding_box(*spectrum_slot_it->second);
+}
+
 ImPlotPoint SignalDFTPanel::get_indexed_frequency_bin(
         const int index,
         void* user_data
@@ -127,14 +155,22 @@ const FrequencySpectrum* SignalDFTPanel::get_spectra(
 )
 {
     assert(signal != nullptr);
-    auto spectra_it = spectra_cache.find(signal->get_id());
+    const auto spectra_it = spectra_cache.find(signal->get_id());
 
-    if (spectra_it == spectra_cache.end())
-        spectra_it =
-                spectra_cache.emplace(signal->get_id(), FrequencySpectrumFactory::create_frequency_spectrum(*signal))
-                        .first;
+    if (spectra_it == spectra_cache.end()) {
+        /*
+         * If the source signal hasn't already been transformed and cached, submit a job to do it ASAP.
+         *
+         * The result won't be picked up on this render cycle, so return nullptr to indicate the "Loading" state, but it
+         * should come through shortly. We emplace a nullptr in the slot to indicate that the work has been requested,
+         * but not yet completed.
+         */
 
-    update_bounding_box(*spectra_it->second);
+        spectra_cache.emplace(signal->get_id(), nullptr);
+        parent_worker.submit(std::make_unique<DFTTask>(std::move(signal)));
+        return nullptr;
+    }
+
     return spectra_it->second.get();
 }
 

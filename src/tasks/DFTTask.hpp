@@ -1,0 +1,51 @@
+/**
+ * @file
+ *
+ * DFTTask specification
+ *
+ * @author Oliver Dixon
+ * @date 2026-07-14
+ */
+
+#ifndef ECHOMAP_DFTTASK_HPP
+#define ECHOMAP_DFTTASK_HPP
+
+#include <memory>
+
+#include "ITask.hpp"
+
+namespace echomap
+{
+
+class Signal;
+
+/**
+ * Represents an ITask for computing the Discrete Fourier Transform of a Signal.
+ *
+ * @see FrequencySpectrumFactory::create_frequency_spectrum
+ */
+class DFTTask : public ITask
+{
+public:
+    /**
+     * Creates a new DFT job for the given Signal.
+     *
+     * Given the immutable nature of Signal Sample data, it is assumed that the time-series data will not be modified
+     * during the scheduling and execution of the job. Shared ownership is required to preserve lifetimes across the
+     * master and computation threads.
+     *
+     * @param signal The shared-ownership Signal to analyse.
+     *
+     * @pre The given Signal must detain a non-nullptr Signal.
+     */
+    explicit DFTTask(std::shared_ptr<Signal> signal);
+
+private:
+    std::unique_ptr<IResult> execute_work() override;
+
+    std::shared_ptr<Signal> signal;
+};
+
+} // namespace echomap
+
+#endif // ECHOMAP_DFTTASK_HPP

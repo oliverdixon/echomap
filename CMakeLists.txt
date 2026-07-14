@@ -87,6 +87,10 @@ add_executable(EchoMap
         src/objects/FrequencySpectrumFactory.hpp
         src/panels/SignalDFTPanel.cpp
         src/panels/SignalDFTPanel.hpp
+        src/tasks/DFTTask.cpp
+        src/tasks/DFTTask.hpp
+        src/tasks/DFTResult.cpp
+        src/tasks/DFTResult.hpp
 )
 
 target_link_libraries(EchoMap PRIVATE

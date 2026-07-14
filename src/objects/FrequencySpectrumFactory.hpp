@@ -25,9 +25,6 @@ class FrequencySpectrumFactory
 {
 public:
     [[nodiscard]] static std::unique_ptr<FrequencySpectrum> create_frequency_spectrum(const Signal& signal);
-
-private:
-
 };
 
 } // namespace echomap

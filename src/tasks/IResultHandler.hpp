@@ -15,6 +15,7 @@ namespace echomap
 
 class LoadProjectResult;
 class DownsampleResult;
+class DFTResult;
 
 /**
  * Defines an interface for handling IResult objects resulting from ITask computations.
@@ -30,6 +31,11 @@ public:
     }
 
     virtual void handle(DownsampleResult& result)
+    {
+        std::ignore = result;
+    }
+
+    virtual void handle(DFTResult& result)
     {
         std::ignore = result;
     }

@@ -22,6 +22,7 @@ DownsampleResult::DownsampleResult(
     source_id(source_id),
     downsampled(std::move(downsampled))
 {
+    assert(this->downsampled != nullptr);
 }
 
 void DownsampleResult::despatch(
