@@ -37,7 +37,7 @@
     },
     {
       "name": "simdjson",
-      "version>=": "4.6.4"
+      "version>=": "4.6.4#1"
     },
     {
       "name": "drlibs",
@@ -45,7 +45,7 @@
     },
     {
       "name": "implot",
-      "version>=": "1.0"
+      "version>=": "1.0.1"
     },
     {
       "name": "implot3d",
@@ -60,7 +60,10 @@
     },
     {
       "name": "libsigcpp",
-      "version>=": "3.8.1"
+      "version>=": "3.8.1#1",
+      "features": [
+        "pthreads"
+      ]
     }
   ]
 }
