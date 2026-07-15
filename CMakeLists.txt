@@ -101,6 +101,7 @@ add_executable(EchoMap
         src/tasks/WorkerResult.hpp
         src/tasks/WorkerResultDespatcher.cpp
         src/tasks/WorkerResultDespatcher.hpp
+        src/tasks/ResultChannel.hpp
 )
 
 target_link_libraries(EchoMap PRIVATE
