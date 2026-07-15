@@ -15,12 +15,17 @@ namespace echomap
 {
 
 SensorGeometryPanel::SensorGeometryPanel(
+        WorkerResultDespatcher& despatcher,
         EchoMap& app,
         const Project* const initial_project
 ) :
     active_project(initial_project),
     app(app)
 {
+    connections.add(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+        active_project = result.observe_project();
+        sensor_colours.clear();
+    }));
 }
 
 const char* SensorGeometryPanel::get_imgui_name() const noexcept
@@ -43,14 +48,6 @@ void SensorGeometryPanel::draw() noexcept
     }
 
     ImGui::End();
-}
-
-void SensorGeometryPanel::set_active_project(
-        const Project* new_active_project
-) noexcept
-{
-    active_project = new_active_project;
-    sensor_colours.clear();
 }
 
 void SensorGeometryPanel::recache_sensor_colours() noexcept

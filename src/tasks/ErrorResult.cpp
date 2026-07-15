@@ -1,8 +1,15 @@
-//
-// Created by owd on 7/9/26.
-//
+/**
+ * @file
+ *
+ * ErrorResult implementation
+ *
+ * @author Oliver Dixon
+ * @date 2026-07-09
+ */
 
 #include "ErrorResult.hpp"
+
+#include "../errors/LocatableError.hpp"
 
 namespace echomap
 {
@@ -14,6 +21,16 @@ ErrorResult::ErrorResult(
 ) :
     message(message),
     location(location),
+    responsible_task(std::move(responsible_task))
+{
+}
+
+ErrorResult::ErrorResult(
+        const LocatableError& exception,
+        std::unique_ptr<ITask> responsible_task
+) :
+    message(exception.what()),
+    location(exception.where()),
     responsible_task(std::move(responsible_task))
 {
 }

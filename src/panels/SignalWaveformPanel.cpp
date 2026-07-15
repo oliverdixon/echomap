@@ -26,7 +26,9 @@ SignalWaveformPanel::SignalWaveformPanel(
     active_project(initial_project)
 {
     connections.add(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
-        set_active_project(result.observe_project());
+        active_project = result.observe_project();
+        downsample_cache.clear();
+        update_bounding_box();
     }));
 
     despatcher.downsample_finished_channel.nominate_consumer(
@@ -74,15 +76,6 @@ void SignalWaveformPanel::draw() noexcept
     }
 
     ImGui::End();
-}
-
-void SignalWaveformPanel::set_active_project(
-        const Project* new_active_project
-) noexcept
-{
-    active_project = new_active_project;
-    downsample_cache.clear();
-    update_bounding_box();
 }
 
 void SignalWaveformPanel::handle_downsampled_result(

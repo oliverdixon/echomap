@@ -6,14 +6,21 @@
 
 #include <imgui.h>
 
+#include "../tasks/LoadProjectResult.hpp"
+#include "../tasks/WorkerResultDespatcher.hpp"
+
 namespace echomap
 {
 
 ProjectPanel::ProjectPanel(
+        WorkerResultDespatcher& despatcher,
         const Project* const initial_project
 ) :
     active_project(initial_project)
 {
+    connections.add(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+        active_project = result.observe_project();
+    }));
 }
 
 void ProjectPanel::draw() noexcept
@@ -45,13 +52,6 @@ void ProjectPanel::draw() noexcept
 const char* ProjectPanel::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
-}
-
-void ProjectPanel::set_active_project(
-        const Project* new_active_project
-) noexcept
-{
-    active_project = new_active_project;
 }
 
 } // namespace echomap

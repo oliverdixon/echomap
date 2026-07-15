@@ -69,7 +69,6 @@ public:
      */
     void update_wav_file(const char* path);
 
-    [[nodiscard]] std::unique_ptr<Project> take_project(bool update_ui) noexcept;
     void put_project(std::unique_ptr<Project> new_project) noexcept;
 
     /**
@@ -187,11 +186,6 @@ private:
      * Handle any unconsumed events from the Worker.
      */
     void process_worker_results();
-
-    /**
-     * Propagate updates of the active Project to the panels.
-     */
-    void update_panel_project() const;
 
 #ifdef __EMSCRIPTEN__
 

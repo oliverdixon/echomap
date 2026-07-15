@@ -5,9 +5,10 @@
 #ifndef ECHOMAP_CHANNELMAPPINGPANEL_HPP
 #define ECHOMAP_CHANNELMAPPINGPANEL_HPP
 
-#include "IPanel.hpp"
-
 #include <string>
+
+#include "../tasks/ScopedConnections.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
@@ -15,6 +16,7 @@ namespace echomap
 class Signal;
 class Sensor;
 class EchoMap;
+class WorkerResultDespatcher;
 
 /**
  * Provides a panel for defining mappings between Signal and Sensor objects.
@@ -22,13 +24,15 @@ class EchoMap;
 class ChannelMappingPanel final : public IPanel
 {
 public:
-    explicit ChannelMappingPanel(EchoMap& app, const Project* initial_project = nullptr);
+    explicit ChannelMappingPanel(
+            WorkerResultDespatcher& despatcher,
+            EchoMap& app,
+            const Project* initial_project = nullptr
+    );
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
-
-    void set_active_project(const Project* new_active_project) noexcept override;
 
 private:
     void draw_new_channel_mapping() noexcept;
@@ -44,6 +48,7 @@ private:
 
     EchoMap& app;
     const Project* active_project = nullptr;
+    ScopedConnections connections;
 };
 
 } // namespace echomap

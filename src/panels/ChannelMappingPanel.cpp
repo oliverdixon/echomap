@@ -11,12 +11,16 @@ namespace echomap
 {
 
 ChannelMappingPanel::ChannelMappingPanel(
+        WorkerResultDespatcher& despatcher,
         EchoMap& app,
         const Project* const initial_project
 ) :
     app(app),
     active_project(initial_project)
 {
+    connections.add(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+        active_project = result.observe_project();
+    }));
 }
 
 const char* ChannelMappingPanel::get_imgui_name() const noexcept
@@ -49,13 +53,6 @@ void ChannelMappingPanel::draw() noexcept
     }
 
     ImGui::End();
-}
-
-void ChannelMappingPanel::set_active_project(
-        const Project* new_active_project
-) noexcept
-{
-    active_project = new_active_project;
 }
 
 void ChannelMappingPanel::draw_new_channel_mapping() noexcept

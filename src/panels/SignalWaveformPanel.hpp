@@ -48,8 +48,6 @@ public:
 
     void draw() noexcept override;
 
-    void set_active_project(const Project* new_active_project) noexcept override;
-
 private:
     static constexpr float default_downsample_factor = 50.0f;
 

@@ -39,12 +39,7 @@ bool Worker::is_result_available() const noexcept
 
 std::optional<WorkerResult> Worker::try_get_result()
 {
-    auto result = result_queue.try_consume();
-
-    if (result.has_value())
-        LOG_F_DEBUG("Consuming {}.", result->get_name());
-
-    return result;
+    return result_queue.try_consume();
 }
 
 void Worker::clear()
@@ -67,7 +62,6 @@ void Worker::execute(
             try {
                 auto result = task.execute(stop_token);
                 LOG_F_DEBUG("Finished {}.", task.get_name());
-                LOG_F_DEBUG("Publishing {}.", result.get_name());
 
                 result_queue.produce(std::move(result));
                 if (result_callback)

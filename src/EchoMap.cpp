@@ -95,10 +95,10 @@ EchoMap::EchoMap() :
     setup_imgui();
 
     panels.push_back(std::make_unique<MenuPanel>());
-    panels.push_back(std::make_unique<ProjectPanel>());
+    panels.push_back(std::make_unique<ProjectPanel>(despatcher));
     panels.push_back(std::make_unique<SignalWaveformPanel>(worker, despatcher));
-    panels.push_back(std::make_unique<SensorGeometryPanel>(*this));
-    panels.push_back(std::make_unique<ChannelMappingPanel>(*this));
+    panels.push_back(std::make_unique<SensorGeometryPanel>(despatcher, *this));
+    panels.push_back(std::make_unique<ChannelMappingPanel>(despatcher, *this));
     panels.push_back(std::make_unique<SignalDFTPanel>(worker, despatcher, *this));
 
     // TODO remove: test async project load.
@@ -501,22 +501,6 @@ void EchoMap::process_worker_results()
         }
 }
 
-void EchoMap::update_panel_project() const
-{
-    for (const auto& panel : panels)
-        panel->set_active_project(project.get());
-}
-
-std::unique_ptr<Project> EchoMap::take_project(
-        const bool update_ui
-) noexcept
-{
-    auto taken = std::move(project);
-    if (update_ui)
-        update_panel_project();
-    return std::move(taken);
-}
-
 void EchoMap::put_project(
         std::unique_ptr<Project> new_project
 ) noexcept
@@ -539,7 +523,6 @@ void EchoMap::put_project(
             // Invalidate project-dependent state.
             lwt_queue.clear();
             worker.clear();
-            update_panel_project();
         }
     }
 }

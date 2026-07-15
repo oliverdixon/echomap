@@ -58,11 +58,4 @@ const char* MenuPanel::get_imgui_name() const noexcept
     return panel_name.c_str();
 }
 
-void MenuPanel::set_active_project(
-        const Project* new_active_project
-) noexcept
-{
-    std::ignore = new_active_project;
-}
-
 } // namespace echomap

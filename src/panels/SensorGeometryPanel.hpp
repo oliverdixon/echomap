@@ -12,6 +12,7 @@
 
 #include <string>
 
+#include "../tasks/ScopedConnections.hpp"
 #include "IPanel.hpp"
 
 namespace echomap
@@ -19,6 +20,7 @@ namespace echomap
 
 class EchoMap;
 class Project;
+class WorkerResultDespatcher;
 
 /**
  * Provides a panel for defining and reviewing (in a 3D plot) positions of loaded Sensor objects in the active Project.
@@ -27,6 +29,7 @@ class SensorGeometryPanel final : public IPanel
 {
 public:
     explicit SensorGeometryPanel(
+            WorkerResultDespatcher& despatcher,
             EchoMap& app,
             const Project* initial_project = nullptr
     );
@@ -34,8 +37,6 @@ public:
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
-
-    void set_active_project(const Project* new_active_project) noexcept override;
 
 private:
     void recache_sensor_colours() noexcept;
@@ -48,6 +49,7 @@ private:
     ImPlot3DSpec plotting_spec_3d;
     const Project* active_project = nullptr;
     EchoMap& app;
+    ScopedConnections connections;
 };
 
 } // namespace echomap

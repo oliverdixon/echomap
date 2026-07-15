@@ -52,16 +52,6 @@ public:
         std::ignore = command_encoder;
     }
 
-    /**
-     * Reset the active Project for a Panel.
-     *
-     * This functionally intentionally does not provide a default. All panels must acknowledge a new active project,
-     * even if implemented as a no-op.
-     *
-     * @param new_active_project An observing pointer to the new active Project.
-     */
-    virtual void set_active_project(const Project* new_active_project) noexcept = 0;
-
 protected:
     static constexpr auto table_flags =
             ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
