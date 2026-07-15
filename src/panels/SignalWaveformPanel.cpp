@@ -12,17 +12,26 @@
 #include "../tasks/DownsampleResult.hpp"
 #include "../tasks/DownsampleTask.hpp"
 #include "../tasks/Worker.hpp"
+#include "../tasks/WorkerResultDespatcher.hpp"
 
 namespace echomap
 {
 
 SignalWaveformPanel::SignalWaveformPanel(
         Worker& parent_worker,
+        WorkerResultDespatcher& despatcher,
         const Project* const initial_project
 ) :
     parent_worker(parent_worker),
     active_project(initial_project)
 {
+    connections.add(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+        set_active_project(result.observe_project());
+    }));
+
+    despatcher.downsample_finished_channel.nominate_consumer(
+            sigc::mem_fun(*this, &SignalWaveformPanel::handle_downsampled_result)
+    );
 }
 
 const char* SignalWaveformPanel::get_imgui_name() const noexcept
@@ -76,8 +85,8 @@ void SignalWaveformPanel::set_active_project(
     update_bounding_box();
 }
 
-void SignalWaveformPanel::handle(
-        DownsampleResult& result
+void SignalWaveformPanel::handle_downsampled_result(
+        DownsampleResult&& result
 )
 {
     auto ds_slot_it = downsample_cache.find(result.get_source_id());

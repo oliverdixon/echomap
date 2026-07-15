@@ -34,7 +34,7 @@ class EchoMap
 {
 public:
     /**
-     * A lightweight task is a trivial message sent to the EchoMap controller.
+     * A lightweight task is a trivial message sent exclusively to the EchoMap controller.
      */
     using LightweightTask = std::variant<AddChannelMappingTask, ModifySensorColourTask, ModifySensorPositionTask>;
 
@@ -134,6 +134,14 @@ private:
     ) noexcept;
 
     /**
+     * Configure the core signals for the application instance.
+     *
+     * This should be invoked during construction prior to any IPanel invocations as it takes the exclusive consumer
+     * role for several critical messages.
+     */
+    void setup_subscriptions();
+
+    /**
      * Produce a WebGPU Future for requesting an Adapter.
      *
      * @return A Future to request an Adapter that is suitable for the Surface member from the WebGPU driver.
@@ -216,10 +224,10 @@ private:
     std::vector<std::unique_ptr<IPanel>> panels;
     ErrorModal error_modal;
 
-    Worker worker;
-    WorkerResultDespatcher despatcher;
-    ScopedConnections connections;
-    std::vector<LightweightTask> lightweight_tasks;
+    Worker worker;                          /**< Multi-threaded worker for scheduling heavy computation tasks. */
+    WorkerResultDespatcher despatcher;      /**< Despatcher to manage Worker result channels. */
+    ScopedConnections connections;          /**< RAII lifetime manager for signal connections. */
+    std::vector<LightweightTask> lwt_queue; /**< Queue for simple tasks that needn't go through the despatcher. */
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

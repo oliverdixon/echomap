@@ -20,38 +20,38 @@ void WorkerResultDespatcher::publish(
 {
     std::visit(
             [this](auto& payload) {
-                publish_payload(payload);
+                publish_payload(std::move(payload));
             },
             result.result
     );
 }
 
 void WorkerResultDespatcher::publish_payload(
-        const DFTResult& payload
-) const
+        DFTResult&& payload
+)
 {
-    dft_finished.emit(payload);
+    dft_finished_channel.publish(std::move(payload));
 }
 
 void WorkerResultDespatcher::publish_payload(
-        const DownsampleResult& payload
-) const
+        DownsampleResult&& payload
+)
 {
-    downsample_finished.emit(payload);
+    downsample_finished_channel.publish(std::move(payload));
 }
 
 void WorkerResultDespatcher::publish_payload(
-        const LoadProjectResult& payload
-) const
+        LoadProjectResult&& payload
+)
 {
-    load_project_finished.emit(payload);
+    load_project_finished_channel.publish(std::move(payload));
 }
 
 void WorkerResultDespatcher::publish_payload(
         const ErrorResult& payload
-) const
+)
 {
-    error.emit(payload);
+    error_channel.publish(payload);
 }
 
 } // namespace echomap

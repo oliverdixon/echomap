@@ -11,11 +11,13 @@
 #include <implot.h>
 
 #include "../objects/Signal.hpp"
+#include "../tasks/ScopedConnections.hpp"
 #include "IPanel.hpp"
 
 namespace echomap
 {
 
+class WorkerResultDespatcher;
 class DownsampleResult;
 class Worker;
 
@@ -27,8 +29,18 @@ class Worker;
 class SignalWaveformPanel final : public IPanel
 {
 public:
+    /**
+     * Create a new SignalWaveformPanel to display downsampled Signal waveforms in the time domain.
+     *
+     * The SignalWaveformPanel observes the LoadProjectResult message and consumes the DownsampleResult message.
+     *
+     * @param parent_worker The Worker to receive ITask commands over the command bus.
+     * @param despatcher The despatcher to expose the result buses.
+     * @param initial_project An optional initial Project for the IPanel to display.
+     */
     explicit SignalWaveformPanel(
             Worker& parent_worker,
+            WorkerResultDespatcher& despatcher,
             const Project* initial_project = nullptr
     );
 
@@ -37,8 +49,6 @@ public:
     void draw() noexcept override;
 
     void set_active_project(const Project* new_active_project) noexcept override;
-
-    void handle(DownsampleResult& result);
 
 private:
     static constexpr float default_downsample_factor = 50.0f;
@@ -52,6 +62,8 @@ private:
             int index,
             void* user_data
     ) noexcept;
+
+    void handle_downsampled_result(DownsampleResult&& result);
 
     void update_bounding_box(const Signal& signal) noexcept;
     void update_bounding_box() noexcept;
@@ -101,6 +113,7 @@ private:
     ImPlotSpec plotting_spec_2d;
     Worker& parent_worker;
     const Project* active_project = nullptr;
+    ScopedConnections connections;
 };
 
 } // namespace echomap

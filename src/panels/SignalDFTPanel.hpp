@@ -12,11 +12,13 @@
 
 #include "../objects/FrequencySpectrum.hpp"
 #include "../objects/Signal.hpp"
+#include "../tasks/ScopedConnections.hpp"
 #include "IPanel.hpp"
 
 namespace echomap
 {
 
+class WorkerResultDespatcher;
 class DFTResult;
 class EchoMap;
 class Worker;
@@ -27,8 +29,19 @@ class Worker;
 class SignalDFTPanel : public IPanel
 {
 public:
+    /**
+     * Create a new SignalDFTPanel to display DFTs of Signal waveforms in the frequency domain.
+     *
+     * The SignalDFTPanel observes the LoadProjectResult message and consumes the DFTResult message.
+     *
+     * @param parent_worker The Worker to receive ITask commands over the command bus.
+     * @param despatcher The despatcher to expose the result buses.
+     * @param app The parent application instance.
+     * @param initial_project An optional initial Project for the IPanel to display.
+     */
     explicit SignalDFTPanel(
             Worker& parent_worker,
+            WorkerResultDespatcher& despatcher,
             EchoMap& app,
             const Project* initial_project = nullptr
     );
@@ -38,8 +51,6 @@ public:
     const char* get_imgui_name() const noexcept override;
 
     void set_active_project(const Project* new_active_project) noexcept override;
-
-    void handle(DFTResult& result);
 
 private:
     struct CallbackData
@@ -52,6 +63,8 @@ private:
             int index,
             void* user_data
     ) noexcept;
+
+    void handle_completed_dft(DFTResult&& result);
 
     void draw_options_section() noexcept;
     void draw_preview_section() noexcept;
@@ -142,6 +155,8 @@ private:
     static constexpr int default_size_log = 7;         /**< Base-2 log of the minimum transform size. */
     std::vector<std::string> available_sizes;          /**< Strings of all available transform sizes. */
     unsigned int selected_size_log = default_size_log; /**< Base-2 log of selected transform size. */
+
+    ScopedConnections connections;
 };
 
 } // namespace echomap

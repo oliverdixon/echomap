@@ -15,17 +15,9 @@ namespace echomap
 
 WorkerResult ITask::execute(const std::stop_token& stop_token){
     if (stop_token.stop_requested())
-        return WorkerResult(ErrorResult("Stop requested."));
+        throw std::runtime_error("Stop requested");
 
-    try {
-        return execute_work();
-    } catch (const std::exception& exception) {
-        LOG_F_ERROR("{} failed with message: {}.", get_name(), exception.what());
-        return WorkerResult(ErrorResult(exception.what()));
-    } catch (...) {
-        LOG_F_ERROR("{} failed with a system error.", get_name());
-        return WorkerResult(ErrorResult("Unknown system error. This is a bug."));
-    }
+    return execute_work();
 }
 
 WorkerResult ITask::operator()()

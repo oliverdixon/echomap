@@ -10,7 +10,9 @@
 #ifndef ECHOMAP_SCOPEDCONNECTIONS_HPP
 #define ECHOMAP_SCOPEDCONNECTIONS_HPP
 
-#include <sigc++/sigc++.h>
+#include <sigc++/scoped_connection.h>
+
+#include <vector>
 
 namespace echomap
 {

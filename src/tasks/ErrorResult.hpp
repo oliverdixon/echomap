@@ -5,8 +5,12 @@
 #ifndef ECHOMAP_ERRORRESULT_HPP
 #define ECHOMAP_ERRORRESULT_HPP
 
+#include <memory>
+#include <source_location>
 #include <string>
 #include <string_view>
+
+#include "../tasks/ITask.hpp"
 
 namespace echomap
 {
@@ -14,12 +18,21 @@ namespace echomap
 class ErrorResult
 {
 public:
-    explicit ErrorResult(std::string_view message);
+    explicit ErrorResult(
+            std::string_view message,
+            std::source_location location,
+            std::unique_ptr<ITask> responsible_task = nullptr
+    );
 
-    [[nodiscard]] std::string_view observe_message() const noexcept;
+    [[nodiscard]] std::string_view what() const noexcept;
+    [[nodiscard]] const std::source_location& where() const noexcept;
+    [[nodiscard]] const ITask * observe_responsible_task() const noexcept;
 
 private:
     std::string message;
+    std::source_location location;
+
+    std::unique_ptr<ITask> responsible_task;
 };
 
 } // namespace echomap

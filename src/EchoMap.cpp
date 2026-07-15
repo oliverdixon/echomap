@@ -63,6 +63,7 @@ EchoMap::EchoMap() :
     dockspace_id(ImHashStr("MainDockSpace"))
 {
     static_assert(all_lightweight_task_v<LightweightTask>);
+    setup_subscriptions();
 
     static constexpr auto timed_wait_any = wgpu::InstanceFeatureName::TimedWaitAny;
     constexpr wgpu::InstanceDescriptor instance_desc{.requiredFeatureCount = 1, .requiredFeatures = &timed_wait_any};
@@ -95,17 +96,13 @@ EchoMap::EchoMap() :
 
     panels.push_back(std::make_unique<MenuPanel>());
     panels.push_back(std::make_unique<ProjectPanel>());
-    panels.push_back(std::make_unique<SignalWaveformPanel>(worker));
+    panels.push_back(std::make_unique<SignalWaveformPanel>(worker, despatcher));
     panels.push_back(std::make_unique<SensorGeometryPanel>(*this));
     panels.push_back(std::make_unique<ChannelMappingPanel>(*this));
-    panels.push_back(std::make_unique<SignalDFTPanel>(worker, *this));
+    panels.push_back(std::make_unique<SignalDFTPanel>(worker, despatcher, *this));
 
     // TODO remove: test async project load.
     worker.submit(std::make_unique<LoadProjectTask>("../resources/ExampleProject.json"));
-
-    connections.add(despatcher.load_project_finished.connect([](const LoadProjectResult& result) {
-        std::println(std::cout, "loaded");
-    }));
 }
 
 void EchoMap::run_event_loop()
@@ -209,6 +206,18 @@ void EchoMap::configure_surface(
     };
 
     surface.Configure(&config);
+}
+
+void EchoMap::setup_subscriptions()
+{
+    despatcher.load_project_finished_channel.nominate_consumer([this](LoadProjectResult&& result) {
+        put_project(std::move(result).take_project());
+    });
+
+    despatcher.error_channel.observe([this](const ErrorResult& error) {
+        error_modal.raise_error(error.what());
+        LOG_F_ERROR("Error modal raised due to error: {}", error.what());
+    });
 }
 
 wgpu::Future EchoMap::request_adapter() noexcept
@@ -439,9 +448,9 @@ bool EchoMap::handle_window_resize() noexcept
 
 void EchoMap::process_lightweight_tasks()
 {
-    while (!lightweight_tasks.empty()) {
-        const auto task_hint = static_cast<void*>(&lightweight_tasks.back());
-        const auto task_position = lightweight_tasks.size() - 1;
+    while (!lwt_queue.empty()) {
+        const auto task_hint = static_cast<void*>(&lwt_queue.back());
+        const auto task_position = lwt_queue.size() - 1;
 
         LOG_F_DEBUG("Consuming lightweight task with hint {} (#{}).", task_hint, task_position);
 
@@ -466,7 +475,7 @@ void EchoMap::process_lightweight_tasks()
                         else if constexpr (std::is_same_v<TaskT, ModifySensorPositionTask>)
                             project->get_mutable_sensor(task.sensor_id).set_position(std::move(task.position));
                     },
-                    lightweight_tasks.back()
+                    lwt_queue.back()
             );
         } catch (const std::exception& exception) {
             error_modal.raise_error(exception.what());
@@ -478,7 +487,7 @@ void EchoMap::process_lightweight_tasks()
             );
         }
 
-        lightweight_tasks.pop_back();
+        lwt_queue.pop_back();
     }
 }
 
@@ -528,7 +537,7 @@ void EchoMap::put_project(
 
         if (effectively_different) {
             // Invalidate project-dependent state.
-            lightweight_tasks.clear();
+            lwt_queue.clear();
             worker.clear();
             update_panel_project();
         }
@@ -539,7 +548,7 @@ void EchoMap::submit_lightweight_task(
         LightweightTask task
 )
 {
-    lightweight_tasks.emplace_back(std::move(task));
+    lwt_queue.emplace_back(std::move(task));
 
     /*
      * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess
@@ -547,8 +556,8 @@ void EchoMap::submit_lightweight_task(
      */
     LOG_F_DEBUG(
             "Scheduling lightweight task with hint {} at position {}.",
-            static_cast<void*>(&lightweight_tasks.back()),
-            lightweight_tasks.size() - 1
+            static_cast<void*>(&lwt_queue.back()),
+            lwt_queue.size() - 1
     );
 }
 

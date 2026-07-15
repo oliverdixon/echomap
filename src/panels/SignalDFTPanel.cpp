@@ -24,6 +24,7 @@ namespace echomap
 
 SignalDFTPanel::SignalDFTPanel(
         Worker& parent_worker,
+        WorkerResultDespatcher& despatcher,
         EchoMap& app,
         const Project* const initial_project
 ) :
@@ -31,6 +32,12 @@ SignalDFTPanel::SignalDFTPanel(
     active_project(initial_project),
     app(app)
 {
+    connections.add(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+        set_active_project(result.observe_project());
+    }));
+
+    despatcher.dft_finished_channel.nominate_consumer(sigc::mem_fun(*this, &SignalDFTPanel::handle_completed_dft));
+
     for (std::size_t window_idx = 0; window_idx < all_window_functions.size(); ++window_idx)
         window_function_names[window_idx] =
                 FrequencySpectrum::get_window_function_name(all_window_functions[window_idx]);
@@ -75,8 +82,8 @@ void SignalDFTPanel::set_active_project(
     reset_viewport_bounds();
 }
 
-void SignalDFTPanel::handle(
-        DFTResult& result
+void SignalDFTPanel::handle_completed_dft(
+        DFTResult&& result
 )
 {
     auto spectrum = result.take_spectrum();

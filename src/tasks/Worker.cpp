@@ -63,13 +63,22 @@ void Worker::execute(
             // Likewise, ITask::execute runs the work synchronously on our computation thread.
             auto& task = **job;
             LOG_F_DEBUG("Executing {}.", task.get_name());
-            auto result = task.execute(stop_token);
-            LOG_F_DEBUG("Finished {}.", task.get_name());
-            LOG_F_DEBUG("Publishing {}.", result.get_name());
 
-            result_queue.produce(std::move(result));
-            if (result_callback)
-                result_callback();
+            try {
+                auto result = task.execute(stop_token);
+                LOG_F_DEBUG("Finished {}.", task.get_name());
+                LOG_F_DEBUG("Publishing {}.", result.get_name());
+
+                result_queue.produce(std::move(result));
+                if (result_callback)
+                    result_callback();
+            } catch (const std::exception& exception) {
+                result_queue.produce(WorkerResult(ErrorResult(exception.what(), std::source_location::current())));
+                LOG_F_ERROR("{} failed with message: {}.", task.get_name(), exception.what());
+            } catch (...) {
+                result_queue.produce(WorkerResult(ErrorResult("System error", std::source_location::current())));
+                LOG_F_ERROR("{} failed with a system error. This is bug.", task.get_name());
+            }
         }
 }
 

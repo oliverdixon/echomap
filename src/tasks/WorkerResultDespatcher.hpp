@@ -10,7 +10,7 @@
 #ifndef ECHOMAP_WORKERRESULTDESPATCHER_HPP
 #define ECHOMAP_WORKERRESULTDESPATCHER_HPP
 
-#include <sigc++/sigc++.h>
+#include "ResultChannel.hpp"
 
 namespace echomap
 {
@@ -29,16 +29,16 @@ class WorkerResultDespatcher
 public:
     void publish(WorkerResult&& result);
 
-    sigc::signal<void(const DFTResult&)> dft_finished;
-    sigc::signal<void(const DownsampleResult&)> downsample_finished;
-    sigc::signal<void(const LoadProjectResult&)> load_project_finished;
-    sigc::signal<void(const ErrorResult&)> error;
+    ResultChannel<DFTResult> dft_finished_channel;
+    ResultChannel<DownsampleResult> downsample_finished_channel;
+    ResultChannel<LoadProjectResult> load_project_finished_channel;
+    ResultChannel<const ErrorResult> error_channel;
 
 private:
-    void publish_payload(const DFTResult& payload) const;
-    void publish_payload(const DownsampleResult& payload) const;
-    void publish_payload(const LoadProjectResult& payload) const;
-    void publish_payload(const ErrorResult& payload) const;
+    void publish_payload(DFTResult&& payload);
+    void publish_payload(DownsampleResult&& payload);
+    void publish_payload(LoadProjectResult&& payload);
+    void publish_payload(const ErrorResult& payload);
 };
 
 } // namespace echomap
