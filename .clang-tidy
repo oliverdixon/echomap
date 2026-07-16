@@ -1,0 +1,142 @@
+---
+
+InheritParentConfig: false
+
+Checks: >-
+  -*,
+  clang-analyzer-*,
+  bugprone-*,
+  cert-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -readability-avoid-const-params-in-decls,
+  -readability-uppercase-literal-suffix
+
+# Diagnose project headers, but not dependencies, generated files or build trees.
+HeaderFilterRegex: '.*'
+ExcludeHeaderFilterRegex: '(^|/)(build|cmake-build-[^/]*|third_party|external|vendor|vcpkg_installed|_deps|generated)(/|$)'
+SystemHeaders: false
+
+# Preserve the project's .clang-format style when applying fixes.
+FormatStyle: file
+
+CheckOptions:
+  #
+  # API safety and correctness
+  #
+
+  # Two adjacent interchangeable parameters are already enough to justify
+  # strong types or an aggregate parameter object.
+  bugprone-easily-swappable-parameters.MinimumLength: '2'
+  bugprone-easily-swappable-parameters.ModelImplicitConversions: 'true'
+  bugprone-easily-swappable-parameters.QualifiersMix: 'false'
+  bugprone-easily-swappable-parameters.SuppressParametersUsedTogether: 'true'
+
+  # Require explicit boolean intent: pointer == nullptr, count != 0, etc.
+  readability-implicit-bool-conversion.AllowIntegerConditions: 'false'
+  readability-implicit-bool-conversion.AllowPointerConditions: 'false'
+  readability-implicit-bool-conversion.AllowLogicalOperatorConversion: 'true'
+  readability-implicit-bool-conversion.UseUpperCaseLiteralSuffix: 'false'
+
+  #
+  # Complexity limits
+  #
+
+  readability-function-cognitive-complexity.Threshold: '15'
+  readability-function-cognitive-complexity.DescribeBasicIncrements: 'true'
+  readability-function-cognitive-complexity.IgnoreMacros: 'true'
+
+  readability-function-size.LineThreshold: '100'
+  readability-function-size.StatementThreshold: '50'
+  readability-function-size.BranchThreshold: '12'
+  readability-function-size.ParameterThreshold: '6'
+  readability-function-size.NestingThreshold: '4'
+  readability-function-size.VariableThreshold: '15'
+  readability-function-size.CountMemberInitAsStmt: 'true'
+  readability-function-size.IgnoreMacros: 'true'
+
+  #
+  # Naming
+  #
+
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.InlineNamespaceCase: lower_case
+
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.UnionCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.EnumConstantCase: CamelCase
+  readability-identifier-naming.ConceptCase: CamelCase
+
+  # Preserve established acronym-heavy types such as FFTWBuffers and SignalDFTPanel rather than demanding FftwBuffers or
+  # SignalDftPanel.
+  readability-identifier-naming.ClassIgnoredRegexp: '.*[A-Z]{2,}.*'
+  readability-identifier-naming.StructIgnoredRegexp: '.*[A-Z]{2,}.*'
+  readability-identifier-naming.EnumIgnoredRegexp: '.*[A-Z]{2,}.*'
+
+  readability-identifier-naming.FunctionCase: lower_case
+  readability-identifier-naming.MethodCase: lower_case
+
+  readability-identifier-naming.VariableCase: lower_case
+  readability-identifier-naming.GlobalVariableCase: lower_case
+  readability-identifier-naming.LocalVariableCase: lower_case
+  readability-identifier-naming.StaticVariableCase: lower_case
+
+  readability-identifier-naming.ConstantCase: lower_case
+  readability-identifier-naming.GlobalConstantCase: lower_case
+  readability-identifier-naming.LocalConstantCase: lower_case
+  readability-identifier-naming.StaticConstantCase: lower_case
+  readability-identifier-naming.ConstexprVariableCase: lower_case
+
+  readability-identifier-naming.MemberCase: lower_case
+  readability-identifier-naming.PublicMemberCase: lower_case
+  readability-identifier-naming.ProtectedMemberCase: lower_case
+  readability-identifier-naming.PrivateMemberCase: lower_case
+
+  readability-identifier-naming.ParameterCase: lower_case
+  readability-identifier-naming.TypeTemplateParameterCase: CamelCase
+  readability-identifier-naming.TemplateTemplateParameterCase: CamelCase
+  readability-identifier-naming.ValueTemplateParameterCase: lower_case
+
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+  readability-identifier-naming.IgnoreMainLikeFunctions: 'true'
+
+  #
+  # Identifier quality
+  #
+
+  readability-identifier-length.MinimumVariableNameLength: '3'
+  readability-identifier-length.MinimumBindingNameLength: '2'
+  readability-identifier-length.MinimumParameterNameLength: '3'
+  readability-identifier-length.MinimumLoopCounterNameLength: '2'
+  readability-identifier-length.MinimumExceptionNameLength: '3'
+
+  # Permit conventional mathematical, coordinate and DSP names where the surrounding expression supplies the meaning.
+  readability-identifier-length.IgnoredVariableNames: '^(i|j|k|m|n|q|t|x|y|z|dt|db|fs|id)$'
+  readability-identifier-length.IgnoredBindingNames: '^(_|x|y|z)$'
+  readability-identifier-length.IgnoredParameterNames: '^(i|j|k|m|n|q|t|x|y|z|dt|db|fs|id)$'
+  readability-identifier-length.IgnoredLoopCounterNames: '^(i|j|k|m|n|q)$'
+  readability-identifier-length.IgnoredExceptionVariableNames: '^(e|ex)$'
+
+  # Short-lived local abbreviations are acceptable; persistent ones are not.
+  readability-identifier-length.LineCountThreshold: '3'
+
+  #
+  # Literal policy
+  #
+
+  readability-magic-numbers.IgnoredIntegerValues: '1;2;3;4'
+  readability-magic-numbers.IgnorePowersOf2IntegerValues: 'true'
+  readability-magic-numbers.IgnoredFloatingPointValues: '0.5;1.0;2.0;100.0'
+  readability-magic-numbers.IgnoreAllFloatingPointValues: 'false'
+  readability-magic-numbers.IgnoreBitFieldsWidths: 'true'
+  readability-magic-numbers.IgnoreTypeAliases: 'false'
+  readability-magic-numbers.IgnoreUserDefinedLiterals: 'true'
+...
