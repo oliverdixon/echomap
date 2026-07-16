@@ -85,6 +85,8 @@ set(ECHOMAP_SOURCES
         src/signals/WorkerResultDespatcher.cpp
         src/signals/WorkerResultDespatcher.hpp
         src/signals/ResultChannel.hpp
+        src/objects/factories/WindowFunctions.hpp
+        src/objects/factories/WindowFunctions.cpp
 )
 
 include(cmake/ApplicationTargets.cmake)
