@@ -41,7 +41,7 @@ public:
      */
     [[nodiscard]] static std::unique_ptr<FrequencySpectrum> create_frequency_spectrum(
             const Signal& signal,
-            FrequencySpectrum::WindowFunction window_function,
+            WindowFunctions::Function window_function,
             std::size_t transform_size
     );
 
@@ -59,41 +59,15 @@ private:
      */
     static float prepare_input(
             const FFTWBuffers& buffers,
-            FrequencySpectrum::WindowFunction window_function,
+            WindowFunctions::Function window_function,
             std::span<const Signal::Sample::AmplitudeT> input
     );
 
     /**
-     * Provide the Hann window coefficient for the sample at the given index.
-     *
-     * @param index Index of the sample within the series.
-     * @param size Number of samples in the series.
-     *
-     * @return The Hann coefficient at the index.
-     */
-    static Signal::Sample::AmplitudeT hann_window(
-            std::size_t index,
-            std::size_t size
-    ) noexcept;
-
-    /**
-     * Provide the Hamming window coefficient for the sample at the given index.
-     *
-     * @param index Index of the sample within the series.
-     * @param size Number of samples in the series.
-     *
-     * @return The Hamming coefficient at the index.
-     */
-    static Signal::Sample::AmplitudeT hamming_window(
-            std::size_t index,
-            std::size_t size
-    ) noexcept;
-
-    /**
-     * Convert an amplitude to a dBFS (decibels relative to full-scale) quantity.
+     * Convert an amplitude to a dBfs (decibels relative to full-scale) quantity.
      *
      * @param amplitude The linear amplitude.
-     * @return The dBFS quantisation of the linear amplitude.
+     * @return The dBfs quantisation of the linear amplitude.
      */
     [[nodiscard]] static Signal::Sample::AmplitudeT amplitude_to_dbfs(Signal::Sample::AmplitudeT amplitude) noexcept;
 };

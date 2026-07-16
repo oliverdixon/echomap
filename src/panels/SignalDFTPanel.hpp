@@ -41,9 +41,9 @@ public:
      * @param initial_project An optional initial Project for the IPanel to display.
      */
     explicit SignalDFTPanel(
-            Worker& parent_worker,
+            Worker* parent_worker,
             WorkerResultDespatcher& despatcher,
-            EchoMap& app,
+            EchoMap* app,
             const Project* initial_project = nullptr
     );
 
@@ -76,7 +76,7 @@ private:
 
     const FrequencySpectrum* get_spectra(
             std::shared_ptr<Signal> signal,
-            FrequencySpectrum::WindowFunction window_function,
+            WindowFunctions::Function window_function,
             std::size_t transform_size
     );
 
@@ -92,18 +92,11 @@ private:
 
     ImPlotRect viewport_bounds; /**< The user-controlled bounding box of the DFT plots. */
 
-    const std::string panel_name = "Signal DFT Preview";
-
+    std::string panel_name = "Signal DFT Preview";
     ImPlotSpec plotting_spec_2d;
-    Worker& parent_worker;
+    Worker* parent_worker;
     const Project* active_project = nullptr;
-    EchoMap& app;
-
-    static constexpr std::array<FrequencySpectrum::WindowFunction, 3> all_window_functions{
-            FrequencySpectrum::WindowFunction::Identity,
-            FrequencySpectrum::WindowFunction::Hann,
-            FrequencySpectrum::WindowFunction::Hamming
-    };
+    EchoMap* app;
 
     /**
      * A three-way key into the FrequencySpectrum cache.
@@ -111,7 +104,7 @@ private:
     struct CacheKey
     {
         Signal::id_type source_id;
-        FrequencySpectrum::WindowFunction window_function;
+        WindowFunctions::Function window_function;
         std::size_t transform_size;
 
         bool operator==(const CacheKey&) const = default;
@@ -122,12 +115,12 @@ private:
      */
     struct CacheValue
     {
-        enum class State
+        enum class State : std::uint8_t
         {
             NotRequested,
             Success,
             Pending,
-            Failed
+            Failed,
         } status{State::NotRequested};
 
         std::unique_ptr<FrequencySpectrum> spectrum;
@@ -148,12 +141,10 @@ private:
     };
 
     std::unordered_map<CacheKey, CacheValue, CacheKeyHash> spectra_cache; /**< Cached DFT spectra. */
-    std::array<std::string, all_window_functions.size()> window_function_names; /**< Human-readable names of windows. */
-    FrequencySpectrum::WindowFunction selected_window = all_window_functions.front(); /**< Selected window function. */
     bool use_log_scale = false; /**< Should the DFT be plotted with a linear or base-10 logarithmic freq. axis? */
-    static constexpr int default_size_log = 7;         /**< Base-2 log of the minimum transform size. */
-    std::vector<std::string> available_sizes;          /**< Strings of all available transform sizes. */
-    unsigned int selected_size_log = default_size_log; /**< Base-2 log of selected transform size. */
+    static constexpr unsigned int default_size_log = 7; /**< Base-2 log of the minimum transform size. */
+    std::vector<std::string> available_sizes;           /**< Strings of all available transform sizes. */
+    unsigned int selected_size_log = default_size_log;  /**< Base-2 log of selected transform size. */
 
     std::vector<sigc::scoped_connection> connections;
 };

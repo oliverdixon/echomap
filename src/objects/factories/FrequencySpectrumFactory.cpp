@@ -12,7 +12,6 @@
 #include <fftw3.h>
 
 #include <cmath>
-#include <numbers>
 
 #include "../FrequencySpectrum.hpp"
 #include "../Signal.hpp"
@@ -23,7 +22,7 @@ namespace echomap
 
 std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_spectrum(
         const Signal& signal,
-        const FrequencySpectrum::WindowFunction window_function,
+        const WindowFunctions::Function window_function,
         const std::size_t transform_size
 )
 {
@@ -33,7 +32,7 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
     const auto display_name = std::format(
             "{} ({} DFT @ {})",
             signal.get_name(),
-            FrequencySpectrum::get_window_function_name(window_function),
+            WindowFunctions::get_window_function_name_imgui(window_function),
             transform_size
     );
 
@@ -43,8 +42,8 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
     // Create FFTW buffers, making a separate input buffer if and only if we're using a non-identity input transform.
     const FFTWBuffers context(
             transform_size,
-            window_function == FrequencySpectrum::WindowFunction::Identity ? std::make_optional(signal.amplitudes())
-                                                                           : std::nullopt
+            window_function == WindowFunctions::Function::Constant ? std::make_optional(signal.amplitudes())
+                                                                   : std::nullopt
     );
 
     // Pre-process input as advised by the window function.
@@ -87,68 +86,32 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
 
 float FrequencySpectrumFactory::prepare_input(
         const FFTWBuffers& buffers,
-        const FrequencySpectrum::WindowFunction window_function,
+        const WindowFunctions::Function window_function,
         const std::span<const Signal::Sample::AmplitudeT> input
 )
 {
     assert(input.size() >= buffers.input_size);
 
     switch (window_function) {
-    case FrequencySpectrum::WindowFunction::Identity:
+    case WindowFunctions::Function::Constant:
         return static_cast<float>(buffers.input_size);
 
-    case FrequencySpectrum::WindowFunction::Hann: {
+    case WindowFunctions::Function::Hann: {
         float scale_divisor = 0.0f;
-        for (std::size_t sample_idx = 0; sample_idx < buffers.input_size; ++sample_idx) {
-            const auto window = hann_window(sample_idx, buffers.input_size);
-            scale_divisor += window;
-            buffers.input[sample_idx] = input[sample_idx] * window;
+        std::uint64_t sample_idx = 0;
+        for (const auto window_val : WindowFunctions::make_window(buffers.input_size, WindowFunctions::Hann{})) {
+            scale_divisor += window_val;
+            buffers.input[sample_idx] = input[sample_idx++] * window_val;
         }
 
         return scale_divisor;
     }
 
-    case FrequencySpectrum::WindowFunction::Hamming: {
-        float scale_divisor = 0.0f;
-        for (std::size_t sample_idx = 0; sample_idx < buffers.input_size; ++sample_idx) {
-            const auto window = hamming_window(sample_idx, buffers.input_size);
-            scale_divisor += window;
-            buffers.input[sample_idx] = input[sample_idx] * window;
-        }
-
-        return scale_divisor;
-    }
+    default:
+        std::unreachable();
     }
 
     std::unreachable();
-}
-
-Signal::Sample::AmplitudeT FrequencySpectrumFactory::hann_window(
-        const std::size_t index,
-        const std::size_t size
-) noexcept
-{
-    if (size <= 1)
-        return 1.0f;
-
-    const auto sine = std::sin(std::numbers::pi_v<float> * static_cast<float>(index) / static_cast<float>(size - 1));
-    return sine * sine;
-}
-
-Signal::Sample::AmplitudeT FrequencySpectrumFactory::hamming_window(
-        const std::size_t index,
-        const std::size_t size
-) noexcept
-{
-    if (size <= 1)
-        return 1.0f;
-
-    constexpr float hamming = 25.0f / 46;
-
-    return hamming - (1.0f - hamming) * std::cos(
-                                                2.0f * std::numbers::pi_v<float> * static_cast<float>(index) /
-                                                static_cast<float>(size - 1)
-                                        );
 }
 
 Signal::Sample::AmplitudeT FrequencySpectrumFactory::amplitude_to_dbfs(

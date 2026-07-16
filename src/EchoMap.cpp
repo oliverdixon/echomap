@@ -99,7 +99,7 @@ EchoMap::EchoMap() :
     panels.push_back(std::make_unique<SignalWaveformPanel>(worker, despatcher));
     panels.push_back(std::make_unique<SensorGeometryPanel>(despatcher, *this));
     panels.push_back(std::make_unique<ChannelMappingPanel>(despatcher, *this));
-    panels.push_back(std::make_unique<SignalDFTPanel>(worker, despatcher, *this));
+    panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
 
     // TODO remove: test async project load.
     worker.submit(std::make_unique<LoadProjectTask>("../resources/ExampleProject.json"));
