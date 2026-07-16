@@ -67,7 +67,8 @@ public:
      */
     static void load_wave_file(
             const char* file_path,
-            std::span<SignalFactory* const> channel_factories
+            // ReSharper disable once CppConstParameterInDeclaration - Superfluous const required for Doxygen matching.
+            const std::span<SignalFactory* const> channel_factories
     );
 
     /**

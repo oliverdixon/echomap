@@ -20,7 +20,9 @@ namespace echomap
  * Denotes a unit of work for loading and constructing an EchoMap Project from its serialised form on the filesystem.
  *
  * @warning The LoadProjectTask is not thread-safe due to persisting global state of the parser for re-use across
- *  Project loads.
+ *  Project loads. It should be called only a single thread.
+ *
+ * @see SignalFactory::load_wave_file(const char*)
  */
 class LoadProjectTask : public ITask
 {

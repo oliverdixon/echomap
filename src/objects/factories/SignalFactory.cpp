@@ -218,8 +218,7 @@ void SignalFactory::load_wave_file_into_channels(
         std::span<Signal* const> channels
 )
 {
-    const auto channel_count = std::ranges::size(channels);
-    assert(drwav_info.channels <= channel_count);
+    assert(drwav_info.channels <= std::ranges::size(channels));
 
     for (const auto channel : channels)
         if (channel != nullptr) {

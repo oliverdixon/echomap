@@ -23,16 +23,21 @@ namespace echomap
  * <p>
  *  Clients may make use of a Worker to carry out thread-safe computation:
  *  <ol>
+ *      <li>Clients subscribe to the relevant ResultChannel via the WorkerResultDespatcher.</li>
+ *      <li>Optionally, a single client is nominated as the consumer of the relevant ResultChannel messages.</li>
  *      <li>Client constructs and populates an ITask object with a description of a computation task.</li>
  *      <li>Client submits the ITask to the scheduler with @ref Worker::submit.</li>
  *      <li>Work is undertaken on a dedicated computation thread maintained by the Worker.</li>
- *      <li>Client receives the result of the computation as an IResult object from @ref Worker::try_get_result.</li>
+ *      <li>Once complete, Worker passes the result onto a ThreadSafeQueue.</li>
+ *      <li>The owner of Worker publishes the result onto a ResultChannel with WorkerResultDespatcher.</li>
+ *      <li>All subscribed clients are notified of the WorkerResult and provided with an observing reference.</li>
+ *      <li>If applicable, the nominated consumer client receives ownership of the WorkerResult.</li>
  *  </ol>
  * </p>
  * <p>
  *  Clients may receive results of work by periodically polling the Worker (such as checking @ref Worker::try_get_result
- *  in a game loop) or through the provided asynchronous callback invoked when a new IResult is available. All Worker
- *  operations are atomic, so a single Worker instance may have clients on multiple threads.
+ *  in a game loop) or through the provided asynchronous callback invoked when a new WorkerResult is available. All
+ *  Worker operations are atomic, so a single Worker instance may have clients on multiple threads.
  * </p>
  */
 class Worker
@@ -43,7 +48,7 @@ public:
     /**
      * Create a new Worker with an optional callback.
      *
-     * @param result_callback Client callback invoked to indicate new IResult objects available for consumption.
+     * @param result_callback Client callback invoked to indicate new WorkerResult objects available for consumption.
      */
     explicit Worker(ResultCallback result_callback = {});
 
@@ -62,11 +67,11 @@ public:
     [[nodiscard]] bool is_result_available() const;
 
     /**
-     * Attempt to retrieve the latest IResult object from the computation thread.
+     * Attempt to retrieve the latest WorkerResult object from the computation thread.
      *
      * This function does not block.
      *
-     * @return The IResult posted by the latest job, or <code>nullptr</code> if no IResult was available.
+     * @return The WorkerResult posted by the latest job, or the empty optional if no WorkerResult was available.
      */
     std::optional<WorkerResult> try_get_result();
 

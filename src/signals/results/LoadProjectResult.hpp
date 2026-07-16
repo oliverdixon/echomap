@@ -15,6 +15,9 @@
 namespace echomap
 {
 
+/**
+ * Denotes a loaded Project completed by a LoadProjectTask job.
+ */
 class LoadProjectResult
 {
 public:

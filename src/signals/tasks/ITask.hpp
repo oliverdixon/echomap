@@ -23,7 +23,7 @@ namespace echomap
 using WorkerResult = std::variant<ErrorResult, DFTResult, DownsampleResult, LoadProjectResult>;
 
 /**
- * An ITask represents an invocable piece of work that produces an IResult.
+ * An ITask represents an invocable piece of work that produces a WorkerResult.
  */
 class ITask : public Object<ITask>
 {
@@ -41,7 +41,7 @@ public:
     virtual ~ITask() noexcept = default;
 
     /**
-     * Execute the work, subject to the given token, and produce an IResult.
+     * Execute the work, subject to the given token, and produce a WorkerResult.
      *
      * @param stop_token Token for cancelling execution.
      * @return An owning container detaining the result of the work, or <code>nullptr</code> if the cancelled.
@@ -59,7 +59,7 @@ public:
 
 private:
     /**
-     * Execute the work and produce an IResult.
+     * Execute the work and produce a WorkerResult.
      *
      * @return An owning container detaining the result of the work.
      */

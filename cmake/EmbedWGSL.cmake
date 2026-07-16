@@ -1,3 +1,4 @@
+#
 # WGSL code-generation for EchoMap
 #
 # Author: Oliver Dixon

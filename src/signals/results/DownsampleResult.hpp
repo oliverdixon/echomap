@@ -18,7 +18,7 @@ namespace echomap
 {
 
 /**
- * Represents an IResult for a downsampled Signal produced by a DownsampleTask job.
+ * Denotes a completed for a downsampled Signal produced by a DownsampleTask job.
  */
 class DownsampleResult
 {

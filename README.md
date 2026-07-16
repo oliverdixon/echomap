@@ -70,7 +70,7 @@ will work. Users without a Rust toolchain installed may look to Python's
     * If you're using an IntelliJ-based IDE (CLion etc.),
       [configure your toolchain](https://www.jetbrains.com/help/clion/how-to-create-toolchain-in-clion.html#env-scripts)
       to source `/bootstrap.sh` as an environment file. The script is sourced into a non-interactive shell, so a wrapper
-      should be used to export any local enviornment variables prior to running the bootstrapper.
+      should be used to export any local environment variables prior to running the bootstrapper.
 
 2. Run CMake on one of the presets defined in `/CMakePresets.json` depending on build type and target type:
 
@@ -91,3 +91,17 @@ will work. Users without a Rust toolchain installed may look to Python's
       threading implementation uses a [SharedArrayBuffer](https://emscripten.org/docs/porting/pthreads.html), the site
       must be cross-origin isolated. A helper script is provided for this purpose:
       `/miniserve.sh cmake-build-wasm-debug`.
+
+## Documentation
+
+Currently, "documentation" refers to generated HTML from Doxygen. The HTML is fully reproducible from the source, so
+anybody wishing the review the docs can do any of the following:
+
+* view the `/** ... */` Doxygen comments in the source directly;
+* clone the repo and run `doxygen` in the root; or
+* clone the repo and use the CMake preset:
+  ```shell
+  $ cmake --preset documentation
+  $ cmake --build docs/out/ --target EchoMapHTMLDocumentation
+  $ docs/open.sh
+  ```

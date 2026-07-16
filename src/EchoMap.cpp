@@ -454,7 +454,7 @@ void EchoMap::process_lightweight_tasks()
         const auto task_hint = static_cast<void*>(&lwt_queue.back());
         const auto task_position = lwt_queue.size() - 1;
 
-        LOG_F_DEBUG("Consuming lightweight task with hint {} (#{}).", task_hint, task_position);
+        LOG_F_DEBUG("Consuming LWT with hint {} (#{}).", task_hint, task_position);
 
         try {
             std::visit(
@@ -464,7 +464,7 @@ void EchoMap::process_lightweight_tasks()
                              * Lightweight tasks aren't necessarily dependent on an active project being defined, but
                              * currently they are...
                              */
-                            LOG_F_DEBUG("Dropping lightweight task with hint {} (#{}).", hint, position);
+                            LOG_F_DEBUG("Dropping LWT with hint {} (#{}).", hint, position);
                             return;
                         }
 
@@ -540,7 +540,7 @@ void EchoMap::submit_lightweight_task(
      * effort to quickly discriminate on lightweight tasks without adding bloat to their structures.
      */
     LOG_F_DEBUG(
-            "Scheduling lightweight task with hint {} at position {}.",
+            "Scheduling LWT with hint {} at position {}.",
             static_cast<void*>(&lwt_queue.back()),
             lwt_queue.size() - 1
     );
