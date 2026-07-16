@@ -72,11 +72,12 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
 
         const auto real = context.coefficients[bin_idx][0];
         const auto imag = context.coefficients[bin_idx][1];
+        const auto linear_amplitude = std::sqrt(real * real + imag * imag) * scale;
 
         spectrum->emplace_bin(
                 static_cast<float>(bin_idx) * static_cast<float>(signal.get_sample_rate()) /
                         static_cast<float>(transform_size),
-                std::sqrt(real * real + imag * imag) * scale,
+                amplitude_to_dbfs(linear_amplitude),
                 std::atan2(imag, real)
         );
     }
@@ -134,7 +135,7 @@ Signal::Sample::AmplitudeT FrequencySpectrumFactory::hann_window(
     return sine * sine;
 }
 
-float FrequencySpectrumFactory::hamming_window(
+Signal::Sample::AmplitudeT FrequencySpectrumFactory::hamming_window(
         const std::size_t index,
         const std::size_t size
 ) noexcept
@@ -148,6 +149,17 @@ float FrequencySpectrumFactory::hamming_window(
                                                 2.0f * std::numbers::pi_v<float> * static_cast<float>(index) /
                                                 static_cast<float>(size - 1)
                                         );
+}
+
+Signal::Sample::AmplitudeT FrequencySpectrumFactory::amplitude_to_dbfs(
+        const Signal::Sample::AmplitudeT amplitude
+) noexcept
+{
+    constexpr auto full = std::max(std::abs(Signal::normalised_range.first), std::abs(Signal::normalised_range.second));
+    static_assert(full > 0.0f);
+
+    constexpr auto maximum_ratio = 1.0e-6f; // 20log_{10}(1e-6) = -120dB.
+    return 20.0f * std::log10(std::max(std::abs(amplitude) / full, maximum_ratio));
 }
 
 } // namespace echomap

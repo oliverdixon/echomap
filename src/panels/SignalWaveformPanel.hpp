@@ -97,13 +97,13 @@ private:
      * The maximum bounding box of an LTTB-downsampled wave form plot.
      *
      * The Y axis (amplitude) is fixed, since our PCM-normalised values, given as a constraint from the Signal samples,
-     * are within the range [-1, 1]. The X range is variable and should be updated as new Signal objects are received.
+     * are within a fixed range. The X range is variable and should be updated as new Signal objects are received.
      */
     ImPlotRect bounding_box{
             std::numeric_limits<double>::max(),
             std::numeric_limits<double>::lowest(),
-            -1.0,
-            1.0
+            Signal::normalised_range.first,
+            Signal::normalised_range.second
     };
 
     const std::string panel_name = "Signal Waveform Preview";

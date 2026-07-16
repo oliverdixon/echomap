@@ -71,7 +71,7 @@ private:
      *
      * @return The Hann coefficient at the index.
      */
-    static float hann_window(
+    static Signal::Sample::AmplitudeT hann_window(
             std::size_t index,
             std::size_t size
     ) noexcept;
@@ -84,10 +84,18 @@ private:
      *
      * @return The Hamming coefficient at the index.
      */
-    static float hamming_window(
+    static Signal::Sample::AmplitudeT hamming_window(
             std::size_t index,
             std::size_t size
     ) noexcept;
+
+    /**
+     * Convert an amplitude to a dBFS (decibels relative to full-scale) quantity.
+     *
+     * @param amplitude The linear amplitude.
+     * @return The dBFS quantisation of the linear amplitude.
+     */
+    [[nodiscard]] static Signal::Sample::AmplitudeT amplitude_to_dbfs(Signal::Sample::AmplitudeT amplitude) noexcept;
 };
 
 } // namespace echomap

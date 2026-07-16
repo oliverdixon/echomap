@@ -230,7 +230,7 @@ void SignalDFTPanel::draw_preview_section() noexcept
 
                 // Case 1: we got a spectrum immediately.
                 if (ImPlot::BeginPlot(spectrum->get_imgui_name())) {
-                    ImPlot::SetupAxes("Frequency (Hz)", "Magnitude");
+                    ImPlot::SetupAxes("Frequency (Hz)", "Magnitude (dBFS)");
                     ImPlot::SetupAxisScale(ImAxis_X1, use_log_scale ? ImPlotScale_Log10 : ImPlotScale_Linear);
                     ImPlot::SetupAxisLinks(ImAxis_X1, &viewport_bounds.X.Min, &viewport_bounds.X.Max);
                     ImPlot::SetupAxisLinks(ImAxis_Y1, &viewport_bounds.Y.Min, &viewport_bounds.Y.Max);

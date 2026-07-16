@@ -25,11 +25,15 @@ class FrequencySpectrumFactory;
 class FrequencySpectrum : public Object<FrequencySpectrum>
 {
 public:
+    /**
+     * A bin within the spectrum, denoting the magnitude (and optionally, complex phase) of a Signal at a given
+     * frequency.
+     */
     struct Bin
     {
-        float frequency;
-        float magnitude;
-        float phase;
+        float frequency; /**< The frequency quantised by the Bin, in Hz. */
+        float magnitude; /**< The magnitude of the frequency, in dBFS (decibels relative to full scale). */
+        float phase;     /**< The complex phase of the DFT value, in radians. */
     };
 
 private:

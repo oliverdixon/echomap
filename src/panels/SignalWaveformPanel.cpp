@@ -130,8 +130,8 @@ void SignalWaveformPanel::update_bounding_box() noexcept
 {
     bounding_box.X.Min = std::numeric_limits<double>::max();
     bounding_box.X.Max = std::numeric_limits<double>::lowest();
-    bounding_box.Y.Min = -1.0;
-    bounding_box.Y.Max = 1.0;
+    bounding_box.Y.Min = Signal::normalised_range.first;
+    bounding_box.Y.Max = Signal::normalised_range.second;
 }
 
 const Signal* SignalWaveformPanel::get_downsampled_signal(

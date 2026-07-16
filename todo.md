@@ -5,6 +5,11 @@
 * Use the ImGui DockBuilder API to configure a sane default panel configuration:
   https://github.com/ocornut/imgui/wiki/Docking#programmatically-setting-up-docking-layout-dockbuider-api
 
+* Use `views::transform` to pre-process the time-series input data.
+
+* Add an autocorrelation panel. Or maybe just an option on the existing DFT panel and rename it something like
+  "Spectrum Analyzer"? These algorithms will be required for the SRP-PHAT anyway.
+
 * Use heuristics to offload FFT work to the GPU via WebGPU for large transforms where the benefits outweigh the costs
   of memory transaction overhead.
   * https://github.com/DTolm/VkFFT could be used, but it doesn't currently have a WebGPU backend. However the API seems

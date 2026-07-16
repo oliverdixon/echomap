@@ -48,7 +48,7 @@ public:
         using AmplitudeT = float; /**< Type for sample amplitudes. */
 
         TimeT time;               /**< Time, in ms. */
-        AmplitudeT amplitude;     /**< Amplitude at the time, normalised in the range [-1, 1]. */
+        AmplitudeT amplitude;     /**< Normalised amplitude at the time. */
     };
 
 private:
@@ -64,6 +64,11 @@ public:
         std::size_t channel;        /**< The channel number of the Signal within the given file. */
         bool dirty = false;         /**< Does the Signal contain additional samples? */
     };
+
+    /**
+     * The range within which the amplitude values are normalised.
+     */
+    static constexpr std::pair<Sample::AmplitudeT, Sample::AmplitudeT> normalised_range = {-1.0f, 1.0f};
 
     /**
      * Retrieves the total number of samples in the Signal stream.
@@ -82,7 +87,7 @@ public:
      * </p>
      * <p>
      *  If the Signal has an external source, the stored samples in the Signal object do not necessarily match the
-     *  external file, as callers may have invoked @ref add_sample with arbitrary samples. The Source should only be
+     *  external file, as callers may have invoked @ref emplace_sample with arbitrary samples. The Source should only be
      *  considered a hint. This can be checked by inspecting the Source::dirty flag.
      * </p>
      *
@@ -155,7 +160,9 @@ private:
      * The inserted amplitude sample will be associated with the next timestep, computed automatically based on the
      * defined sample rate and time offset.
      *
-     * @param amplitude Amplitude of the sample to insert
+     * @param amplitude Amplitude of the sample to insert.
+     *
+     * @pre The given amplitude is within the fixed normalised range.
      */
     void emplace_sample(Sample::AmplitudeT amplitude);
 
@@ -166,6 +173,7 @@ private:
      * @param amplitude The amplitude to associate with the time.
      *
      * @throws std::runtime_error The time of the Sample violated the monotonically increasing invariant.
+     * @pre The given amplitude is within the fixed normalised range.
      */
     void emplace_sample(
             Sample::TimeT time,
@@ -178,6 +186,7 @@ private:
      * @param sample The Sample to insert at the back of the stream.
      *
      * @throws std::runtime_error The time of the Sample violated the monotonically increasing invariant.
+     * @pre The given amplitude is within the fixed normalised range.
      */
     void emplace_sample(const Sample& sample);
 
@@ -188,6 +197,8 @@ private:
      * defined sample rate and time offset.
      *
      * @param amplitude Amplitude of the sample to insert.
+     *
+     * @pre The given amplitude is within the fixed normalised range.
      */
     void emplace_sample_from_source(Sample::AmplitudeT amplitude);
 
@@ -198,6 +209,7 @@ private:
      * @param amplitude The amplitude to associate with the time.
      *
      * @throws std::runtime_error The time of the Sample violated the monotonically increasing invariant.
+     * @pre The given amplitude is within the fixed normalised range.
      */
     void emplace_sample_from_source(
             Sample::TimeT time,
@@ -210,6 +222,7 @@ private:
      * @param sample The Sample to insert at the back of the stream.
      *
      * @throws std::runtime_error The time of the Sample violated the monotonically increasing invariant.
+     * @pre The given amplitude is within the fixed normalised range.
      */
     void emplace_sample_from_source(const Sample& sample);
 

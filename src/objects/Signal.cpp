@@ -124,6 +124,7 @@ void Signal::emplace_sample(
     const Sample::AmplitudeT amplitude
 )
 {
+    assert(amplitude >= normalised_range.first && amplitude <= normalised_range.second);
     samples.emplace_back(amplitude);
     if (time_offsets.has_value())
         time_offsets->emplace_back(0);
@@ -137,6 +138,7 @@ void Signal::emplace_sample(
     const Sample::AmplitudeT amplitude
 )
 {
+    assert(amplitude >= normalised_range.first && amplitude <= normalised_range.second);
     samples.emplace_back(amplitude);
     emplace_time(time);
 
@@ -155,6 +157,7 @@ void Signal::emplace_sample_from_source(
     const Sample::AmplitudeT amplitude
 )
 {
+    assert(amplitude >= normalised_range.first && amplitude <= normalised_range.second);
     samples.emplace_back(amplitude);
     if (time_offsets.has_value())
         time_offsets->emplace_back(0);
@@ -165,6 +168,7 @@ void Signal::emplace_sample_from_source(
     const Sample::AmplitudeT amplitude
 )
 {
+    assert(amplitude >= normalised_range.first && amplitude <= normalised_range.second);
     samples.emplace_back(amplitude);
     emplace_time(time);
 }
