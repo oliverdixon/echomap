@@ -39,7 +39,7 @@ public:
      * @param initial_project An optional initial Project for the IPanel to display.
      */
     explicit SignalWaveformPanel(
-            Worker& parent_worker,
+            Worker* parent_worker,
             WorkerResultDespatcher& despatcher,
             const Project* initial_project = nullptr
     );
@@ -106,10 +106,9 @@ private:
             Signal::normalised_range.second
     };
 
-    const std::string panel_name = "Signal Waveform Preview";
-
+    std::string panel_name = "Signal Waveform Preview";
     ImPlotSpec plotting_spec_2d;
-    Worker& parent_worker;
+    Worker* parent_worker;
     const Project* active_project = nullptr;
     std::vector<sigc::scoped_connection> connections;
 };

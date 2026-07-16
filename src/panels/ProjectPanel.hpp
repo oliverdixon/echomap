@@ -36,7 +36,7 @@ public:
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
 private:
-    const std::string panel_name = "Project Explorer";
+    std::string panel_name = "Project Explorer";
 
     const Project* active_project = nullptr;
     std::vector<sigc::scoped_connection> connections;

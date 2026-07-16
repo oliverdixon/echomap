@@ -40,14 +40,14 @@ namespace
 template <class T>
 inline constexpr bool lightweight_task_v = std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
 
-template <class T> struct all_lightweight_task : std::false_type
+template <class T> struct AllLightweightTask : std::false_type
 {};
 
 template <class... Ts>
-struct all_lightweight_task<std::variant<Ts...>> : std::bool_constant<(lightweight_task_v<Ts> && ...)>
+struct AllLightweightTask<std::variant<Ts...>> : std::bool_constant<(lightweight_task_v<Ts> && ...)>
 {};
 
-template <class T> inline constexpr bool all_lightweight_task_v = all_lightweight_task<std::remove_cvref_t<T>>::value;
+template <class T> inline constexpr bool all_lightweight_task_v = AllLightweightTask<std::remove_cvref_t<T>>::value;
 
 } // namespace
 
@@ -55,6 +55,10 @@ namespace echomap
 {
 
 EchoMap::EchoMap() :
+    window(create_window(
+            static_cast<int>(viewport_width),
+            static_cast<int>(viewport_height)
+    )),
     worker{[] {
 #ifndef __EMSCRIPTEN__
         glfwPostEmptyEvent();
@@ -69,10 +73,9 @@ EchoMap::EchoMap() :
     constexpr wgpu::InstanceDescriptor instance_desc{.requiredFeatureCount = 1, .requiredFeatures = &timed_wait_any};
 
     instance = wgpu::CreateInstance(&instance_desc);
-    window = create_window(static_cast<int>(viewport_width), static_cast<int>(viewport_height));
 
-    int actual_width;
-    int actual_height;
+    int actual_width = 0;
+    int actual_height = 0;
     glfwGetFramebufferSize(window, &actual_width, &actual_height);
     assert(actual_width >= 0);
     assert(actual_height >= 0);
@@ -96,9 +99,9 @@ EchoMap::EchoMap() :
 
     panels.push_back(std::make_unique<MenuPanel>());
     panels.push_back(std::make_unique<ProjectPanel>(despatcher));
-    panels.push_back(std::make_unique<SignalWaveformPanel>(worker, despatcher));
-    panels.push_back(std::make_unique<SensorGeometryPanel>(despatcher, *this));
-    panels.push_back(std::make_unique<ChannelMappingPanel>(despatcher, *this));
+    panels.push_back(std::make_unique<SignalWaveformPanel>(&worker, despatcher));
+    panels.push_back(std::make_unique<SensorGeometryPanel>(despatcher, this));
+    panels.push_back(std::make_unique<ChannelMappingPanel>(despatcher, this));
     panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
 
     // TODO remove: test async project load.
@@ -113,7 +116,7 @@ void EchoMap::run_event_loop()
     render();
     instance.ProcessEvents();
 
-    while (!glfwWindowShouldClose(window)) {
+    while (glfwWindowShouldClose(window) == 0) {
         if (forced_frames > 0) {
             glfwPollEvents();
             --forced_frames;
@@ -128,7 +131,7 @@ void EchoMap::run_event_loop()
 
 EchoMap::~EchoMap() noexcept
 {
-    if (ImGui::GetCurrentContext()) {
+    if (ImGui::GetCurrentContext() != nullptr) {
         ImGui_ImplWGPU_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImPlot3D::DestroyContext();
@@ -145,7 +148,7 @@ EchoMap::~EchoMap() noexcept
     adapter = nullptr;
     instance = nullptr;
 
-    if (window) {
+    if (window != nullptr) {
         glfwDestroyWindow(window);
         window = nullptr;
     }
@@ -167,14 +170,14 @@ GLFWwindow* EchoMap::create_window(
         const int height
 )
 {
-    if (!glfwInit())
+    if (glfwInit() == 0)
         throw ConfigurationError("glfwInit failed");
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    const auto window = glfwCreateWindow(width, height, "EchoMap", nullptr, nullptr);
+    auto* const window = glfwCreateWindow(width, height, "EchoMap", nullptr, nullptr);
 
-    if (!window) {
+    if (window == nullptr) {
         glfwTerminate();
         throw ConfigurationError("glfwCreateWindow failed");
     }
@@ -194,15 +197,15 @@ void EchoMap::configure_surface(
             .device = device,
             // ReSharper disable once CppDFAConstantConditions
             // ReSharper disable once CppDFAUnreachableCode
-            .format = capabilities.formats != nullptr ? capabilities.formats[0] : wgpu::TextureFormat::RGBA8Snorm,
+            .format = capabilities.formats != nullptr ? *capabilities.formats : wgpu::TextureFormat::RGBA8Snorm,
             .usage = wgpu::TextureUsage::RenderAttachment,
             .width = viewport_width,
             .height = viewport_height,
             // ReSharper disable once CppDFAConstantConditions
             // ReSharper disable once CppDFAUnreachableCode
             .alphaMode =
-                    capabilities.alphaModes != nullptr ? capabilities.alphaModes[0] : wgpu::CompositeAlphaMode::Opaque,
-            .presentMode = wgpu::PresentMode::Fifo
+                    capabilities.alphaModes != nullptr ? *capabilities.alphaModes : wgpu::CompositeAlphaMode::Opaque,
+            .presentMode = wgpu::PresentMode::Fifo,
     };
 
     surface.Configure(&config);
@@ -210,13 +213,13 @@ void EchoMap::configure_surface(
 
 void EchoMap::setup_subscriptions()
 {
-    connections.push_back(
+    connections.emplace_back(
             despatcher.load_project_finished_channel.nominate_consumer([this](LoadProjectResult&& result) {
                 put_project(std::move(result).take_project());
             })
     );
 
-    connections.push_back(despatcher.error_channel.observe([this](const ErrorResult& error) {
+    connections.emplace_back(despatcher.error_channel.observe([this](const ErrorResult& error) {
         error_modal.raise_error(error.what());
         LOG_F_ERROR("Error modal raised due to error: {}", error.what());
     }));
@@ -346,11 +349,11 @@ void EchoMap::render() noexcept
     // TODO no panels use GPU yet.
 
     // Provide the framebuffer to the WebGPU driver.
-    wgpu::RenderPassColorAttachment attachment{
+    wgpu::RenderPassColorAttachment const attachment{
             .view = surface_view,
             .loadOp = wgpu::LoadOp::Clear,
             .storeOp = wgpu::StoreOp::Store,
-            .clearValue = {0.1, 0.1, 0.1, 1.0}
+            .clearValue = {.r = 0.1, .g = 0.1, .b = 0.1, .a = 1.0},
     };
 
     const wgpu::RenderPassDescriptor pass_descriptor{.colorAttachmentCount = 1, .colorAttachments = &attachment};
@@ -383,9 +386,10 @@ void EchoMap::setup_imgui()
     ImPlot3D::CreateContext();
 
     auto& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // NOLINT(*-signed-bitwise) - Required by ImGui API.
     io.Fonts->AddFontFromMemoryCompressedTTF(
-            data::RobotoMedium_compressed_data,
+            // ReSharper disable once CppRedundantCastExpression
+            static_cast<const void*>(data::RobotoMedium_compressed_data),
             std::size(data::RobotoMedium_compressed_data),
             14
     );
@@ -400,7 +404,7 @@ void EchoMap::setup_imgui()
     // ReSharper disable once CppDFAConstantConditions
     // ReSharper disable once CppDFAUnreachableCode
     init_info.RenderTargetFormat = static_cast<WGPUTextureFormat>(std::to_underlying(
-            surface_capabilities.formats ? surface_capabilities.formats[0] : wgpu::TextureFormat::RGBA8Snorm
+            (surface_capabilities.formats != nullptr) ? *surface_capabilities.formats : wgpu::TextureFormat::RGBA8Snorm
     ));
 
     if (!ImGui_ImplWGPU_Init(&init_info))
@@ -419,8 +423,8 @@ void EchoMap::setup_imgui()
 // ReSharper disable once CppDFAUnreachableFunctionCall
 bool EchoMap::handle_window_resize() noexcept
 {
-    int fb_width;
-    int fb_height;
+    int fb_width = 0;
+    int fb_height = 0;
     glfwGetFramebufferSize(window, &fb_width, &fb_height);
 
     if (fb_width <= 0 || fb_height <= 0)
@@ -448,17 +452,17 @@ bool EchoMap::handle_window_resize() noexcept
     return true;
 }
 
-void EchoMap::process_lightweight_tasks()
+void EchoMap::process_lightweight_tasks() // NOLINT(*-function-size) - Complexity does not appear excessive.
 {
     while (!lwt_queue.empty()) {
-        const auto task_hint = static_cast<void*>(&lwt_queue.back());
+        auto* const task_hint = static_cast<void*>(&lwt_queue.back());
         const auto task_position = lwt_queue.size() - 1;
 
         LOG_F_DEBUG("Consuming LWT with hint {} (#{}).", task_hint, task_position);
 
         try {
             std::visit(
-                    [this, hint = task_hint, position = task_position]<typename T>(T&& task) {
+                    [this, hint = task_hint, position = task_position]<typename T>(T task) {
                         if (project == nullptr) {
                             /*
                              * Lightweight tasks aren't necessarily dependent on an active project being defined, but
@@ -533,7 +537,7 @@ void EchoMap::submit_lightweight_task(
         LightweightTask task
 )
 {
-    lwt_queue.emplace_back(std::move(task));
+    lwt_queue.emplace_back(task);
 
     /*
      * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess

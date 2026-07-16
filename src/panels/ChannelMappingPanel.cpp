@@ -12,13 +12,13 @@ namespace echomap
 
 ChannelMappingPanel::ChannelMappingPanel(
         WorkerResultDespatcher& despatcher,
-        EchoMap& app,
+        EchoMap* app,
         const Project* const initial_project
 ) :
     app(app),
     active_project(initial_project)
 {
-    connections.push_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
         active_project = result.observe_project();
     }));
 }
@@ -39,7 +39,7 @@ void ChannelMappingPanel::draw() noexcept
 
             // If a new mapping has been fully described, add it and prompt for another.
             if (new_entry_cache.signal != nullptr && new_entry_cache.sensor != nullptr) {
-                app.submit_lightweight_task(
+                app->submit_lightweight_task(
                         AddChannelMappingTask(new_entry_cache.signal->get_id(), new_entry_cache.sensor->get_id())
                 );
 
@@ -115,7 +115,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         ImGui::EndTable();
 
         if (need_to_force)
-            app.increment_forced_frames();
+            app->increment_forced_frames();
     }
 }
 

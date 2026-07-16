@@ -16,13 +16,13 @@ namespace echomap
 
 SensorGeometryPanel::SensorGeometryPanel(
         WorkerResultDespatcher& despatcher,
-        EchoMap& app,
+        EchoMap* app,
         const Project* const initial_project
 ) :
     active_project(initial_project),
     app(app)
 {
-    connections.push_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
         active_project = result.observe_project();
         sensor_colours.clear();
     }));
@@ -38,7 +38,7 @@ void SensorGeometryPanel::draw() noexcept
     if (ImGui::Begin(panel_name.c_str())) {
         if (active_project == nullptr)
             ImGui::Text("No project is loaded.");
-        else if (!active_project->get_sensors_count())
+        else if (active_project->get_sensors_count() == 0u)
             ImGui::Text("No sensors are loaded.");
         else {
             recache_sensor_colours();
@@ -91,18 +91,24 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
 
         std::size_t row_idx = 0;
 
-        for (auto& sensor : active_project->observe_sensors()) {
+        for (const auto& sensor : active_project->observe_sensors()) {
             ImGui::PushID(static_cast<int>(sensor.get_id()));
 
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
 
             const ImVec4 colour = ImGui::ColorConvertU32ToFloat4(sensor_colours[row_idx]);
-            float new_colour[4] = {colour.x, colour.y, colour.z, colour.w};
-            if (ImGui::ColorEdit4("##colour", new_colour, ImGuiColorEditFlags_NoInputs)) {
-                app.submit_lightweight_task(ModifySensorColourTask(sensor.get_id(), {
-                    new_colour[0], new_colour[1], new_colour[2], new_colour[3]
-                }));
+            std::array<float, 4> new_colour = {colour.x, colour.y, colour.z, colour.w};
+            if (ImGui::ColorEdit4("##colour", new_colour.data(), ImGuiColorEditFlags_NoInputs)) {
+                app->submit_lightweight_task(ModifySensorColourTask(
+                        sensor.get_id(),
+                        {
+                                .r = new_colour[0],
+                                .g = new_colour[1],
+                                .b = new_colour[2],
+                                .a = new_colour[3],
+                        }
+                ));
 
                 sensor_colours[row_idx] = IM_COL32(
                         static_cast<int>(new_colour[0] * 255.0f),
@@ -135,7 +141,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
             ++row_idx;
 
             if (position_changed)
-                app.submit_lightweight_task(ModifySensorPositionTask(sensor.get_id(), std::move(new_position)));
+                app->submit_lightweight_task(ModifySensorPositionTask(sensor.get_id(), new_position));
         }
 
         ImGui::EndTable();

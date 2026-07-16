@@ -36,7 +36,7 @@ public:
      */
     explicit ChannelMappingPanel(
             WorkerResultDespatcher& despatcher,
-            EchoMap& app,
+            EchoMap* app,
             const Project* initial_project = nullptr
     );
 
@@ -48,7 +48,7 @@ private:
     void draw_new_channel_mapping() noexcept;
     void draw_existing_channel_mapping() const noexcept;
 
-    const std::string panel_name = "Channel Mapping";
+    std::string panel_name = "Channel Mapping";
 
     struct AddChannelMappingRowCache
     {
@@ -56,7 +56,7 @@ private:
         const Sensor * sensor = nullptr;
     } new_entry_cache;
 
-    EchoMap& app;
+    EchoMap* app;
     const Project* active_project = nullptr;
     std::vector<sigc::scoped_connection> connections;
 };

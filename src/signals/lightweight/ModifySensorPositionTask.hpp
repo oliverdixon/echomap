@@ -22,6 +22,15 @@ namespace echomap
 class ModifySensorPositionTask
 {
 public:
+    explicit ModifySensorPositionTask(
+            const Sensor::id_type sensor_id,
+            const Sensor::Position position
+    ) :
+        sensor_id(sensor_id),
+        position(position)
+    {
+    }
+
     Sensor::id_type sensor_id;
     Sensor::Position position;
 };

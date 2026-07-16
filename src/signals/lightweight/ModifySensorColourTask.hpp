@@ -22,6 +22,15 @@ namespace echomap
 class ModifySensorColourTask
 {
 public:
+    explicit ModifySensorColourTask(
+            const Sensor::id_type sensor_id,
+            const Sensor::Colour colour
+    ) :
+        sensor_id(sensor_id),
+        colour(colour)
+    {
+    }
+
     Sensor::id_type sensor_id;
     Sensor::Colour colour;
 };

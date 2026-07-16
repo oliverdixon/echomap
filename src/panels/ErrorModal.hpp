@@ -55,7 +55,7 @@ private:
     std::string prefix = "An unknown error occurred.";
     std::optional<std::string> detail;
 
-    const std::string panel_name = "Error!";
+    std::string panel_name = "Error!";
 };
 
 } // namespace echomap

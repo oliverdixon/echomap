@@ -7,6 +7,8 @@
 
 #include "SignalWaveformPanel.hpp"
 
+#include <algorithm>
+
 #include "../Logger.hpp"
 #include "../objects/Project.hpp"
 #include "../signals/Worker.hpp"
@@ -18,20 +20,20 @@ namespace echomap
 {
 
 SignalWaveformPanel::SignalWaveformPanel(
-        Worker& parent_worker,
+        Worker* parent_worker,
         WorkerResultDespatcher& despatcher,
         const Project* const initial_project
 ) :
     parent_worker(parent_worker),
     active_project(initial_project)
 {
-    connections.push_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
         active_project = result.observe_project();
         downsample_cache.clear();
         update_bounding_box();
     }));
 
-    connections.push_back(despatcher.downsample_finished_channel.nominate_consumer(
+    connections.emplace_back(despatcher.downsample_finished_channel.nominate_consumer(
             sigc::mem_fun(*this, &SignalWaveformPanel::handle_downsampled_result)
     ));
 }
@@ -50,7 +52,7 @@ void SignalWaveformPanel::draw() noexcept
             ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
             for (const auto& signal : active_project->share_signals())
-                if (const auto downsampled = get_downsampled_signal(signal); downsampled == nullptr)
+                if (const auto* const downsampled = get_downsampled_signal(signal); downsampled == nullptr)
                     ImGui::Text("Loading downsampled variant of %s...", signal->get_imgui_name());
                 else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
 
@@ -108,7 +110,7 @@ ImPlotPoint SignalWaveformPanel::get_indexed_signal_point(
         void* const user_data
 ) noexcept
 {
-    const auto signal = static_cast<CallbackData*>(user_data)->signal;
+    const auto* const signal = static_cast<CallbackData*>(user_data)->signal;
     return {signal->get_time_at_index(index), signal->begin()[index]};
 }
 
@@ -117,12 +119,9 @@ void SignalWaveformPanel::update_bounding_box(
 ) noexcept
 {
     if (signal.get_sample_count() > 0) {
-        if (const auto local_min = signal.get_time_at_index(0); local_min < bounding_box.X.Min)
-            bounding_box.X.Min = local_min;
-
-        if (const auto local_max = signal.get_time_at_index(signal.get_sample_count() - 1);
-            local_max > bounding_box.X.Max)
-            bounding_box.X.Max = local_max;
+        bounding_box.X.Min = std::min<double>(signal.get_time_at_index(0), bounding_box.X.Min);
+        bounding_box.X.Max =
+                std::max<double>(signal.get_time_at_index(signal.get_sample_count() - 1), bounding_box.X.Max);
     }
 }
 
@@ -151,7 +150,7 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
          */
 
         downsample_cache.emplace(signal->get_id(), nullptr);
-        parent_worker.submit(std::make_unique<DownsampleTask>(std::move(signal)));
+        parent_worker->submit(std::make_unique<DownsampleTask>(std::move(signal)));
         return nullptr;
     }
 

@@ -39,7 +39,7 @@ public:
      */
     explicit SensorGeometryPanel(
             WorkerResultDespatcher& despatcher,
-            EchoMap& app,
+            EchoMap* app,
             const Project* initial_project = nullptr
     );
 
@@ -52,12 +52,12 @@ private:
     void draw_geometry_summary() noexcept;
     void draw_geometry_plot() const noexcept;
 
-    const std::string panel_name = "Sensor Geometry";
+    std::string panel_name = "Sensor Geometry";
 
     std::vector<ImU32> sensor_colours;
     ImPlot3DSpec plotting_spec_3d;
     const Project* active_project = nullptr;
-    EchoMap& app;
+    EchoMap* app;
     std::vector<sigc::scoped_connection> connections;
 };
 
