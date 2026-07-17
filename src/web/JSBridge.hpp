@@ -49,15 +49,26 @@ public:
     /**
      * Notifies any bound instance that a new wave file has been selected and loaded into the Wasm VFS.
      *
+     * @param project_id Numerical ID of the Project to which the Signal data belongs.
+     * @param signal_id Numerical ID of the Signal to which the data belongs.
      * @param path Path of the accessible file within the Wasm file system.
+     *
      * @return A numerical error code (details are unimportant) indicating the result. Non-zero indicates failure.
      */
-    static int notify_wav_file_picked(const char * path) noexcept;
+    static int notify_wav_file_picked_for_existing_signal(
+            std::size_t project_id,
+            std::size_t signal_id,
+            const char* path
+    ) noexcept;
 
-    /**
-     * Invokes a JS function to present a file chooser.
-     */
-    static void open_wav_file_chooser() noexcept;
+    static void open_wav_file_chooser_for_existing_signal(
+            std::size_t project_id,
+            std::size_t signal_id
+    ) noexcept;
+
+    static int notify_project_file_picked(const char* path) noexcept;
+
+    static void open_project_file_chooser() noexcept;
 
 private:
     /**

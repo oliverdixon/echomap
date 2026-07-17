@@ -10,6 +10,7 @@
 #include "IndividualUploadModal.hpp"
 
 #include "../objects/Project.hpp"
+#include "../web/JSBridge.hpp"
 
 namespace echomap
 {
@@ -59,17 +60,16 @@ void IndividualUploadModal::draw() noexcept
             ImGui::TableSetupColumn("Given Path", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableHeadersRow();
 
-            // TODO: just add Signal::is_fully_loaded.
-            for (const auto& signal : project->observe_signals() | std::views::filter([](const auto& signal) {
-                                          return signal.observe_source().has_value() &&
-                                                 !signal.observe_source()->is_loaded;
-                                      })) {
+            for (const auto& signal :
+                 project->observe_signals() | std::views::filter(std::not_fn(&Signal::is_fully_loaded))) {
                 ImGui::PushID(static_cast<int>(signal.get_id()));
 
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
 
-                ImGui::Button("Upload");
+                if (ImGui::Button("Upload"))
+                    web::JSBridge::open_wav_file_chooser_for_existing_signal(project->get_id(), signal.get_id());
+
                 ImGui::TableNextColumn();
 
                 ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());

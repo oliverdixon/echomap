@@ -96,6 +96,17 @@ public:
      */
     [[nodiscard]] const std::optional<Source>& observe_source() const noexcept;
 
+    /**
+     * Indicates whether the Signal is considered fully loaded.
+     *
+     * A Signal is considered fully loaded when it was either derived from an embedded signal, or derived from an
+     * external source which has been fully interrogated. A fully loaded Signal can be assumed to be ready for review
+     * and manipulation on the front-end.
+     *
+     * @return Is the Signal fully loaded?
+     */
+    [[nodiscard]] bool is_fully_loaded() const noexcept;
+
     [[nodiscard]] Sample::TimeT get_time_offset() const noexcept;
     [[nodiscard]] std::size_t get_sample_rate() const noexcept;
 

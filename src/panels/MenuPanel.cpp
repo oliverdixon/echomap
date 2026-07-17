@@ -19,11 +19,11 @@ void MenuPanel::draw() noexcept
             if (ImGui::BeginMenu("Open Project")) {
 
 
-                if (ImGui::MenuItem("... from filesystem")) {
 #ifdef __EMSCRIPTEN__
-                    web::JSBridge::open_wav_file_chooser();
+                // TODO: offer native users to open project as well.
+                if (ImGui::MenuItem("... from filesystem"))
+                    web::JSBridge::open_project_file_chooser();
 #endif
-                }
 
                 if (ImGui::BeginMenu("... from example repository")) {
                     ImGui::MenuItem("Example 1", nullptr, false, false);

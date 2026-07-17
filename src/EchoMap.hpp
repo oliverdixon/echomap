@@ -66,9 +66,17 @@ public:
     /**
      * Indicate to the wave form controllers that a new file has been selected.
      *
+     * @param project_id Numerical ID of the Project to which the Signal data belongs.
+     * @param signal_id Numerical ID of the Signal to which the data belongs.
      * @param path Path of the new wave file on the file system.
      */
-    void update_wav_file(const char* path);
+    void update_wav_file_for_existing_signal(
+            size_t project_id,
+            size_t signal_id,
+            const char* path
+    );
+
+    void update_project(const char* path);
 
     void change_active_project(std::unique_ptr<Project> new_project) noexcept;
 

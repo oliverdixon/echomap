@@ -153,8 +153,17 @@ EchoMap::~EchoMap() noexcept
     glfwTerminate();
 }
 
-void EchoMap::update_wav_file(
+void EchoMap::update_wav_file_for_existing_signal(
+        const size_t project_id,
+        const size_t signal_id,
         const char* const path
+)
+{
+    LOG_F_DEBUG("Received request to load {} for {} / {}.", path, project_id, signal_id);
+}
+
+void EchoMap::update_project(
+        const char* path
 )
 {
     worker.submit(std::make_unique<LoadProjectTask>(path, &worker));
@@ -220,15 +229,12 @@ void EchoMap::setup_subscriptions()
 
                 auto&& new_project = std::move(result).take_project();
 
-                for (const auto& signal : new_project->observe_signals())
-                    if (const auto& source = signal.observe_source(); source.has_value() && !source->is_loaded) {
-                        // Raise the modal to query for the sources.
-                        upload_modal = IndividualUploadModal(new_project.get());
-                        unloaded_project = std::move(new_project);
-                        return;
-                    }
-
-                change_active_project(std::move(new_project));
+                if (!std::ranges::all_of(new_project->observe_signals(), &Signal::is_fully_loaded)) {
+                    // Raise the modal to query for the sources.
+                    upload_modal = IndividualUploadModal(new_project.get());
+                    unloaded_project = std::move(new_project);
+                } else
+                    change_active_project(std::move(new_project));
             })
     );
 

@@ -66,12 +66,21 @@ if (ECHOMAP_BUILD_APPLICATION)
                 $<$<CONFIG:Debug,RelWithDebInfo>:-g>
         )
 
+        # List of C-linkage functions to be exported for use with ccall in the JS Module.
+        set(exported_functions
+                _main
+                _echomap_on_wav_file_picked_for_existing_signal
+                _echomap_on_project_file_picked
+        )
+
+        list(JOIN exported_functions "," exported_functions_js_argument)
+
         target_link_options(EchoMap PRIVATE
                 "-fwasm-exceptions"
                 "-sJSPI"
                 "-sUSE_GLFW=3"
                 "-sFORCE_FILESYSTEM=1"
-                "-sEXPORTED_FUNCTIONS=['_main','_echomap_on_wav_file_picked']"
+                "-sEXPORTED_FUNCTIONS=${exported_functions_js_argument}"
                 "-sEXPORTED_RUNTIME_METHODS=['FS','ccall']"
                 "-pthread"
                 "-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency"

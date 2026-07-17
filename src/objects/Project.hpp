@@ -115,7 +115,7 @@ public:
     [[nodiscard]] auto observe_loaded_signals() const noexcept
     {
         return observe_signals() | std::views::filter([](const auto& signal) {
-                   return !signal.observe_source().has_value() || signal.observe_source()->is_loaded;
+                   return signal.is_fully_loaded();
                });
     }
 
@@ -138,8 +138,7 @@ public:
     [[nodiscard]] auto share_loaded_signals() const noexcept
     {
         return share_signals() | std::views::filter([](const auto& signal_ptr) {
-                   return signal_ptr != nullptr &&
-                          (!signal_ptr->observe_source().has_value() || signal_ptr->observe_source()->is_loaded);
+                   return signal_ptr != nullptr && signal_ptr->is_fully_loaded();
                });
     }
 

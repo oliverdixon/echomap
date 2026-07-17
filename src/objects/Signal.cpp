@@ -37,6 +37,11 @@ const std::optional<Signal::Source>& Signal::observe_source() const noexcept
     return fs_source;
 }
 
+bool Signal::is_fully_loaded() const noexcept
+{
+    return !fs_source.has_value() || fs_source->is_loaded;
+}
+
 Signal::Sample::TimeT Signal::get_time_offset() const noexcept
 {
     return timing_baseline.time_offset;
