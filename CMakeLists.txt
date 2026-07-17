@@ -88,6 +88,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/factories/WindowFunctions.hpp
         src/objects/factories/WindowFunctions.cpp
         src/VariantHelpers.hpp
+        src/web/EmscriptenExtra.hpp
 )
 
 get_target_property(ECHOMAP_SOURCES DummyTarget SOURCES)

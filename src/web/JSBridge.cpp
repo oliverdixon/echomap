@@ -9,15 +9,35 @@
 
 #include "JSBridge.hpp"
 
+#include <emscripten/em_js.h>
 #include <emscripten/em_macros.h>
 
-#include "../errors/ConfigurationError.hpp"
 #include "../Logger.hpp"
+#include "../errors/ConfigurationError.hpp"
 
-namespace echomap
+namespace echomap::web
 {
 
-EchoMap * JSBridge::instance = nullptr;
+EchoMap* JSBridge::instance = nullptr;
+
+/**
+ * EM_JS free functions in the @ref echomap::web namespace to generate JavaScript targets.
+ */
+namespace js
+{
+
+EM_JS(void,
+      open_wav_file_chooser,
+      (),
+      {
+          if (Module.echomapOpenWavFilePicker) {
+              Module.echomapOpenWavFilePicker();
+          } else {
+              console.error("Module.echomapOpenWavFilePicker is not installed.");
+          }
+      });
+
+} // namespace js
 
 void JSBridge::bind(
         EchoMap* const new_instance
@@ -32,7 +52,7 @@ void JSBridge::unbind() noexcept
 }
 
 int JSBridge::notify_wav_file_picked(
-        const char * const path
+        const char* const path
 ) noexcept
 {
     if (!preamble())
@@ -47,10 +67,14 @@ int JSBridge::notify_wav_file_picked(
         instance->update_wav_file(path);
         return 0;
     } catch (const ConfigurationError& error) {
-        Logger::log_f(Logger::Level::Error, error.where(), "Could not load path {} due to error: {}.", path,
-            error.what());
+        LOG_F_ERROR("Could not load path {} due to error: {}", path, error.what());
         return 3;
     }
+}
+
+void JSBridge::open_wav_file_chooser() noexcept
+{
+    js::open_wav_file_chooser();
 }
 
 bool JSBridge::preamble() noexcept
@@ -63,7 +87,7 @@ bool JSBridge::preamble() noexcept
     return true;
 }
 
-} // namespace echomap
+} // namespace echomap::web
 
 /**
  * Action to handle a new wave file being selected on the DOM. This is exported and called from the JS.
@@ -72,9 +96,11 @@ bool JSBridge::preamble() noexcept
  * @return Numerical status code; non-zero on failure.
  * @see JSBridge::notify_wav_file_picked
  */
-extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_wav_file_picked(const char * const path)
+extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_wav_file_picked(
+        const char* const path
+)
 {
-    return echomap::JSBridge::notify_wav_file_picked(path);
+    return echomap::web::JSBridge::notify_wav_file_picked(path);
 }
 
 #endif // __EMSCRIPTEN__

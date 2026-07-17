@@ -10,6 +10,7 @@
 #include "WindowFunctions.hpp"
 
 #include <cmath>
+#include <numbers>
 
 namespace echomap
 {

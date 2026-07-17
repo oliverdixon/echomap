@@ -103,9 +103,6 @@ EchoMap::EchoMap() :
     panels.push_back(std::make_unique<SensorGeometryPanel>(despatcher, this));
     panels.push_back(std::make_unique<ChannelMappingPanel>(despatcher, this));
     panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
-
-    // TODO remove: test async project load.
-    worker.submit(std::make_unique<LoadProjectTask>("../resources/ExampleProject.json"));
 }
 
 void EchoMap::run_event_loop()
@@ -160,7 +157,7 @@ void EchoMap::update_wav_file(
         const char* const path
 )
 {
-    throw std::runtime_error("Unimplemented");
+    worker.submit(std::make_unique<LoadProjectTask>(path));
 }
 
 GLFWwindow* EchoMap::create_window(

@@ -9,7 +9,7 @@
 #include "EchoMap.hpp"
 #include "errors/ConfigurationError.hpp"
 
-#if defined(__EMSCRIPTEN__)
+#ifdef __EMSCRIPTEN__
 #include "web/JSBridge.hpp"
 #endif
 
@@ -33,8 +33,8 @@ int main()
          * https://emscripten.org/docs/api_reference/emscripten.h.html#c.emscripten_set_main_loop
          */
 #ifdef __EMSCRIPTEN__
-        auto* const application = new echomap::EchoMap();
-        echomap::JSBridge::bind(application);
+        auto* const application = new echomap::EchoMap(); // NOLINT(*-owning-memory)
+        echomap::web::JSBridge::bind(application);
         application->run_event_loop();
 #else
         echomap::EchoMap application;
@@ -42,14 +42,14 @@ int main()
 #endif
     } catch (const echomap::ConfigurationError& error) {
 #ifdef __EMSCRIPTEN__
-        echomap::JSBridge::unbind();
+        echomap::web::JSBridge::unbind();
 #endif
         echomap::Logger::log(echomap::Logger::Level::Error, error.what(), error.where());
         return 1;
     }
 
 #ifdef __EMSCRIPTEN__
-    echomap::JSBridge::unbind();
+    echomap::web::JSBridge::unbind();
 #endif
     return 0;
 }

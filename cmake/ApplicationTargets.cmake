@@ -63,6 +63,7 @@ if (ECHOMAP_BUILD_APPLICATION)
         target_compile_options(EchoMap PRIVATE
                 "-fwasm-exceptions"
                 "-pthread"
+                $<$<CONFIG:Debug,RelWithDebInfo>:-g>
         )
 
         target_link_options(EchoMap PRIVATE

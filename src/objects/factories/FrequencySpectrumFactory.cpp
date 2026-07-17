@@ -11,7 +11,11 @@
 
 #include <fftw3.h>
 
+#if __EMSCRIPTEN__
+#include "../../web/EmscriptenExtra.hpp"
+#else
 #include <cmath>
+#endif
 
 #include "../FrequencySpectrum.hpp"
 #include "../Signal.hpp"
@@ -104,8 +108,12 @@ Signal::Sample::AmplitudeT FrequencySpectrumFactory::amplitude_to_dbfs(
         const Signal::Sample::AmplitudeT amplitude
 ) noexcept
 {
+#ifdef __EMSCRIPTEN__
+    constexpr auto full = std::max(web::abs(Signal::normalised_range.first), web::abs(Signal::normalised_range.second));
+#else
     constexpr auto full = std::max(std::abs(Signal::normalised_range.first), std::abs(Signal::normalised_range.second));
-    static_assert(full > 0.0f);
+#endif
+    assert(full > 0.0f);
 
     constexpr auto maximum_ratio = 1.0e-6f; // 20log_{10}(1e-6) = -120dB.
     return 20.0f * std::log10(std::max(std::abs(amplitude) / full, maximum_ratio));

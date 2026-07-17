@@ -14,11 +14,8 @@
     <title>EchoMap</title>
 </head>
 <body>
-<header>
-    Input WAV file: <input id="wav-picker" type="file" accept=".wav,audio/wav">
-</header>
 <canvas id="canvas" tabindex="-1"></canvas>
-<script type='text/javascript'>
+<script>
     const canvas = document.getElementById("canvas");
 
     canvas.addEventListener("contextmenu", (event) => {
@@ -36,45 +33,66 @@
         }
     };
 
-    Module.onRuntimeInitialized = () => {
-        document.getElementById("wav-picker").addEventListener("change",
-            async event => {
-                const file = event.target.files[0];
+    Module.echomapOpenWavFilePicker = (() => {
+        let input = null;
 
-                if (!file) {
-                    console.log("No file selected");
-                    return;
-                }
+        return function openWavFilePicker() {
+            if (!input) {
+                input = document.createElement("input");
+                input.type = "file";
+                input.accept = ".wav,audio/wav,audio/x-wav,.json";
+                input.style.display = "none";
 
-                try {
-                    const bytes = new Uint8Array(await file.arrayBuffer());
+                document.body.appendChild(input);
+
+                input.addEventListener("change", async () => {
+                    const file = input.files && input.files[0];
+
+                    input.value = "";
+
+                    if (!file)
+                        return;
 
                     try {
-                        Module.FS.mkdir("/uploads");
-                    } catch (_) {
-                        // Directory already exists
+                        const bytes = new Uint8Array(await file.arrayBuffer());
+
+                        const directory = "/uploads";
+                        const safeName = file.name.replace(/[^a-zA-Z0-9._()+ -]/g, "_");
+                        const path = `${directory}/${Date.now()}_${safeName}`;
+
+                        try {
+                            Module.FS.mkdirTree(directory);
+                        } catch (_) {
+                            try {
+                                Module.FS.mkdir(directory);
+                            } catch (_) {
+                                // Already exists.
+                            }
+                        }
+
+                        Module.FS.writeFile(path, bytes);
+
+                        const result = Module.ccall(
+                                "echomap_on_wav_file_picked",
+                                "number",
+                                ["string"],
+                                [path]
+                        );
+
+                        if (result !== 0)
+                            console.error(`echomap_on_wav_file_picked failed with code ${result}`);
+                    } catch (error) {
+                        console.error("Could not import WAV file:", error);
                     }
-
-                    const path = "/uploads/" + file.name;
-                    Module.FS.writeFile(path, bytes);
-
-                    const result = Module.ccall(
-                        "echomap_on_wav_file_picked",
-                        "number",
-                        ["string"],
-                        [path]
-                    );
-
-                    if (result !== 0)
-                        console.error("C++ failed to load file:", path, "error code:", result);
-                    else
-                        console.log("Loaded file:", path);
-                } catch (error) {
-                    console.error("Failed to load selected file:", error);
-                }
+                });
             }
-        );
-    };
+
+            if (input.showPicker)
+                input.showPicker();
+            else
+                input.click();
+        };
+    })();
 </script>
 {{{ SCRIPT }}}
 </body>

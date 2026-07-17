@@ -12,7 +12,7 @@
 
 #include "../EchoMap.hpp"
 
-namespace echomap
+namespace echomap::web
 {
 
 /**
@@ -47,12 +47,17 @@ public:
     static void unbind() noexcept;
 
     /**
-     * Notifies any bound instance that a new wave file has been selected and loaded into the Wasm file system.
+     * Notifies any bound instance that a new wave file has been selected and loaded into the Wasm VFS.
      *
      * @param path Path of the accessible file within the Wasm file system.
      * @return A numerical error code (details are unimportant) indicating the result. Non-zero indicates failure.
      */
     static int notify_wav_file_picked(const char * path) noexcept;
+
+    /**
+     * Invokes a JS function to present a file chooser.
+     */
+    static void open_wav_file_chooser() noexcept;
 
 private:
     /**
@@ -65,7 +70,7 @@ private:
     static EchoMap * instance;
 };
 
-} // namespace echomap
+} // namespace echomap::web
 
 #endif // __EMSCRIPTEN__
 

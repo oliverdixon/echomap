@@ -6,6 +6,8 @@
 
 #include <imgui.h>
 
+#include "../web/JSBridge.hpp"
+
 namespace echomap
 {
 
@@ -15,7 +17,14 @@ void MenuPanel::draw() noexcept
         if (ImGui::BeginMenu("File")) {
             ImGui::MenuItem("New Project");
             if (ImGui::BeginMenu("Open Project")) {
-                ImGui::MenuItem("... from filesystem");
+
+
+                if (ImGui::MenuItem("... from filesystem")) {
+#ifdef __EMSCRIPTEN__
+                    web::JSBridge::open_wav_file_chooser();
+#endif
+                }
+
                 if (ImGui::BeginMenu("... from example repository")) {
                     ImGui::MenuItem("Example 1", nullptr, false, false);
                     ImGui::MenuItem("Example 2", nullptr, false, false);

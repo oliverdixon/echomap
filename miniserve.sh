@@ -12,7 +12,6 @@ miniserve "$directory" \
   --port 8080 \
   --header "Cross-Origin-Opener-Policy:same-origin" \
   --header "Cross-Origin-Embedder-Policy:require-corp" \
-  --header "Cross-Origin-Resource-Policy:same-origin" \
   --header "Cache-Control:no-cache, no-store, must-revalidate"
 
 exit $?

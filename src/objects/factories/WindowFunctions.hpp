@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <ranges>
+#include <string_view>
 
 namespace echomap
 {
