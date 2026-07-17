@@ -6,8 +6,8 @@
 cmake_minimum_required(VERSION 4.0)
 project(EchoMap)
 
-# EchoMap common configuration
-set(ECHOMAP_SOURCES
+# The DummyTarget provides a target to IntelliJ IDEs to manage. We extract the source vector for the real targets.
+add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/EchoMap.cpp
         src/EchoMap.hpp
         src/App.cpp
@@ -87,7 +87,10 @@ set(ECHOMAP_SOURCES
         src/signals/ResultChannel.hpp
         src/objects/factories/WindowFunctions.hpp
         src/objects/factories/WindowFunctions.cpp
+        src/VariantHelpers.hpp
 )
+
+get_target_property(ECHOMAP_SOURCES DummyTarget SOURCES)
 
 include(cmake/ApplicationTargets.cmake)
 include(cmake/DoxygenTarget.cmake)

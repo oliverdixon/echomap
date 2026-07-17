@@ -10,8 +10,8 @@
 #ifndef ECHOMAP_WINDOWFUNCTIONS_HPP
 #define ECHOMAP_WINDOWFUNCTIONS_HPP
 
+#include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <ranges>
 
 namespace echomap
@@ -281,7 +281,7 @@ public:
         ) noexcept;
     };
 
-    using AllFunctions = std::variant<Constant, Hann, Hamming>;
+    using AllFunctions = std::variant<Constant, Hann, Hamming, Bartlett, Blackman, BlackmanHarris, Welch>;
 
     /**
      * Retrieve a human-readable name for the templated window function.
@@ -294,15 +294,53 @@ public:
         static_assert(false, "Missing window function name.");
         return {};
     }
+
+    /**
+     * Provides a callable type for statically invoking the name getter.
+     */
+    struct NameGetter
+    {
+        template <class T> static consteval std::string_view get()
+        {
+            return WindowFunctions::get_window_name<T>();
+        }
+    };
 };
 
-template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Constant>();
-template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Hann>();
-template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Hamming>();
-template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Bartlett>();
-template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Blackman>();
-template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::BlackmanHarris>();
-template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Welch>();
+template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Constant>()
+{
+    return "Constant";
+}
+
+template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Hann>()
+{
+    return "Hann";
+}
+
+template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Hamming>()
+{
+    return "Hamming";
+}
+
+template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Bartlett>()
+{
+    return "Bartlett";
+}
+
+template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Blackman>()
+{
+    return "Blackman";
+}
+
+template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::BlackmanHarris>()
+{
+    return "Blackman-Harris";
+}
+
+template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Welch>()
+{
+    return "Welch";
+}
 
 } // namespace echomap
 

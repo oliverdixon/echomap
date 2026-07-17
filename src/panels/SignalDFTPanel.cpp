@@ -13,6 +13,7 @@
 
 #include "../EchoMap.hpp"
 #include "../Logger.hpp"
+#include "../VariantHelpers.hpp"
 #include "../objects/FrequencySpectrum.hpp"
 #include "../objects/Project.hpp"
 #include "../signals/Worker.hpp"
@@ -126,7 +127,38 @@ void SignalDFTPanel::draw_options_section() noexcept
         ImGui::TextUnformatted("Input Window Function");
         ImGui::TableNextColumn();
 
-        // TODO REMOVED
+        ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
+
+        static constexpr auto window_function_names =
+                variant_helpers::variant_name_array<WindowFunctions::AllFunctions, WindowFunctions::NameGetter>;
+        if (auto combo_selected_idx = selected_window.index();
+            ImGui::BeginCombo("##DFTOptionsWindowFunction", window_function_names[combo_selected_idx].data())) {
+            for (std::size_t item_idx = 0; item_idx < window_function_names.size(); ++item_idx) {
+                const bool is_selected = item_idx == combo_selected_idx;
+
+                if (ImGui::Selectable(window_function_names[item_idx].data(), is_selected) &&
+                    combo_selected_idx != item_idx) {
+                    combo_selected_idx = item_idx;
+
+                    try {
+                        selected_window =
+                                variant_helpers::variant_from_index<WindowFunctions::AllFunctions>(combo_selected_idx);
+                    } catch (const std::out_of_range&) {
+                        LOG_WARN("Invalid window function index was selected. Resetting to the default.");
+                        selected_window = WindowFunctions::Constant{};
+                    }
+
+                    update_spectrum_bounds();
+                    reset_viewport_bounds();
+                }
+
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+
+            ImGui::EndCombo();
+            app->increment_forced_frames();
+        }
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();

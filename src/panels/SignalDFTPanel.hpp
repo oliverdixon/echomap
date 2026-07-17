@@ -146,6 +146,9 @@ private:
     std::vector<std::string> available_sizes;           /**< Strings of all available transform sizes. */
     unsigned int selected_size_log = default_size_log;  /**< Base-2 log of selected transform size. */
 
+
+    WindowFunctions::AllFunctions selected_window = WindowFunctions::Constant{};
+
     std::vector<sigc::scoped_connection> connections;
 };
 
