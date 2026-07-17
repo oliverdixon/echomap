@@ -72,6 +72,7 @@ private:
     void draw_configuration_preview_actions() noexcept;
 
     void draw_preview_section() noexcept;
+    void draw_preview_of_signal(std::shared_ptr<Signal> signal) noexcept;
 
     void reset_available_transform_sizes();
     void update_spectrum_bounds(const FrequencySpectrum& spectrum) noexcept;
