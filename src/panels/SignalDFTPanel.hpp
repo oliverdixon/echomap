@@ -65,7 +65,12 @@ private:
 
     void handle_completed_dft(DFTResult&& result);
 
-    void draw_options_section() noexcept;
+    void draw_configuration_section() noexcept;
+    void draw_configuration_window_function() noexcept;
+    void draw_configuration_transform_size() noexcept;
+    void draw_configuration_scale_type() noexcept;
+    void draw_configuration_preview_actions() noexcept;
+
     void draw_preview_section() noexcept;
 
     void reset_available_transform_sizes();

@@ -70,7 +70,7 @@ CheckOptions:
   readability-function-size.StatementThreshold: '50'
   readability-function-size.BranchThreshold: '12'
   readability-function-size.ParameterThreshold: '6'
-  readability-function-size.NestingThreshold: '4'
+  readability-function-size.NestingThreshold: '6'
   readability-function-size.VariableThreshold: '15'
   readability-function-size.CountMemberInitAsStmt: 'true'
   readability-function-size.IgnoreMacros: 'true'

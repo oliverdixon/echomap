@@ -61,7 +61,7 @@ void SignalDFTPanel::draw() noexcept
                 max_sample_count = std::max(max_sample_count, signal.get_sample_count());
             update_available_sizes(max_sample_count);
 
-            draw_options_section();
+            draw_configuration_section();
             draw_preview_section();
         }
     }
@@ -113,7 +113,7 @@ ImPlotPoint SignalDFTPanel::get_indexed_frequency_bin(
     return {info->spectrum->cbegin()[index].frequency, info->spectrum->cbegin()[index].magnitude};
 }
 
-void SignalDFTPanel::draw_options_section() noexcept
+void SignalDFTPanel::draw_configuration_section() noexcept
 {
     ImGui::SeparatorText("DFT Configuration");
 
@@ -123,101 +123,122 @@ void SignalDFTPanel::draw_options_section() noexcept
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
-
-        ImGui::TextUnformatted("Input Window Function");
-        ImGui::TableNextColumn();
-
-        ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-
-        static constexpr auto window_function_names =
-                variant_helpers::variant_name_array<WindowFunctions::AllFunctions, WindowFunctions::NameGetter>;
-        if (auto combo_selected_idx = selected_window.index();
-            ImGui::BeginCombo("##DFTOptionsWindowFunction", window_function_names[combo_selected_idx].data())) {
-            for (std::size_t item_idx = 0; item_idx < window_function_names.size(); ++item_idx) {
-                const bool is_selected = item_idx == combo_selected_idx;
-
-                if (ImGui::Selectable(window_function_names[item_idx].data(), is_selected) &&
-                    combo_selected_idx != item_idx) {
-                    combo_selected_idx = item_idx;
-
-                    try {
-                        selected_window =
-                                variant_helpers::variant_from_index<WindowFunctions::AllFunctions>(combo_selected_idx);
-                    } catch (const std::out_of_range&) {
-                        LOG_WARN("Invalid window function index was selected. Resetting to the default.");
-                        selected_window = WindowFunctions::Constant{};
-                    }
-
-                    update_spectrum_bounds();
-                    reset_viewport_bounds();
-                }
-
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-
-            ImGui::EndCombo();
-            app->increment_forced_frames();
-        }
+        draw_configuration_window_function();
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
-
-        ImGui::TextUnformatted("Transform Size");
-        ImGui::TableNextColumn();
-
-        ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-        if (ImGui::BeginCombo(
-                    "##DFTOptionsTransformSize",
-                    available_sizes[selected_size_log - default_size_log].c_str()
-            )) {
-            for (unsigned int item_idx = 0; item_idx < available_sizes.size(); ++item_idx) {
-                const auto is_selected = item_idx == selected_size_log - default_size_log;
-                if (ImGui::Selectable(available_sizes[item_idx].c_str(), is_selected) &&
-                    selected_size_log != item_idx + default_size_log) {
-
-                    // The selected size has changed.
-                    selected_size_log = item_idx + default_size_log;
-                    update_spectrum_bounds();
-                    reset_viewport_bounds();
-                }
-
-                if (is_selected)
-                    ImGui::SetItemDefaultFocus();
-            }
-
-            ImGui::EndCombo();
-            app->increment_forced_frames();
-        }
+        draw_configuration_transform_size();
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
-
-        ImGui::TextUnformatted("Logarithmic Frequency Scale");
-        ImGui::TableNextColumn();
-
-        if (ImGui::Checkbox("##DFTOptionsLogScale", &use_log_scale)) {
-            update_spectrum_bounds();
-            reset_viewport_bounds();
-        }
+        draw_configuration_scale_type();
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
-
-        ImGui::TextUnformatted("Preview Actions");
-        ImGui::TableNextColumn();
-
-        if (ImGui::Button("Reset Viewports##DFTOptionsResetViewport"))
-            reset_viewport_bounds();
-        ImGui::SameLine();
-        if (ImGui::Button("Reset Cached DFTs##DFTOptionsResetCache")) {
-            spectra_cache.clear();
-            update_spectrum_bounds();
-            reset_viewport_bounds();
-            app->increment_forced_frames();
-        }
+        draw_configuration_preview_actions();
 
         ImGui::EndTable();
+    }
+}
+
+void SignalDFTPanel::draw_configuration_window_function() noexcept
+{
+    ImGui::TextUnformatted("Input Window Function");
+    ImGui::TableNextColumn();
+
+    ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
+
+    static constexpr auto window_function_names =
+            variant_helpers::variant_name_array<WindowFunctions::AllFunctions, WindowFunctions::NameGetter>;
+
+    if (auto selected_idx = selected_window.index();
+        /*
+         * Disabled string_view::data warnings: we know that the views were constructed from string literals, hence
+         * NULL-terminated. Dear ImGui provides no API for specifying the lengths of the expected data, so we can rely
+         * on the termination here.
+         */
+
+        // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
+        ImGui::BeginCombo("##DFTOptionsWindowFunction", window_function_names[selected_idx].data())) {
+        for (std::size_t item_idx = 0; item_idx < window_function_names.size(); ++item_idx) {
+            const auto is_selected = item_idx == selected_idx;
+
+            // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
+            if (ImGui::Selectable(window_function_names[item_idx].data(), is_selected) && selected_idx != item_idx) {
+                selected_idx = item_idx;
+
+                try {
+                    selected_window = variant_helpers::variant_from_index<WindowFunctions::AllFunctions>(selected_idx);
+                } catch (const std::out_of_range&) {
+                    LOG_WARN("Invalid window function index was selected. Resetting to the default.");
+                    selected_window = WindowFunctions::Constant{};
+                }
+
+                update_spectrum_bounds();
+                reset_viewport_bounds();
+            }
+
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+        app->increment_forced_frames();
+    }
+}
+
+void SignalDFTPanel::draw_configuration_transform_size() noexcept
+{
+    ImGui::TextUnformatted("Transform Size");
+    ImGui::TableNextColumn();
+
+    ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
+
+    if (ImGui::BeginCombo("##DFTOptionsTransformSize", available_sizes[selected_size_log - default_size_log].c_str())) {
+        for (unsigned int item_idx = 0; item_idx < available_sizes.size(); ++item_idx) {
+            const auto is_selected = item_idx == selected_size_log - default_size_log;
+            if (ImGui::Selectable(available_sizes[item_idx].c_str(), is_selected) &&
+                selected_size_log != item_idx + default_size_log) {
+
+                // The selected size has changed.
+                selected_size_log = item_idx + default_size_log;
+                update_spectrum_bounds();
+                reset_viewport_bounds();
+            }
+
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+
+        ImGui::EndCombo();
+        app->increment_forced_frames();
+    }
+}
+
+void SignalDFTPanel::draw_configuration_scale_type() noexcept
+{
+    ImGui::TextUnformatted("Logarithmic Frequency Scale");
+    ImGui::TableNextColumn();
+
+    if (ImGui::Checkbox("##DFTOptionsLogScale", &use_log_scale)) {
+        update_spectrum_bounds();
+        reset_viewport_bounds();
+    }
+}
+
+void SignalDFTPanel::draw_configuration_preview_actions() noexcept
+{
+    ImGui::TextUnformatted("Preview Actions");
+    ImGui::TableNextColumn();
+
+    if (ImGui::Button("Reset Viewports##DFTOptionsResetViewport"))
+        reset_viewport_bounds();
+    ImGui::SameLine();
+    if (ImGui::Button("Reset Cached DFTs##DFTOptionsResetCache")) {
+        spectra_cache.clear();
+        update_spectrum_bounds();
+        reset_viewport_bounds();
+        app->increment_forced_frames();
     }
 }
 
