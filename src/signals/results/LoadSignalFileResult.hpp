@@ -10,6 +10,7 @@
 #ifndef ECHOMAP_LOADSIGNALFILERESULT_HPP
 #define ECHOMAP_LOADSIGNALFILERESULT_HPP
 
+#include "../../objects/Project.hpp"
 #include "../../objects/Signal.hpp"
 
 namespace echomap
@@ -21,7 +22,10 @@ namespace echomap
 class LoadSignalFileResult
 {
 public:
-    explicit LoadSignalFileResult(std::vector<std::unique_ptr<Signal>> loaded_signal);
+    explicit LoadSignalFileResult(
+            Project::id_type project_id,
+            std::vector<std::unique_ptr<Signal>> loaded_signal
+    );
 
     [[nodiscard]] auto take_signals() && noexcept
     {
@@ -35,7 +39,10 @@ public:
                });
     }
 
+    [[nodiscard]] Project::id_type get_project_id() const noexcept;
+
 private:
+    Project::id_type project_id; // TODO put these in all tasks.
     std::vector<std::unique_ptr<Signal>> loaded_signals;
 };
 

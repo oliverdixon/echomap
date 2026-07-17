@@ -10,6 +10,7 @@
 
 namespace echomap
 {
+class Worker;
 
 class Project;
 class Sensor;
@@ -20,7 +21,10 @@ class IDeserialiser
 public:
     virtual ~IDeserialiser() = default;
 
-    virtual std::unique_ptr<Project> deserialise_project(std::string_view path) = 0;
+    virtual std::unique_ptr<Project> deserialise_project(
+            std::string_view path,
+            Worker* worker
+    ) = 0;
 };
 
 } // namespace echomap

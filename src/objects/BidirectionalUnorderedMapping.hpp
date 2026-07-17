@@ -214,7 +214,7 @@ public:
         if (reverse_map_it == reverse_map.end())
             return forward_map.end();
 
-        const auto forward_map_it = forward_map(reverse_map_it->second);
+        const auto forward_map_it = forward_map.find(reverse_map_it->second);
         assert(forward_map_it != forward_map.end()); // Verify class invariant.
 
         return forward_map_it;

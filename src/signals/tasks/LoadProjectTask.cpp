@@ -15,16 +15,18 @@ namespace echomap
 JSONDeserialiser LoadProjectTask::deserialiser{};
 
 LoadProjectTask::LoadProjectTask(
-        const std::filesystem::path& path
+        const std::filesystem::path& path,
+        Worker* const worker
 ) :
     ITask(std::format("LoadProjectTask: {}", path.c_str())),
-    project_file_path(path)
+    project_file_path(path),
+    worker(worker)
 {
 }
 
 WorkerResult LoadProjectTask::execute_work()
 {
-    return LoadProjectResult(deserialiser.deserialise_project(project_file_path));
+    return LoadProjectResult(deserialiser.deserialise_project(project_file_path, worker));
 }
 
 } // namespace echomap

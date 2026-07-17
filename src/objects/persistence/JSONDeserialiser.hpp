@@ -19,7 +19,10 @@ namespace echomap
 class JSONDeserialiser : public IDeserialiser
 {
 public:
-    std::unique_ptr<Project> deserialise_project(std::string_view path) override;
+    std::unique_ptr<Project> deserialise_project(
+            std::string_view path,
+            Worker* worker
+    ) override;
 
 private:
     simdjson::ondemand::parser parser;

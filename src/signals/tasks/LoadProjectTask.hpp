@@ -31,8 +31,12 @@ public:
      * Create a new LoadProjectTask for a serialised Project.
      *
      * @param path The path of the serialised Project file.
+     * @param worker A thread-safe Worker capable of accepting sub-work requests.
      */
-    explicit LoadProjectTask(const std::filesystem::path& path);
+    explicit LoadProjectTask(
+            const std::filesystem::path& path,
+            Worker* worker
+    );
 
 private:
     /**
@@ -59,6 +63,8 @@ private:
      * The deserialiser takes just strings for paths, so we "downgrade" the typed path to a string.
      */
     std::string project_file_path;
+
+    Worker* worker;
 };
 
 } // namespace echomap

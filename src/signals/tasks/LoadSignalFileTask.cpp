@@ -15,19 +15,39 @@ namespace echomap
 {
 
 LoadSignalFileTask::LoadSignalFileTask(
-        const std::filesystem::path& path
+        const Project::id_type project_id,
+        const std::string_view file_path,
+        std::vector<std::unique_ptr<SignalFactory>>&& factories
 ) :
     ITask(std::format(
-            "LoadSignalTask: {}",
-            path.c_str()
+            "LoadSignalFileTask: {} ",
+            file_path
     )),
-    path(path)
+    project_id(project_id),
+    path(file_path),
+    factories(std::move(factories))
 {
 }
 
 WorkerResult LoadSignalFileTask::execute_work()
 {
-    return LoadSignalFileResult(SignalFactory::load_wave_file(path.c_str()));
+    // Prepare the factories as slots for the loader.
+    std::vector<SignalFactory*> factory_refs;
+    factory_refs.reserve(factories.size());
+    for (const auto& factory_owner : factories)
+        factory_refs.emplace_back(factory_owner.get());
+
+    // Load each channel into the correct factories.
+    SignalFactory::load_wave_file(path.c_str(), factory_refs);
+
+    // Retrieve the loaded signals.
+    std::vector<std::unique_ptr<Signal>> loaded_signals;
+    for (auto&& factory_owner : factories)
+        if (factory_owner != nullptr)
+            loaded_signals.emplace_back(std::move(factory_owner)->take_signal());
+
+    // Now we own the loaded signals, pass them onto the result.
+    return LoadSignalFileResult(project_id, std::move(loaded_signals));
 }
 
 } // namespace echomap

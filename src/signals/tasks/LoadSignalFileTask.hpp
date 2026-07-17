@@ -12,6 +12,8 @@
 
 #include "ITask.hpp"
 
+#include "../../objects/factories/SignalFactory.hpp"
+
 namespace echomap
 {
 
@@ -21,12 +23,18 @@ namespace echomap
 class LoadSignalFileTask : public ITask
 {
 public:
-    explicit LoadSignalFileTask(const std::filesystem::path& path);
+    explicit LoadSignalFileTask(
+            Project::id_type project_id,
+            std::string_view file_path,
+            std::vector<std::unique_ptr<SignalFactory>>&& factories
+    );
 
 private:
     WorkerResult execute_work() override;
 
+    Project::id_type project_id;
     std::string path;
+    std::vector<std::unique_ptr<SignalFactory>> factories;
 };
 
 } // namespace echomap

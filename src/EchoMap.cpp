@@ -105,7 +105,7 @@ EchoMap::EchoMap() :
     panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
 
     // TODO remove: test async project load.
-    worker.submit(std::make_unique<LoadProjectTask>("../resources/ExampleProject.json"));
+    worker.submit(std::make_unique<LoadProjectTask>("../resources/ExampleProject.json", &worker));
 }
 
 void EchoMap::run_event_loop()
@@ -160,7 +160,7 @@ void EchoMap::update_wav_file(
         const char* const path
 )
 {
-    worker.submit(std::make_unique<LoadProjectTask>(path));
+    // worker.submit(std::make_unique<LoadProjectTask>(path)); // TODO
 }
 
 GLFWwindow* EchoMap::create_window(
@@ -216,6 +216,20 @@ void EchoMap::setup_subscriptions()
     connections.emplace_back(
             despatcher.load_project_finished_channel.nominate_consumer([this](LoadProjectResult&& result) {
                 put_project(std::move(result).take_project());
+            })
+    );
+
+    connections.emplace_back(
+            despatcher.load_signal_file_channel.nominate_consumer([this](LoadSignalFileResult&& result) {
+                if (project != nullptr && project->get_id() == result.get_project_id())
+                    for (auto&& signals = std::move(result).take_signals(); auto signal : signals)
+                        project->add_signal(std::move(signal));
+                else
+                    LOG_F_WARN(
+                            "Dropping LoadSignalFileResult which was intended for the non-active {} with ID {}.",
+                            Project::get_class_name(),
+                            result.get_project_id()
+                    );
             })
     );
 
@@ -511,26 +525,7 @@ void EchoMap::put_project(
         std::unique_ptr<Project> new_project
 ) noexcept
 {
-    if (project != new_project) {
-        /*
-         * We know that the memory addresses differ (i.e. project.get() != new_project.get()). Therefore, there is an
-         * effective difference if and only if:
-         *
-         *  1. The old project is nullptr, thus the new project is non-vacuous;
-         *  2. The old project is non-null, thus the new project is vacuous;
-         *  3. Both the old and new projects are non-null, so we can compare their object IDs.
-         */
-        const auto effectively_different =
-                project == nullptr || new_project == nullptr || project->get_id() != new_project->get_id();
-
-        project = std::move(new_project);
-
-        if (effectively_different) {
-            // Invalidate project-dependent state.
-            lwt_queue.clear();
-            worker.clear();
-        }
-    }
+    project = std::move(new_project);
 }
 
 void EchoMap::submit_lightweight_task(

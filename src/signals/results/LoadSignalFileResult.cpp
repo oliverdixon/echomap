@@ -13,10 +13,17 @@ namespace echomap
 {
 
 LoadSignalFileResult::LoadSignalFileResult(
+        const Project::id_type project_id,
         std::vector<std::unique_ptr<Signal>> loaded_signal
 ) :
+    project_id(project_id),
     loaded_signals(std::move(loaded_signal))
 {
+}
+
+Project::id_type LoadSignalFileResult::get_project_id() const noexcept
+{
+    return project_id;
 }
 
 } // namespace echomap

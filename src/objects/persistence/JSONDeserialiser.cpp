@@ -3,9 +3,13 @@
 
 #include "JSONDeserialiser.hpp"
 
+#include "../../signals/Worker.hpp"
+#include "../../signals/tasks/LoadSignalFileTask.hpp"
 #include "../Project.hpp"
 #include "../Signal.hpp"
 #include "../factories/SignalFactory.hpp"
+
+static echomap::Worker* pending_worker = nullptr;
 
 /**
  * Free helper functions for simdjson customisation points.
@@ -62,27 +66,29 @@ auto get_metadata(
 
 auto get_signals(
         simdjson::ondemand::object& root,
-        echomap::Project& project,
+        const echomap::Project& project,
         std::unordered_map<
                 std::string_view,
                 echomap::Signal::id_type>& loaded
 )
 {
+    // Step 1.  Create our factories which detain only the signal metadata (sample rate, etc.) and source information.
     std::vector<std::unique_ptr<echomap::SignalFactory>> factories;
     if (const auto error = root["signals"].get(factories))
         return error;
 
     /*
-     * This map associates paths of wave files with slot vectors for the corresponding file. Entries are constructed for
-     * each Signal whose source is a "filesystem" type.
+     * Step 2.  Group the factories by the source filenames of the signals they're constructing.
      *
-     * Each slot vector provides a mapping between the channel index and the destination Signal object.
+     * The key of the map is the source filename, and the value is a bijective correspondence between the channel in the
+     * wave file and the factory designated to load the channel at the index.
      *
-     * That is, the first slot stores the destination Signal for the Channel #1, the second for Channel #2, etc.
+     * That is, the first slot owns the factory for constructing the signal on Channel 1, the second for Channel 2, etc.
+     * If there is a gap, the entry is the empty unique_ptr<SignalFactory>, such that it equals nullptr.
      */
-    std::unordered_map<std::string, std::vector<echomap::SignalFactory*>> slots;
+    std::unordered_map<std::string, std::vector<std::unique_ptr<echomap::SignalFactory>>> slots;
 
-    for (const auto& factory : factories) {
+    for (auto factory : factories | std::views::as_rvalue) {
         const auto& signal = factory->observe_signal();
         if (!loaded.emplace(signal.get_name(), signal.get_id()).second)
             throw std::runtime_error(std::format("Project contains duplicate signal {}.", signal.get_name()));
@@ -97,7 +103,7 @@ auto get_signals(
 
             // Reminder: channel numbers are 1-based.
             if (channel_num > slot_vector.size())
-                slot_vector.resize(channel_num, nullptr);
+                slot_vector.resize(channel_num);
             else if (slot_vector[channel_num - 1] != nullptr)
                 throw std::runtime_error(
                         std::format(
@@ -109,18 +115,31 @@ auto get_signals(
                         )
                 );
 
-            slot_vector[channel_num - 1] = factory.get();
+            slot_vector[channel_num - 1] = std::move(factory);
         }
     }
 
-    // Once we've constructed all the signals, we can finish loading the filesystem-sourced signals.
-    for (const auto& [file_path, slot_vector] : slots)
-        echomap::SignalFactory::load_wave_file(file_path.c_str(), slot_vector);
+    /*
+     * Step 3.  Once we have the factories grouped by source, and put into the bijective correspondence with the channel
+     * numbers, submit a task to the thread-safe Worker for each distinct file. The task takes ownership of the
+     * factories.
+     *
+     * The results will own the signal objects produced by the factories, which can be added to the project by the
+     * EchoMap controller (or whoever is the nominated consumer).
+     */
+    if (!slots.empty()) {
+        if (pending_worker == nullptr)
+            throw std::runtime_error(
+                    std::format(
+                            "Need to despatch extra work to load {}, but no Worker is available.",
+                            project.get_name()
+                    )
+            );
 
-    // Now we can give the fully constructed signals to the project.
-    for (auto&& factory : factories) {
-        std::shared_ptr signal = std::move(factory->take_signal());
-        project.add_signal(std::move(signal));
+        for (auto&& [file_path, slot_vector] : slots)
+            pending_worker->submit(
+                    std::make_unique<echomap::LoadSignalFileTask>(project.get_id(), file_path, std::move(slot_vector))
+            );
     }
 
     return simdjson::SUCCESS;
@@ -307,7 +326,7 @@ namespace simdjson
 
 template <typename simdjson_value>
 auto tag_invoke(
-        deserialize_tag,
+        deserialize_tag /*unused*/,
         simdjson_value& value,
         echomap::Project& project
 )
@@ -340,7 +359,7 @@ auto tag_invoke(
 
 template <typename simdjson_value>
 auto tag_invoke(
-        deserialize_tag,
+        deserialize_tag /*unused*/,
         simdjson_value& value,
         echomap::SignalFactory& signal_factory
 )
@@ -391,7 +410,7 @@ auto tag_invoke(
 
 template <typename simdjson_value>
 auto tag_invoke(
-        deserialize_tag,
+        deserialize_tag /*unused*/,
         simdjson_value& value,
         echomap::Sensor& sensor
 )
@@ -439,9 +458,11 @@ namespace echomap
 {
 
 std::unique_ptr<Project> JSONDeserialiser::deserialise_project(
-        const std::string_view path
+        const std::string_view path,
+        Worker* const worker
 )
 {
+    pending_worker = worker;
     const auto json = simdjson::padded_string::load(path);
     auto doc = parser.iterate(json);
     auto project = std::make_unique<Project>();
