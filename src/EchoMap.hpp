@@ -28,8 +28,8 @@ class IPanel;
 class Project;
 
 /**
- * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating initialisation,
- * game loop, interaction, and clean-up.
+ * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating
+ * initialisation, game loop, interaction, and clean-up.
  */
 class EchoMap
 {
@@ -70,7 +70,7 @@ public:
      */
     void update_wav_file(const char* path);
 
-    void put_project(std::unique_ptr<Project> new_project) noexcept;
+    void change_active_project(std::unique_ptr<Project> new_project) noexcept;
 
     /**
      * Submit a new lightweight task to the application queue.
@@ -79,7 +79,7 @@ public:
      *
      * @param task The trivial task to schedule.
      */
-    void submit_lightweight_task(LightweightTask task);
+    void submit_lightweight_task(const LightweightTask& task);
 
     /**
      * Indicate to the renderer that the following frames should always be rendered, regardless of whether there are any
@@ -221,9 +221,10 @@ private:
 
     std::vector<std::unique_ptr<IPanel>> panels;      /**< Individual display components. */
     ErrorModal error_modal;                           /**< Persistent panel to indicate errors over all other panels. */
-    std::optional<IndividualUploadModal> upload_modal; // TODO
-    std::vector<LightweightTask> lwt_queue; /**< Queue for simple tasks that needn't go through the despatcher. */
-    std::unique_ptr<Project> project;       /**< Owning container for the active Project. */
+    std::optional<IndividualUploadModal> upload_modal;
+    std::vector<LightweightTask> lwt_queue;    /**< Queue for simple tasks that needn't go through the despatcher. */
+    std::unique_ptr<Project> project;          /**< Owning container for the active Project. */
+    std::unique_ptr<Project> unloaded_project; /**< Owning container for the unloaded Project. */
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

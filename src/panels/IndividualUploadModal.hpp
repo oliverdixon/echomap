@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_INDIVIDUALUPLOADMODAL_HPP
 #define ECHOMAP_INDIVIDUALUPLOADMODAL_HPP
 
+#include <string>
+
 #include "IPanel.hpp"
 
 namespace echomap

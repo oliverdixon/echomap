@@ -120,7 +120,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
 
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::Text("%s", sensor.get_imgui_name());
+            ImGui::TextUnformatted(sensor.get_imgui_name());
 
             Sensor::Position new_position = sensor.position;
             bool position_changed = false;

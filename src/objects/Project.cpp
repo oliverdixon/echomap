@@ -78,11 +78,6 @@ void Project::add_association(
         );
 }
 
-std::size_t Project::get_signal_count() const noexcept
-{
-    return signals.size();
-}
-
 std::size_t Project::get_sensors_count() const noexcept
 {
     return sensors.size();

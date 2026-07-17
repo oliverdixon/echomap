@@ -48,10 +48,13 @@ void SignalWaveformPanel::draw() noexcept
     if (ImGui::Begin(panel_name.c_str())) {
         if (active_project == nullptr)
             ImGui::Text("No project is loaded.");
-        else if (active_project->get_signal_count() > 0 && ImPlot::BeginAlignedPlots("##WaveformAlignedGroup")) {
+        else if (ImPlot::BeginAlignedPlots("##WaveformAlignedGroup")) {
             ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+            bool drawn_any = false;
 
-            for (const auto& signal : active_project->share_signals())
+            for (const auto& signal : active_project->share_loaded_signals()) {
+                drawn_any = true;
+
                 if (const auto* const downsampled = get_downsampled_signal(signal); downsampled == nullptr)
                     ImGui::Text("Loading downsampled variant of %s...", signal->get_imgui_name());
                 else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
@@ -71,9 +74,13 @@ void SignalWaveformPanel::draw() noexcept
 
                     ImPlot::EndPlot();
                 }
+            }
 
             ImPlot::EndAlignedPlots();
             ImPlot::PopStyleColor();
+
+            if (!drawn_any)
+                ImGui::Text("No signals are available.");
         }
     }
 

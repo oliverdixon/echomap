@@ -83,8 +83,6 @@ public:
             Sensor::id_type sensor_id
     );
 
-    [[nodiscard]] size_t get_signal_count() const noexcept;
-
     /**
      * Provides a transformed view for stored Signal objects in the Project.
      *
@@ -109,6 +107,19 @@ public:
     }
 
     /**
+     * Provides a transformed view for stored Signal objects in the Project that are considered fully loaded and ready
+     * for review and manipulation.
+     *
+     * @return A view containing observing references to loaded Signal objects.
+     */
+    [[nodiscard]] auto observe_loaded_signals() const noexcept
+    {
+        return observe_signals() | std::views::filter([](const auto& signal) {
+                   return !signal.observe_source().has_value() || signal.observe_source()->is_loaded;
+               });
+    }
+
+    /**
      * Provides a view of Signal objects detained in shared-ownership containers.
      *
      * @return A view containing mutable sharable references to all stored Signal objects.
@@ -116,6 +127,20 @@ public:
     [[nodiscard]] auto share_signals() const noexcept
     {
         return signals | std::views::values;
+    }
+
+    /**
+     * Provides a view of Signal objects detained in shared-ownership containers by the Project that are considered
+     * fully loaded and ready for review and manipulation.
+     *
+     * @return A view containing mutable sharable references to loaded Signal objects.
+     */
+    [[nodiscard]] auto share_loaded_signals() const noexcept
+    {
+        return share_signals() | std::views::filter([](const auto& signal_ptr) {
+                   return signal_ptr != nullptr &&
+                          (!signal_ptr->observe_source().has_value() || signal_ptr->observe_source()->is_loaded);
+               });
     }
 
     /**
@@ -188,7 +213,7 @@ private:
      * @throws std::runtime_error A Signal with the given ID is not owned by the Project.
      * @throws std::runtime_error A Sensor with the given ID is not owned by the Project.
      */
-    std::optional<std::pair<
+    [[nodiscard]] std::optional<std::pair<
             const Signal&,
             const Sensor&>>
     resolve_pair(

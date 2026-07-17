@@ -27,8 +27,8 @@
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
 #include "panels/SensorGeometryPanel.hpp"
-#include "panels/SignalWaveformPanel.hpp"
 #include "panels/SignalDFTPanel.hpp"
+#include "panels/SignalWaveformPanel.hpp"
 
 #if defined(__EMSCRIPTEN__) and !defined(__EMSCRIPTEN_PTHREADS__)
 #warning "The Emscripten application will be single-threaded."
@@ -103,9 +103,6 @@ EchoMap::EchoMap() :
     panels.push_back(std::make_unique<SensorGeometryPanel>(despatcher, this));
     panels.push_back(std::make_unique<ChannelMappingPanel>(despatcher, this));
     panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
-
-    // TODO remove: test async project load.
-    worker.submit(std::make_unique<LoadProjectTask>("../resources/ExampleProject.json", &worker));
 }
 
 void EchoMap::run_event_loop()
@@ -160,7 +157,7 @@ void EchoMap::update_wav_file(
         const char* const path
 )
 {
-    // worker.submit(std::make_unique<LoadProjectTask>(path)); // TODO
+    worker.submit(std::make_unique<LoadProjectTask>(path, &worker));
 }
 
 GLFWwindow* EchoMap::create_window(
@@ -215,7 +212,23 @@ void EchoMap::setup_subscriptions()
 {
     connections.emplace_back(
             despatcher.load_project_finished_channel.nominate_consumer([this](LoadProjectResult&& result) {
-                put_project(std::move(result).take_project());
+                if (upload_modal.has_value()) {
+                    // How have we loaded a new project whilst we're still querying for sources from another one?
+                    LOG_WARN("Ignoring request to change active Project since there is an active modal.");
+                    return;
+                }
+
+                auto&& new_project = std::move(result).take_project();
+
+                for (const auto& signal : new_project->observe_signals())
+                    if (const auto& source = signal.observe_source(); source.has_value() && !source->is_loaded) {
+                        // Raise the modal to query for the sources.
+                        upload_modal = IndividualUploadModal(new_project.get());
+                        unloaded_project = std::move(new_project);
+                        return;
+                    }
+
+                change_active_project(std::move(new_project));
             })
     );
 
@@ -469,8 +482,10 @@ bool EchoMap::handle_window_resize() noexcept
     return true;
 }
 
-void EchoMap::process_lightweight_tasks() // NOLINT(*-function-size) - Complexity does not appear excessive.
+void EchoMap::process_lightweight_tasks()
 {
+    // TODO monster needs refactor.
+
     while (!lwt_queue.empty()) {
         auto* const task_hint = static_cast<void*>(&lwt_queue.back());
         const auto task_position = lwt_queue.size() - 1;
@@ -524,31 +539,15 @@ void EchoMap::process_worker_results()
         }
 }
 
-void EchoMap::put_project(
+void EchoMap::change_active_project(
         std::unique_ptr<Project> new_project
 ) noexcept
 {
-    if (project != new_project) {
-        /*
-         * We know that the memory addresses differ (i.e. project.get() != new_project.get()). Therefore, there is an
-         * effective difference if and only if:
-         *
-         *  1. The old project is nullptr, thus the new project is non-vacuous;
-         *  2. The old project is non-null, thus the new project is vacuous;
-         *  3. Both the old and new projects are non-null, so we can compare their object IDs.
-         */
-        const auto effectively_different =
-                project == nullptr || new_project == nullptr || project->get_id() != new_project->get_id();
-
-        project = std::move(new_project);
-
-        if (effectively_different && project != nullptr)
-            upload_modal = IndividualUploadModal(project.get()); // TODO just for testing
-    }
+    project = std::move(new_project);
 }
 
 void EchoMap::submit_lightweight_task(
-        LightweightTask task
+        const LightweightTask& task
 )
 {
     lwt_queue.emplace_back(task);

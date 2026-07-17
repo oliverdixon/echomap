@@ -258,7 +258,10 @@ void SignalFactory::load_wave_file_into_channels(
     if (remaining_frames != 0)
         throw ConfigurationError("Cannot read entire WAV file at " + std::string(file_path) + ". Is it corrupted?");
 
-    for (auto* const channel : signal_ptrs)
+    for (auto* const channel : signal_ptrs) {
+        // Assert that any signal being constructed by these means should have an extant FS source.
+        assert(channel->fs_source.has_value());
+        channel->fs_source->is_loaded = true;
         LOG_F_DEBUG(
                 "Loaded signal \"{}\" with {} samples at {} Hz, starting at {} s.",
                 channel->get_name(),
@@ -266,6 +269,7 @@ void SignalFactory::load_wave_file_into_channels(
                 channel->get_sample_rate(),
                 channel->get_time_offset()
         );
+    }
 }
 
 std::unique_ptr<Signal> SignalFactory::lttb_downsample(

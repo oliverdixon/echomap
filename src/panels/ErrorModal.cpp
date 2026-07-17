@@ -52,7 +52,7 @@ void ErrorModal::draw() noexcept
 
     ImGui::OpenPopup("Error!");
     if (ImGui::BeginPopupModal("Error!", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text("%s", prefix.c_str());
+        ImGui::TextUnformatted(prefix.c_str());
         ImGui::Separator();
 
         if (detail.has_value()) {

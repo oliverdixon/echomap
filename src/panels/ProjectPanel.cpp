@@ -18,7 +18,7 @@ ProjectPanel::ProjectPanel(
 ) :
     active_project(initial_project)
 {
-    connections.push_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
+    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
         active_project = result.observe_project();
     }));
 }
@@ -33,12 +33,12 @@ void ProjectPanel::draw() noexcept
         else {
             ImGui::SeparatorText(active_project->get_imgui_name());
             if (ImGui::CollapsingHeader("Signals", default_flags))
-                for (const auto& signal : active_project->observe_signals())
-                    ImGui::Text("%s", signal.get_imgui_name());
+                for (const auto& signal : active_project->observe_loaded_signals())
+                    ImGui::TextUnformatted(signal.get_imgui_name());
 
             if (ImGui::CollapsingHeader("Sensors", default_flags))
                 for (const auto& sensor : active_project->observe_sensors())
-                    ImGui::Text("%s", sensor.get_imgui_name());
+                    ImGui::TextUnformatted(sensor.get_imgui_name());
 
             if (ImGui::CollapsingHeader("Results", default_flags)) {
                 // TODO...

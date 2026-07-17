@@ -3,19 +3,20 @@
 
 #include "JSONDeserialiser.hpp"
 
+#include "../../EchoMap.hpp"
 #include "../../signals/Worker.hpp"
 #include "../../signals/tasks/LoadSignalFileTask.hpp"
 #include "../Project.hpp"
 #include "../Signal.hpp"
 #include "../factories/SignalFactory.hpp"
 
-static echomap::Worker* pending_worker = nullptr;
-
 /**
  * Free helper functions for simdjson customisation points.
  */
 namespace
 {
+
+echomap::Worker* parent_worker = nullptr;
 
 template <typename simdjson_value>
 auto get_root(
@@ -66,7 +67,7 @@ auto get_metadata(
 
 auto get_signals(
         simdjson::ondemand::object& root,
-        const echomap::Project& project,
+        echomap::Project& project, // NOLINT(*-const-correctness)
         std::unordered_map<
                 std::string_view,
                 echomap::Signal::id_type>& loaded
@@ -77,8 +78,16 @@ auto get_signals(
     if (const auto error = root["signals"].get(factories))
         return error;
 
+#ifdef __EMSCRIPTEN__
+    // Step 2 (Wasm).  Add the partially constructed signals to the project to be upload manually later.
+    for (auto factory : factories | std::views::as_rvalue) {
+        if (const auto& signal = factory->observe_signal(); !loaded.emplace(signal.get_name(), signal.get_id()).second)
+            throw std::runtime_error(std::format("Project contains duplicate signal {}.", signal.get_name()));
+        project.add_signal(std::move(factory)->take_signal());
+    }
+#else
     /*
-     * Step 2.  Group the factories by the source filenames of the signals they're constructing.
+     * Step 2 (native).  Group the factories by the source filenames of the signals they're constructing.
      *
      * The key of the map is the source filename, and the value is a bijective correspondence between the channel in the
      * wave file and the factory designated to load the channel at the index.
@@ -120,27 +129,28 @@ auto get_signals(
     }
 
     /*
-     * Step 3.  Once we have the factories grouped by source, and put into the bijective correspondence with the channel
-     * numbers, submit a task to the thread-safe Worker for each distinct file. The task takes ownership of the
-     * factories.
+     * Step 3 (native).  Once we have the factories grouped by source, and put into the bijective correspondence with
+     * the channel numbers, submit a task to the thread-safe Worker for each distinct file. The task takes ownership of
+     * the factories.
      *
      * The results will own the signal objects produced by the factories, which can be added to the project by the
      * EchoMap controller (or whoever is the nominated consumer).
      */
     if (!slots.empty()) {
-        if (pending_worker == nullptr)
+        if (parent_worker == nullptr)
             throw std::runtime_error(
                     std::format(
-                            "Need to despatch extra work to load {}, but no Worker is available.",
+                            "Need to despatch extra work to load {}, but a suitable Worker is unavailable.",
                             project.get_name()
                     )
             );
 
         for (auto&& [file_path, slot_vector] : slots)
-            pending_worker->submit(
+            parent_worker->submit(
                     std::make_unique<echomap::LoadSignalFileTask>(project.get_id(), file_path, std::move(slot_vector))
             );
     }
+#endif
 
     return simdjson::SUCCESS;
 }
@@ -462,7 +472,7 @@ std::unique_ptr<Project> JSONDeserialiser::deserialise_project(
         Worker* const worker
 )
 {
-    pending_worker = worker;
+    parent_worker = worker;
     const auto json = simdjson::padded_string::load(path);
     auto doc = parser.iterate(json);
     auto project = std::make_unique<Project>();
