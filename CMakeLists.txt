@@ -99,6 +99,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/StaticInstanceController.hpp
         src/errors/IgnoredWarning.cpp
         src/errors/IgnoredWarning.hpp
+        src/signals/lightweight/ProjectLoadRequest.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

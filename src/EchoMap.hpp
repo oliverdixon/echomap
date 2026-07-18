@@ -20,6 +20,7 @@
 #include "signals/lightweight/AddChannelMappingTask.hpp"
 #include "signals/lightweight/ModifySensorColourTask.hpp"
 #include "signals/lightweight/ModifySensorPositionTask.hpp"
+#include "signals/lightweight/ProjectLoadRequest.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
@@ -40,7 +41,8 @@ public:
     /**
      * A lightweight task is a trivial message sent exclusively to the EchoMap controller.
      */
-    using LightweightTask = std::variant<AddChannelMappingTask, ModifySensorColourTask, ModifySensorPositionTask>;
+    using LightweightTask =
+            std::variant<AddChannelMappingTask, ModifySensorColourTask, ModifySensorPositionTask, ProjectLoadRequest>;
 
     /**
      * Initialise a EchoMap application instance.
@@ -65,8 +67,6 @@ public:
      * Clean up all persistent state registered by the application instance.
      */
     ~EchoMap() noexcept;
-
-    void update_project(const std::filesystem::path& path);
 
     void change_active_project(std::unique_ptr<Project> new_project) noexcept;
 
@@ -189,6 +189,7 @@ private:
     void handle_lwt(const AddChannelMappingTask& task) const;
     void handle_lwt(const ModifySensorColourTask& task) const;
     void handle_lwt(const ModifySensorPositionTask& task) const;
+    void handle_lwt(const ProjectLoadRequest& task);
 
 #ifdef __EMSCRIPTEN__
 

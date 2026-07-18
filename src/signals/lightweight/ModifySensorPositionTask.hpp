@@ -19,12 +19,11 @@ namespace echomap
  * A lightweight task indicating that the position of Sensor identified by the given ID, in the active Project, should
  * be changed to the detained position.
  */
-class ModifySensorPositionTask
+struct ModifySensorPositionTask
 {
-public:
     explicit ModifySensorPositionTask(
             const Sensor::id_type sensor_id,
-            const Sensor::Position position
+            const Sensor::Position& position
     ) :
         sensor_id(sensor_id),
         position(position)

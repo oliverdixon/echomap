@@ -19,12 +19,11 @@ namespace echomap
  * A lightweight task indicating that the colour of Sensor identified by the given ID, in the active Project, should be
  * changed to the detained colour.
  */
-class ModifySensorColourTask
+struct ModifySensorColourTask
 {
-public:
     explicit ModifySensorColourTask(
             const Sensor::id_type sensor_id,
-            const Sensor::Colour colour
+            const Sensor::Colour& colour
     ) :
         sensor_id(sensor_id),
         colour(colour)

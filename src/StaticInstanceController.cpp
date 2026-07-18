@@ -21,7 +21,9 @@ StaticInstanceController::StaticInstanceController(
         EchoMap& app
 )
 {
-    ActionController::bind(sigc::mem_fun(app, &EchoMap::update_project));
+    ActionController::bind([&app](const std::filesystem::path& path) {
+        app.submit_lightweight_task(ProjectLoadRequest(path));
+    });
 }
 
 StaticInstanceController::~StaticInstanceController() noexcept

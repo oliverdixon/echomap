@@ -36,23 +36,6 @@
 #warning "The Emscripten application will be single-threaded."
 #endif
 
-namespace
-{
-
-template <class T>
-inline constexpr bool lightweight_task_v = std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
-
-template <class T> struct AllLightweightTask : std::false_type
-{};
-
-template <class... Ts>
-struct AllLightweightTask<std::variant<Ts...>> : std::bool_constant<(lightweight_task_v<Ts> && ...)>
-{};
-
-template <class T> inline constexpr bool all_lightweight_task_v = AllLightweightTask<std::remove_cvref_t<T>>::value;
-
-} // namespace
-
 namespace echomap
 {
 
@@ -68,7 +51,6 @@ EchoMap::EchoMap() :
     }},
     dockspace_id(ImHashStr("MainDockSpace"))
 {
-    static_assert(all_lightweight_task_v<LightweightTask>);
     setup_subscriptions();
 
     static constexpr auto timed_wait_any = wgpu::InstanceFeatureName::TimedWaitAny;
@@ -153,13 +135,6 @@ EchoMap::~EchoMap() noexcept
     }
 
     glfwTerminate();
-}
-
-void EchoMap::update_project(
-        const std::filesystem::path& path
-)
-{
-    worker.submit(std::make_unique<LoadProjectTask>(path, &worker));
 }
 
 GLFWwindow* EchoMap::create_window(
@@ -496,6 +471,7 @@ void EchoMap::process_lightweight_tasks()
                 [this](const AddChannelMappingTask& task) { handle_lwt(task); },
                 [this](const ModifySensorColourTask& task) { handle_lwt(task); },
                 [this](const ModifySensorPositionTask& task) { handle_lwt(task); },
+                [this](const ProjectLoadRequest& task) { handle_lwt(task); },
                 },
                 lwt_queue.back()
             );
@@ -555,6 +531,13 @@ void EchoMap::handle_lwt(
         throw IgnoredWarning("Dropping ModifySensorPositionTask due to empty project.");
 
     project->get_mutable_sensor(task.sensor_id).set_position(task.position);
+}
+
+void EchoMap::handle_lwt(
+        const ProjectLoadRequest& task
+)
+{
+    worker.submit(std::make_unique<LoadProjectTask>(task.path, &worker));
 }
 
 void EchoMap::change_active_project(
