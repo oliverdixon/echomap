@@ -20,8 +20,16 @@ namespace echomap
 {
 
 #ifdef __EMSCRIPTEN__
+/**
+ * Provides an ActionControllerBase implementation alias for Emscripten targets.
+ * @ingroup Actions
+ */
 using ActionController = JSActionController;
 #else
+/**
+ * Provides an ActionControllerBase implementation alias for native (non-Emscripten) targets.
+ * @ingroup Actions
+ */
 using ActionController = NativeActionController;
 #endif
 

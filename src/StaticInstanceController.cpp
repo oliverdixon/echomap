@@ -21,12 +21,12 @@ StaticInstanceController::StaticInstanceController(
         EchoMap& app
 )
 {
-    ActionController::rebind(sigc::mem_fun(app, &EchoMap::update_project));
+    ActionController::bind(sigc::mem_fun(app, &EchoMap::update_project));
 }
 
 StaticInstanceController::~StaticInstanceController() noexcept
 {
-    ActionController::rebind();
+    ActionController::unbind();
 }
 
 } // namespace echomap

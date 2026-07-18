@@ -99,12 +99,14 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/StaticInstanceController.hpp
 )
 
-if (EMSCRIPTEN)
+if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     target_sources(DummyTarget PRIVATE
             src/actions/JSActionController.cpp
             src/actions/JSActionController.hpp
     )
-else ()
+endif ()
+
+if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     target_sources(DummyTarget PRIVATE
             src/actions/NativeActionController.cpp
             src/actions/NativeActionController.hpp

@@ -21,6 +21,9 @@
 #include "signals/lightweight/ModifySensorColourTask.hpp"
 #include "signals/lightweight/ModifySensorPositionTask.hpp"
 
+/**
+ * The main EchoMap outermost namespace for all non-exported symbols.
+ */
 namespace echomap
 {
 

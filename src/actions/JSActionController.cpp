@@ -17,8 +17,16 @@
 namespace echomap
 {
 
+#ifndef DOXYGEN_SKIP
+
+// (Doxygen can't handle EM_JS declarations.)
+
 /**
- * @c EM_JS free functions in the @ref echomap::web namespace to generate JavaScript targets.
+ * JavaScript functions to service actions.
+ *
+ * The JS function signatures are defined as @c extern C++ in the @ref echomap::js namespace. They are called using the
+ * standard C++ calling convention from JSActionController member functions, and typically invoke an exported C-linkage
+ * free function as a callback following completion of the action.
  */
 namespace js
 {
@@ -41,6 +49,8 @@ EM_JS(void,
 
 } // namespace js
 
+#endif
+
 void JSActionController::select_project_file_impl()
 {
     js::select_project_file();
@@ -55,6 +65,14 @@ void JSActionController::notify_project_file_impl(
 
 } // namespace echomap
 
+/**
+ * Services the 'Select Project File' callback for Emscripten.
+ *
+ * @param path The file-system path (in the Wasm VFS) selected in the prompt.
+ * @return Zero status to indicate success; non-zero to indicate failure.
+ *
+ * @ingroup ProjectFileAction
+ */
 extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_project_file_picked(
         const char* const path
 ) noexcept
