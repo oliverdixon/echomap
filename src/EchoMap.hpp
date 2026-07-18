@@ -66,19 +66,6 @@ public:
      */
     ~EchoMap() noexcept;
 
-    /**
-     * Indicate to the wave form controllers that a new file has been selected.
-     *
-     * @param project_id Numerical ID of the Project to which the Signal data belongs.
-     * @param signal_id Numerical ID of the Signal to which the data belongs.
-     * @param path Path of the new wave file on the file system.
-     */
-    void update_wav_file_for_existing_signal(
-            size_t project_id,
-            size_t signal_id,
-            const char* path
-    );
-
     void update_project(const std::filesystem::path& path);
 
     void change_active_project(std::unique_ptr<Project> new_project) noexcept;
@@ -198,6 +185,10 @@ private:
      * Handle any unconsumed events from the Worker.
      */
     void process_worker_results();
+
+    void handle_lwt(const AddChannelMappingTask& task) const;
+    void handle_lwt(const ModifySensorColourTask& task) const;
+    void handle_lwt(const ModifySensorPositionTask& task) const;
 
 #ifdef __EMSCRIPTEN__
 

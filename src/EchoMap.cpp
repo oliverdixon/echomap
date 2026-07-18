@@ -21,7 +21,9 @@
 #include "Logger.hpp"
 #include "RobotoMedium.hpp"
 #include "SurfaceFactory.hpp"
+#include "VariantHelpers.hpp"
 #include "errors/ConfigurationError.hpp"
+#include "errors/IgnoredWarning.hpp"
 #include "objects/Project.hpp"
 #include "panels/ChannelMappingPanel.hpp"
 #include "panels/MenuPanel.hpp"
@@ -151,15 +153,6 @@ EchoMap::~EchoMap() noexcept
     }
 
     glfwTerminate();
-}
-
-void EchoMap::update_wav_file_for_existing_signal(
-        const size_t project_id,
-        const size_t signal_id,
-        const char* const path
-)
-{
-    LOG_F_DEBUG("Received request to load {} for {} / {}.", path, project_id, signal_id);
 }
 
 void EchoMap::update_project(
@@ -490,8 +483,6 @@ bool EchoMap::handle_window_resize() noexcept
 
 void EchoMap::process_lightweight_tasks()
 {
-    // TODO monster needs refactor.
-
     while (!lwt_queue.empty()) {
         auto* const task_hint = static_cast<void*>(&lwt_queue.back());
         const auto task_position = lwt_queue.size() - 1;
@@ -499,28 +490,19 @@ void EchoMap::process_lightweight_tasks()
         LOG_F_DEBUG("Consuming LWT with hint {} (#{}).", task_hint, task_position);
 
         try {
-            std::visit(
-                    [this, hint = task_hint, position = task_position]<typename T>(T task) {
-                        if (project == nullptr) {
-                            /*
-                             * Lightweight tasks aren't necessarily dependent on an active project being defined, but
-                             * currently they are...
-                             */
-                            LOG_F_DEBUG("Dropping LWT with hint {} (#{}).", hint, position);
-                            return;
-                        }
 
-                        using TaskT = std::decay_t<T>;
-
-                        if constexpr (std::is_same_v<TaskT, AddChannelMappingTask>)
-                            project->add_association(task.signal_id, task.sensor_id);
-                        else if constexpr (std::is_same_v<TaskT, ModifySensorColourTask>)
-                            project->get_mutable_sensor(task.sensor_id).set_colour(std::move(task.colour));
-                        else if constexpr (std::is_same_v<TaskT, ModifySensorPositionTask>)
-                            project->get_mutable_sensor(task.sensor_id).set_position(std::move(task.position));
-                    },
-                    lwt_queue.back()
+            // clang-format off
+            std::visit(variant_helpers::Overloaded{
+                [this](const AddChannelMappingTask& task) { handle_lwt(task); },
+                [this](const ModifySensorColourTask& task) { handle_lwt(task); },
+                [this](const ModifySensorPositionTask& task) { handle_lwt(task); },
+                },
+                lwt_queue.back()
             );
+            // clang-format on
+
+        } catch (const IgnoredWarning& warning) {
+            LOG_F_WARN("LWT with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
         } catch (const std::exception& exception) {
             error_modal.raise_error(exception.what());
             LOG_F_ERROR(
@@ -543,6 +525,36 @@ void EchoMap::process_worker_results()
         } catch (const std::exception& exception) {
             Logger::log(Logger::Level::Error, exception.what(), std::source_location::current());
         }
+}
+
+void EchoMap::handle_lwt(
+        const AddChannelMappingTask& task
+) const
+{
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping AddChannelMappingTask due to empty project.");
+
+    project->add_association(task.signal_id, task.sensor_id);
+}
+
+void EchoMap::handle_lwt(
+        const ModifySensorColourTask& task
+) const
+{
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping ModifySensorColourTask due to empty project.");
+
+    project->get_mutable_sensor(task.sensor_id).set_colour(task.colour);
+}
+
+void EchoMap::handle_lwt(
+        const ModifySensorPositionTask& task
+) const
+{
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping ModifySensorPositionTask due to empty project.");
+
+    project->get_mutable_sensor(task.sensor_id).set_position(task.position);
 }
 
 void EchoMap::change_active_project(

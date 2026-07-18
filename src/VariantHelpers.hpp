@@ -18,17 +18,41 @@ namespace echomap::variant_helpers
 {
 
 /**
+ * A helper type for succinctly specifying callable visitors over a variant alternative.
+ *
+ * For example,
+ *
+ * @code
+ * std::variant<A, B, C> v;
+ *
+ * // populate v.
+ *
+ * std::visit(Overloaded{
+ *     [](const A&) { handle_a(a); },
+ *     [](const B&) { handle_b(b); },
+ *     [](const C&) { handle_c(c); },
+ * }, v);
+ * @endcode
+ *
+ * Taken from https://cppreference.com/cpp/utility/variant/visit2.
+ *
+ * @tparam Ts Types of callables; deduced implicitly since C++20.
+ */
+template <class... Ts> struct Overloaded : Ts...
+{
+    using Ts::operator()...;
+};
+
+/**
  * Produces an array of human-readable names for selected alternatives of a variant.
  *
  * Given a variant type @c std::variant<A, B, C>, a name getter @c NameGetter, and an index sequence equivalent to
  * @c std::index_sequence<0, 1, 2>, this function returns an array containing:
  *
  * @code
- * {
- *     NameGetter::get<A>(),
- *     NameGetter::get<B>(),
- *     NameGetter::get<C>()
- * }
+ * NameGetter::get<A>(),
+ * NameGetter::get<B>(),
+ * NameGetter::get<C>()
  * @endcode
  *
  * The returned array preserves the alternative ordering of @p Variant. Therefore, the name at position @f$ i @f$
