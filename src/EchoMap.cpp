@@ -474,6 +474,7 @@ void EchoMap::process_lightweight_tasks()
                 [this](const ModifySensorPositionTask& task) { handle_lwt(task); },
                 [this](const ProjectLoadRequest& task) { handle_lwt(task); },
                 [this](const WaveFileLoadRequest& task) { handle_lwt(task); },
+                [this](const WaveFilePreloadNotification& task) { handle_lwt(task); },
                 },
                 lwt_queue.back()
             );
@@ -593,6 +594,43 @@ void EchoMap::handle_lwt(
     // Create a worker task to load the wave file, providing the factories.
 
     worker.submit(std::make_unique<LoadSignalFileTask>(project->get_id(), task.path.string(), std::move(factories)));
+}
+
+void EchoMap::handle_lwt(
+        const WaveFilePreloadNotification& task
+) const
+{
+    // Validate that we have correct project loaded.
+
+    if (unloaded_project == nullptr)
+        throw IgnoredWarning("Dropping WaveFileLoadRequest due to empty unloaded project.");
+
+    if (unloaded_project->get_id() != task.project_id)
+        throw IgnoredWarning(
+                std::format(
+                        "Dropping WaveFileLoadRequest due to incorrect unloaded project: requested {}, but have {}.",
+                        task.project_id,
+                        unloaded_project->get_id()
+                )
+        );
+
+    const auto factory_it = unloaded_project->unloaded_signals.find(task.signal_id);
+
+    if (factory_it == unloaded_project->unloaded_signals.end() || factory_it->second == nullptr)
+        throw std::runtime_error(
+                std::format(
+                        "Refusing WaveFilePreloadNotification due to referencing factory for signal ID {} which is not "
+                        "held by the {}.",
+                        task.signal_id,
+                        unloaded_project->get_name()
+                )
+        );
+
+    const auto source = factory_it->second->observe_signal().observe_source();
+    assert(source.has_value()); // It is an invariant that any signal in the unloaded map is externally sourced.
+
+    // Update the project's real path.
+    factory_it->second->update_source(task.path);
 }
 
 void EchoMap::change_active_project(

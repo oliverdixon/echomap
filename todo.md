@@ -2,15 +2,11 @@
 
 ## Short Term
 
-1. Restore wave file picker as a JS action.
+1. Add project loader dialog as a native action.
 
-2. Support manual mapping of externally sourced signals for Wasm targets.
+2. Add a wave file loader as a native action.
 
-3. Add project loader dialog as a native action.
-
-4. Add a wave file loader as a native action.
-
-5. Merge em-fixes back into master.
+3. Merge em-fixes back into master.
 
 ## Medium/Long Term
 

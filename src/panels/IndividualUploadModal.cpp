@@ -10,6 +10,7 @@
 #include "IndividualUploadModal.hpp"
 
 #include "../Logger.hpp"
+#include "../actions/ActionController.hpp"
 #include "../objects/Project.hpp"
 
 namespace echomap
@@ -42,10 +43,8 @@ void IndividualUploadModal::draw() noexcept
         ImGui::Separator();
 
         ImGui::TextWrapped(
-                "Upload all missing files to complete the mapping, and press Continue. Selecting Postpone will continue"
-                " to load the project, but signals and channel mappings will be unavailable until all uploads are "
-                "complete.\n\nCancelling the operation will abort the load and revert back to the previously loaded "
-                "project, if any."
+                "Upload all missing files to complete the mapping, and press Continue.\n\nCancelling the operation "
+                "will abort the load and revert back to the previously loaded project, if applicable."
         );
 
         ImGui::Spacing();
@@ -67,18 +66,16 @@ void IndividualUploadModal::draw() noexcept
                     continue;
                 }
 
+                const auto& partial_signal = factory->observe_signal();
+
                 ImGui::PushID(static_cast<int>(row_entry++));
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
 
-#if 0 // TODO
                 if (ImGui::Button("Upload"))
-                    web::JSBridge::open_wav_file_chooser_for_existing_signal(project->get_id(), factory.get_id());
-#endif
+                    ActionController::complete_signal_load(project->get_id(), partial_signal.get_id());
 
                 ImGui::TableNextColumn();
-
-                const auto& partial_signal = factory->observe_signal();
 
                 ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
                 ImGui::TextUnformatted(partial_signal.get_imgui_name());
@@ -87,7 +84,9 @@ void IndividualUploadModal::draw() noexcept
                 ImGui::TableNextColumn();
                 ImGui::Text("%ld", partial_signal.observe_source()->channel);
                 ImGui::TableNextColumn();
-                ImGui::Text("Not provided");
+
+                const auto& given_path = partial_signal.observe_source()->real_path;
+                ImGui::TextUnformatted(given_path.has_value() ? given_path->c_str() : "Not provided");
 
                 ImGui::PopID();
             }
@@ -102,11 +101,6 @@ void IndividualUploadModal::draw() noexcept
         constexpr float button_width = 80.0f;
 
         if (ImGui::Button("Cancel", ImVec2(button_width, 0.0f)))
-            ImGui::CloseCurrentPopup();
-
-        ImGui::SameLine();
-
-        if (ImGui::Button("Postpone", ImVec2(button_width, 0.0f)))
             ImGui::CloseCurrentPopup();
 
         ImGui::SameLine();

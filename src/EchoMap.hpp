@@ -22,6 +22,7 @@
 #include "signals/lightweight/ModifySensorPositionTask.hpp"
 #include "signals/lightweight/ProjectLoadRequest.hpp"
 #include "signals/lightweight/WaveFileLoadRequest.hpp"
+#include "signals/lightweight/WaveFilePreloadNotification.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
@@ -48,7 +49,8 @@ public:
             ModifySensorColourTask,
             ModifySensorPositionTask,
             ProjectLoadRequest,
-            WaveFileLoadRequest>;
+            WaveFileLoadRequest,
+            WaveFilePreloadNotification>;
 
     /**
      * Initialise a EchoMap application instance.
@@ -197,6 +199,7 @@ private:
     void handle_lwt(const ModifySensorPositionTask& task) const;
     void handle_lwt(const ProjectLoadRequest& task);
     void handle_lwt(const WaveFileLoadRequest& task);
+    void handle_lwt(const WaveFilePreloadNotification& task) const;
 
 #ifdef __EMSCRIPTEN__
 
