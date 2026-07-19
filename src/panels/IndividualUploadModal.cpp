@@ -25,6 +25,8 @@ IndividualUploadModal::IndividualUploadModal(
 
 void IndividualUploadModal::draw() noexcept
 {
+    // TODO refactor monster.
+
     ImGui::OpenPopup("Upload External Files##UploadExternalModal");
     if (ImGui::BeginPopupModal(
                 "Upload External Files##UploadExternalModal",
@@ -51,6 +53,9 @@ void IndividualUploadModal::draw() noexcept
         ImGui::Separator();
         ImGui::Spacing();
 
+        // The remaining number of signals for which there is no given path in VFS, decremented as we enumerate.
+        auto unmapped_count = project->unloaded_signals.size();
+
         if (ImGui::BeginTable("##UploadTable", 5, table_flags)) {
             ImGui::TableSetupColumn("##UploadButton", ImGuiTableColumnFlags_WidthFixed);
             ImGui::TableSetupColumn("Signal Name", ImGuiTableColumnFlags_WidthStretch);
@@ -60,6 +65,7 @@ void IndividualUploadModal::draw() noexcept
             ImGui::TableHeadersRow();
 
             std::size_t row_entry = 0;
+
             for (const auto& factory : project->unloaded_signals | std::views::values) {
                 if (factory == nullptr || !factory->observe_signal().observe_source().has_value()) {
                     LOG_F_WARN("Received an empty factory on row {}. Is the project corrupted?", row_entry);
@@ -86,7 +92,12 @@ void IndividualUploadModal::draw() noexcept
                 ImGui::TableNextColumn();
 
                 const auto& given_path = partial_signal.observe_source()->real_path;
-                ImGui::TextUnformatted(given_path.has_value() ? given_path->c_str() : "Not provided");
+
+                if (given_path.has_value()) {
+                    ImGui::TextUnformatted(given_path->c_str());
+                    --unmapped_count;
+                } else
+                    ImGui::TextUnformatted("Not provided");
 
                 ImGui::PopID();
             }
@@ -105,8 +116,15 @@ void IndividualUploadModal::draw() noexcept
 
         ImGui::SameLine();
 
-        if (ImGui::Button("Continue", ImVec2(button_width, 0.0f)))
-            ImGui::CloseCurrentPopup();
+        if (unmapped_count == 0) {
+            if (ImGui::Button("Continue", ImVec2(button_width, 0.0f)))
+                ImGui::CloseCurrentPopup();
+        } else {
+            ImGui::BeginDisabled();
+            ImGui::Button("Continue", ImVec2(button_width, 0.0f));
+            ImGui::SetItemTooltip("To continue, provide mappings for all unloaded externally sourced signals.");
+            ImGui::EndDisabled();
+        }
 
         ImGui::PopID();
         ImGui::EndPopup();
