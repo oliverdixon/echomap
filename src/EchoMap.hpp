@@ -18,9 +18,15 @@
 #include "signals/Worker.hpp"
 #include "signals/WorkerResultDespatcher.hpp"
 #include "signals/lightweight/AddChannelMappingTask.hpp"
+#include "signals/lightweight/CompleteProjectLoadNotification.hpp"
 #include "signals/lightweight/ModifySensorColourTask.hpp"
 #include "signals/lightweight/ModifySensorPositionTask.hpp"
+#include "signals/lightweight/ProjectLoadRequest.hpp"
+#include "signals/lightweight/RegisterVFSMappingNotification.hpp"
 
+/**
+ * The main EchoMap outermost namespace for all non-exported symbols.
+ */
 namespace echomap
 {
 
@@ -37,7 +43,14 @@ public:
     /**
      * A lightweight task is a trivial message sent exclusively to the EchoMap controller.
      */
-    using LightweightTask = std::variant<AddChannelMappingTask, ModifySensorColourTask, ModifySensorPositionTask>;
+    using LightweightTask =
+            std::variant<
+            AddChannelMappingTask,
+            ModifySensorColourTask,
+            ModifySensorPositionTask,
+            ProjectLoadRequest,
+            CompleteProjectLoadNotification,
+            RegisterVFSMappingNotification>;
 
     /**
      * Initialise a EchoMap application instance.
@@ -62,13 +75,6 @@ public:
      * Clean up all persistent state registered by the application instance.
      */
     ~EchoMap() noexcept;
-
-    /**
-     * Indicate to the wave form controllers that a new file has been selected.
-     *
-     * @param path Path of the new wave file on the file system.
-     */
-    void update_wav_file(const char* path);
 
     void change_active_project(std::unique_ptr<Project> new_project) noexcept;
 
@@ -187,6 +193,13 @@ private:
      * Handle any unconsumed events from the Worker.
      */
     void process_worker_results();
+
+    void handle_lwt(const AddChannelMappingTask& task) const;
+    void handle_lwt(const ModifySensorColourTask& task) const;
+    void handle_lwt(const ModifySensorPositionTask& task) const;
+    void handle_lwt(const ProjectLoadRequest& task);
+    void handle_lwt(const CompleteProjectLoadNotification& task);
+    void handle_lwt(const RegisterVFSMappingNotification& task) const;
 
 #ifdef __EMSCRIPTEN__
 

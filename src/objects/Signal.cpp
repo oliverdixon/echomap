@@ -27,6 +27,16 @@ Signal::Signal(
 {
 }
 
+bool Signal::Source::operator<(
+        const Source& other
+) const
+{
+    if (channel < other.channel)
+        return true;
+
+    return path < other.path;
+}
+
 std::uint64_t Signal::get_sample_count() const noexcept
 {
     return samples.size();

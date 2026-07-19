@@ -42,7 +42,10 @@ if (ECHOMAP_BUILD_APPLICATION)
         # Emscripten. Auxiliary web-side files are copied into the output directory when changed.
         set(web_sources_root "${CMAKE_CURRENT_SOURCE_DIR}/src/web/")
         set(web_shell "${web_sources_root}/shell.html")
-        set(web_extra "${web_sources_root}/shell.css")
+        set(web_extra
+                "${web_sources_root}/shell.css"
+                "${web_sources_root}/module.js"
+        )
 
         target_sources(EchoMap PRIVATE
                 "${web_shell}"
@@ -66,12 +69,21 @@ if (ECHOMAP_BUILD_APPLICATION)
                 $<$<CONFIG:Debug,RelWithDebInfo>:-g>
         )
 
+        # List of C-linkage functions to be exported for use with ccall in the JS Module.
+        set(exported_functions
+                _main
+                _echomap_on_project_file_picked
+                _echomap_on_register_vfs_mapping
+        )
+
+        list(JOIN exported_functions "," exported_functions_js_argument)
+
         target_link_options(EchoMap PRIVATE
                 "-fwasm-exceptions"
                 "-sJSPI"
                 "-sUSE_GLFW=3"
                 "-sFORCE_FILESYSTEM=1"
-                "-sEXPORTED_FUNCTIONS=['_main','_echomap_on_wav_file_picked']"
+                "-sEXPORTED_FUNCTIONS=${exported_functions_js_argument}"
                 "-sEXPORTED_RUNTIME_METHODS=['FS','ccall']"
                 "-pthread"
                 "-sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency"

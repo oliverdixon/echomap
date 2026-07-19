@@ -28,6 +28,38 @@ SignalFactory::SignalFactory() :
 {
 }
 
+bool SignalFactory::operator==(
+        const SignalFactory& other
+) const
+{
+    if (target.get() == other.target.get())
+        return true;
+
+    if (target == nullptr)
+        return false; // We're null; the other isn't.
+
+    if (other.target == nullptr)
+        return false; // The other is null; we're not.
+
+    // Safe to dereference; compare by IDs.
+    return *target == *other.target;
+}
+
+bool SignalFactory::operator<(
+        const SignalFactory& other
+) const
+{
+    if (target == nullptr || other.target == nullptr || !target->observe_source().has_value() ||
+        !other.target->observe_source().has_value())
+        return false;
+
+    // Safe to deference; attempt to compare by channel and then path.
+    const auto& us = *target->observe_source(); // NOLINT(*-identifier-length)
+    const auto& them = *target->observe_source();
+
+    return us < them;
+}
+
 std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
         const char* const file_path
 )
@@ -77,7 +109,7 @@ void SignalFactory::load_wave_file(
     if (drwav_init_file(&drwav_info, file_path, nullptr) == 0u)
         throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
 
-    assert(channel_factories.size() >= drwav_info.channels);
+    assert(drwav_info.channels >= channel_factories.size());
 
     try {
         /*
@@ -87,9 +119,15 @@ void SignalFactory::load_wave_file(
          * mutating signal pointers, accessible to us as private member variables.
          */
         std::vector<Signal*> channels;
-        channels.reserve(channel_factories.size());
-        for (auto* const factory : channel_factories)
-            channels.push_back(factory->target == nullptr ? nullptr : factory->target.get());
+        channels.resize(drwav_info.channels, nullptr);
+
+        std::size_t channel_idx = 0;
+        for (const auto* const factory : channel_factories) {
+            if (factory != nullptr && factory->target != nullptr)
+                channels[channel_idx] = factory->target.get();
+            ++channel_idx;
+        }
+
         load_wave_file_into_channels(drwav_info, file_path, channels);
     } catch (const std::runtime_error&) {
         drwav_uninit(&drwav_info);
@@ -258,7 +296,7 @@ void SignalFactory::load_wave_file_into_channels(
     if (remaining_frames != 0)
         throw ConfigurationError("Cannot read entire WAV file at " + std::string(file_path) + ". Is it corrupted?");
 
-    for (auto* const channel : signal_ptrs) {
+    for (auto* const channel : signal_ptrs | std::views::filter([](auto ptr) { return ptr; })) {
         // Assert that any signal being constructed by these means should have an extant FS source.
         assert(channel->fs_source.has_value());
         channel->fs_source->is_loaded = true;

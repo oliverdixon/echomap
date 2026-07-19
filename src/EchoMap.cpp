@@ -21,7 +21,9 @@
 #include "Logger.hpp"
 #include "RobotoMedium.hpp"
 #include "SurfaceFactory.hpp"
+#include "VariantHelpers.hpp"
 #include "errors/ConfigurationError.hpp"
+#include "errors/IgnoredWarning.hpp"
 #include "objects/Project.hpp"
 #include "panels/ChannelMappingPanel.hpp"
 #include "panels/MenuPanel.hpp"
@@ -29,27 +31,11 @@
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalDFTPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
+#include "signals/tasks/LoadSignalFileTask.hpp"
 
 #if defined(__EMSCRIPTEN__) and !defined(__EMSCRIPTEN_PTHREADS__)
 #warning "The Emscripten application will be single-threaded."
 #endif
-
-namespace
-{
-
-template <class T>
-inline constexpr bool lightweight_task_v = std::is_trivially_copyable_v<T> && std::is_standard_layout_v<T>;
-
-template <class T> struct AllLightweightTask : std::false_type
-{};
-
-template <class... Ts>
-struct AllLightweightTask<std::variant<Ts...>> : std::bool_constant<(lightweight_task_v<Ts> && ...)>
-{};
-
-template <class T> inline constexpr bool all_lightweight_task_v = AllLightweightTask<std::remove_cvref_t<T>>::value;
-
-} // namespace
 
 namespace echomap
 {
@@ -66,7 +52,6 @@ EchoMap::EchoMap() :
     }},
     dockspace_id(ImHashStr("MainDockSpace"))
 {
-    static_assert(all_lightweight_task_v<LightweightTask>);
     setup_subscriptions();
 
     static constexpr auto timed_wait_any = wgpu::InstanceFeatureName::TimedWaitAny;
@@ -153,13 +138,6 @@ EchoMap::~EchoMap() noexcept
     glfwTerminate();
 }
 
-void EchoMap::update_wav_file(
-        const char* const path
-)
-{
-    worker.submit(std::make_unique<LoadProjectTask>(path, &worker));
-}
-
 GLFWwindow* EchoMap::create_window(
         // ReSharper disable once CppDFAConstantParameter
         const int width,
@@ -220,29 +198,35 @@ void EchoMap::setup_subscriptions()
 
                 auto&& new_project = std::move(result).take_project();
 
-                for (const auto& signal : new_project->observe_signals())
-                    if (const auto& source = signal.observe_source(); source.has_value() && !source->is_loaded) {
-                        // Raise the modal to query for the sources.
-                        upload_modal = IndividualUploadModal(new_project.get());
-                        unloaded_project = std::move(new_project);
-                        return;
-                    }
-
-                change_active_project(std::move(new_project));
+                if (!new_project->unloaded_signals.empty()) {
+                    // Raise the modal to query for the sources.
+                    upload_modal = IndividualUploadModal(this, new_project.get());
+                    unloaded_project = std::move(new_project);
+                } else
+                    change_active_project(std::move(new_project));
             })
     );
 
     connections.emplace_back(
             despatcher.load_signal_file_channel.nominate_consumer([this](LoadSignalFileResult&& result) {
-                if (project != nullptr && project->get_id() == result.get_project_id())
-                    for (auto&& signals = std::move(result).take_signals(); auto signal : signals)
-                        project->add_signal(std::move(signal));
-                else
+                Project* target = nullptr;
+                if (project != nullptr && result.get_project_id() == project->get_id())
+                    target = project.get();
+                else if (unloaded_project != nullptr && result.get_project_id() == unloaded_project->get_id())
+                    target = unloaded_project.get();
+
+                if (target == nullptr)
                     LOG_F_WARN(
-                            "Dropping LoadSignalFileResult which was intended for the non-active {} with ID {}.",
-                            Project::get_class_name(),
+                            "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
                             result.get_project_id()
                     );
+                else {
+                    for (auto&& signals = std::move(result).take_signals(); auto signal : signals)
+                        target->add_signal(std::move(signal));
+
+                    if (target == unloaded_project.get())
+                        change_active_project(std::move(unloaded_project));
+                }
             })
     );
 
@@ -484,8 +468,6 @@ bool EchoMap::handle_window_resize() noexcept
 
 void EchoMap::process_lightweight_tasks()
 {
-    // TODO monster needs refactor.
-
     while (!lwt_queue.empty()) {
         auto* const task_hint = static_cast<void*>(&lwt_queue.back());
         const auto task_position = lwt_queue.size() - 1;
@@ -493,28 +475,22 @@ void EchoMap::process_lightweight_tasks()
         LOG_F_DEBUG("Consuming LWT with hint {} (#{}).", task_hint, task_position);
 
         try {
-            std::visit(
-                    [this, hint = task_hint, position = task_position]<typename T>(T task) {
-                        if (project == nullptr) {
-                            /*
-                             * Lightweight tasks aren't necessarily dependent on an active project being defined, but
-                             * currently they are...
-                             */
-                            LOG_F_DEBUG("Dropping LWT with hint {} (#{}).", hint, position);
-                            return;
-                        }
 
-                        using TaskT = std::decay_t<T>;
-
-                        if constexpr (std::is_same_v<TaskT, AddChannelMappingTask>)
-                            project->add_association(task.signal_id, task.sensor_id);
-                        else if constexpr (std::is_same_v<TaskT, ModifySensorColourTask>)
-                            project->get_mutable_sensor(task.sensor_id).set_colour(std::move(task.colour));
-                        else if constexpr (std::is_same_v<TaskT, ModifySensorPositionTask>)
-                            project->get_mutable_sensor(task.sensor_id).set_position(std::move(task.position));
-                    },
-                    lwt_queue.back()
+            // clang-format off
+            std::visit(variant_helpers::Overloaded{
+                [this](const AddChannelMappingTask& task) { handle_lwt(task); },
+                [this](const ModifySensorColourTask& task) { handle_lwt(task); },
+                [this](const ModifySensorPositionTask& task) { handle_lwt(task); },
+                [this](const ProjectLoadRequest& task) { handle_lwt(task); },
+                [this](const CompleteProjectLoadNotification& task) { handle_lwt(task); },
+                [this](const RegisterVFSMappingNotification& task) { handle_lwt(task); },
+                },
+                lwt_queue.back()
             );
+            // clang-format on
+
+        } catch (const IgnoredWarning& warning) {
+            LOG_F_WARN("LWT with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
         } catch (const std::exception& exception) {
             error_modal.raise_error(exception.what());
             LOG_F_ERROR(
@@ -539,10 +515,119 @@ void EchoMap::process_worker_results()
         }
 }
 
+void EchoMap::handle_lwt(
+        const AddChannelMappingTask& task
+) const
+{
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping AddChannelMappingTask due to empty project.");
+
+    project->add_association(task.signal_id, task.sensor_id);
+}
+
+void EchoMap::handle_lwt(
+        const ModifySensorColourTask& task
+) const
+{
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping ModifySensorColourTask due to empty project.");
+
+    project->get_mutable_sensor(task.sensor_id).set_colour(task.colour);
+}
+
+void EchoMap::handle_lwt(
+        const ModifySensorPositionTask& task
+) const
+{
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping ModifySensorPositionTask due to empty project.");
+
+    project->get_mutable_sensor(task.sensor_id).set_position(task.position);
+}
+
+void EchoMap::handle_lwt(
+        const ProjectLoadRequest& task
+)
+{
+    worker.submit(std::make_unique<LoadProjectTask>(task.path, &worker));
+}
+
+void EchoMap::handle_lwt(
+        const CompleteProjectLoadNotification& task
+)
+{
+    upload_modal.reset();
+
+    // Validate that we have correct project loaded.
+
+    if (unloaded_project == nullptr)
+        throw IgnoredWarning("Dropping CompleteProjectLoadNotification due to empty unloaded project.");
+
+    if (unloaded_project->get_id() != task.project_id)
+        throw IgnoredWarning(
+                std::format(
+                        "Dropping CompleteProjectLoadNotification due to incorrect unloaded project: requested {}, but "
+                        "have {}.",
+                        task.project_id,
+                        unloaded_project->get_id()
+                )
+        );
+
+    // For each group, create a worker task to load the corresponding file.
+
+    for (auto&& [vfs_path, factories] :
+         unloaded_project->unloaded_signals | std::views::values | std::views::as_rvalue) {
+
+        if (!vfs_path.has_value())
+            throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
+
+        worker.submit(
+                std::make_unique<LoadSignalFileTask>(unloaded_project->get_id(), *vfs_path, std::move(factories))
+        );
+    }
+}
+
+void EchoMap::handle_lwt(
+        const RegisterVFSMappingNotification& task
+) const
+{
+    // Validate that we have correct project loaded.
+
+    if (unloaded_project == nullptr)
+        throw IgnoredWarning("Dropping RegisterVFSMappingNotification due to empty unloaded project.");
+
+    if (unloaded_project->get_id() != task.project_id)
+        throw IgnoredWarning(
+                std::format(
+                        "Dropping RegisterVFSMappingNotification due to incorrect unloaded project: requested {}, but "
+                        "have {}.",
+                        task.project_id,
+                        unloaded_project->get_id()
+                )
+        );
+
+    // Add it.
+
+    const auto map_it = unloaded_project->unloaded_signals.find(task.external);
+
+    if (map_it == unloaded_project->unloaded_signals.end())
+        throw IgnoredWarning(
+                std::format(
+                        "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
+                        task.external.c_str()
+                )
+        );
+
+    map_it->second.first = task.internal;
+}
+
 void EchoMap::change_active_project(
         std::unique_ptr<Project> new_project
 ) noexcept
 {
+    if (new_project != nullptr)
+        LOG_F_DEBUG("Changing active project to {}.", new_project->get_name());
+
     project = std::move(new_project);
 }
 

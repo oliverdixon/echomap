@@ -1,11 +1,23 @@
 # TODO
 
+## Short Term
+
+1. Rename LWTs to notifications (and write docs to indicate who sends what where).
+
+2. Use the ImGui DockBuilder API to configure a sane default panel configuration:
+   https://github.com/ocornut/imgui/wiki/Docking#programmatically-setting-up-docking-layout-dockbuider-api
+
+3. Harden! Doxygen where necessary, remove incorrect exception specifications, and verify dereferencing behaviour.
+
+4. Add project loader dialog as a native action.
+
+5. Add a wave file loader as a native action.
+
+6. Resolve TODOs in code. 
+
+## Medium/Long Term
+
 *In no particular order...*
-
-* Rename LWTs to notifications.
-
-* Use the ImGui DockBuilder API to configure a sane default panel configuration:
-  https://github.com/ocornut/imgui/wiki/Docking#programmatically-setting-up-docking-layout-dockbuider-api
 
 * Add an autocorrelation panel. Or maybe just an option on the existing DFT panel and rename it something like
   "Spectrum Analyzer"? These algorithms will be required for the SRP-PHAT anyway.

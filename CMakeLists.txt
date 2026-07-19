@@ -19,8 +19,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/errors/ConfigurationError.hpp
         src/objects/factories/SignalFactory.cpp
         src/objects/factories/SignalFactory.hpp
-        src/web/JSBridge.cpp
-        src/web/JSBridge.hpp
         src/objects/Signal.cpp
         src/objects/Signal.hpp
         src/objects/Sensor.cpp
@@ -95,7 +93,30 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/signals/results/LoadSignalFileResult.hpp
         src/panels/IndividualUploadModal.cpp
         src/panels/IndividualUploadModal.hpp
+        src/actions/ActionController.hpp
+        src/actions/ActionControllerBase.hpp
+        src/StaticInstanceController.cpp
+        src/StaticInstanceController.hpp
+        src/errors/IgnoredWarning.cpp
+        src/errors/IgnoredWarning.hpp
+        src/signals/lightweight/ProjectLoadRequest.hpp
+        src/signals/lightweight/CompleteProjectLoadNotification.hpp
+        src/signals/lightweight/RegisterVFSMappingNotification.hpp
 )
+
+if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
+    target_sources(DummyTarget PRIVATE
+            src/actions/JSActionController.cpp
+            src/actions/JSActionController.hpp
+    )
+endif ()
+
+if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
+    target_sources(DummyTarget PRIVATE
+            src/actions/NativeActionController.cpp
+            src/actions/NativeActionController.hpp
+    )
+endif ()
 
 get_target_property(ECHOMAP_SOURCES DummyTarget SOURCES)
 

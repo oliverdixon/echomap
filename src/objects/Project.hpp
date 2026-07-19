@@ -8,6 +8,7 @@
 #include <implot3d.h>
 
 #include <flat_map>
+#include <map>
 #include <memory>
 #include <ranges>
 #include <string_view>
@@ -15,6 +16,7 @@
 #include "BidirectionalUnorderedMapping.hpp"
 #include "Sensor.hpp"
 #include "Signal.hpp"
+#include "factories/SignalFactory.hpp"
 
 namespace echomap
 {
@@ -25,6 +27,19 @@ class Project : public Object<Project>
     std::flat_map<Sensor::id_type, std::unique_ptr<Sensor>> sensors;
 
 public:
+    /**
+     * Provides a mapping between stated paths of externally sourced signals, and paths in the WebAssembly VFS.
+     *
+     * The key indicates the path of the referenced file. The value composes an optional mapping of the corresponding
+     * path in the VFS and a channel map of factories responsible for constructing the Signal of the file channel.
+     *
+     * @todo make private
+     */
+    std::map<
+            std::filesystem::path,
+            std::pair<std::optional<std::filesystem::path>, std::vector<std::unique_ptr<SignalFactory>>>>
+            unloaded_signals;
+
     /**
      * Creates a new named Project.
      *
@@ -107,19 +122,6 @@ public:
     }
 
     /**
-     * Provides a transformed view for stored Signal objects in the Project that are considered fully loaded and ready
-     * for review and manipulation.
-     *
-     * @return A view containing observing references to loaded Signal objects.
-     */
-    [[nodiscard]] auto observe_loaded_signals() const noexcept
-    {
-        return observe_signals() | std::views::filter([](const auto& signal) {
-                   return !signal.observe_source().has_value() || signal.observe_source()->is_loaded;
-               });
-    }
-
-    /**
      * Provides a view of Signal objects detained in shared-ownership containers.
      *
      * @return A view containing mutable sharable references to all stored Signal objects.
@@ -127,20 +129,6 @@ public:
     [[nodiscard]] auto share_signals() const noexcept
     {
         return signals | std::views::values;
-    }
-
-    /**
-     * Provides a view of Signal objects detained in shared-ownership containers by the Project that are considered
-     * fully loaded and ready for review and manipulation.
-     *
-     * @return A view containing mutable sharable references to loaded Signal objects.
-     */
-    [[nodiscard]] auto share_loaded_signals() const noexcept
-    {
-        return share_signals() | std::views::filter([](const auto& signal_ptr) {
-                   return signal_ptr != nullptr &&
-                          (!signal_ptr->observe_source().has_value() || signal_ptr->observe_source()->is_loaded);
-               });
     }
 
     /**
