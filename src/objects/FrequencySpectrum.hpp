@@ -41,6 +41,9 @@ private:
     std::vector<Bin> bins;
 
 public:
+    /**
+     * @todo Private
+     */
     WindowFunctions::AllFunctions preprocessor;
 
     [[nodiscard]] decltype(bins)::const_iterator begin() const;

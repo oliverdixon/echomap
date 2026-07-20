@@ -11,6 +11,7 @@
 #define ECHOMAP_WORKERRESULTDESPATCHER_HPP
 
 #include "ResultChannel.hpp"
+#include "results/WorkerResult.hpp"
 #include "tasks/ITask.hpp"
 
 namespace echomap

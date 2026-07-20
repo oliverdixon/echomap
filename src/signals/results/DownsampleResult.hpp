@@ -12,10 +12,12 @@
 
 #include <memory>
 
-#include "../../objects/Signal.hpp"
+#include "../../objects/IDAllocator.hpp"
 
 namespace echomap
 {
+
+class Signal;
 
 /**
  * Denotes a completed for a downsampled Signal produced by a DownsampleTask job.
@@ -33,7 +35,7 @@ public:
     [[nodiscard]] id_type get_source_id() const noexcept;
 
 private:
-    const id_type source_id;
+    id_type source_id;
     std::unique_ptr<Signal> downsampled;
 };
 

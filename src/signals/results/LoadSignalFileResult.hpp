@@ -10,14 +10,19 @@
 #ifndef ECHOMAP_LOADSIGNALFILERESULT_HPP
 #define ECHOMAP_LOADSIGNALFILERESULT_HPP
 
-#include "../../objects/Project.hpp"
-#include "../../objects/Signal.hpp"
+#include <memory>
+#include <ranges>
+#include <vector>
+
+#include "../../objects/IDAllocator.hpp"
 
 namespace echomap
 {
 
+class Signal;
+
 /**
- *
+ * @todo Document.
  */
 class LoadSignalFileResult
 {

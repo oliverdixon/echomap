@@ -9,6 +9,8 @@
 
 #include "DFTResult.hpp"
 
+#include "../../objects/FrequencySpectrum.hpp"
+
 namespace echomap
 {
 

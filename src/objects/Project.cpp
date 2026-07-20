@@ -7,6 +7,8 @@
 #include <format>
 
 #include "Sensor.hpp"
+#include "Signal.hpp"
+#include "factories/SignalFactory.hpp"
 
 namespace echomap
 {

@@ -7,6 +7,7 @@
 
 #include <implot3d.h>
 
+#include <filesystem>
 #include <flat_map>
 #include <map>
 #include <memory>
@@ -14,12 +15,14 @@
 #include <string_view>
 
 #include "BidirectionalUnorderedMapping.hpp"
-#include "Sensor.hpp"
-#include "Signal.hpp"
-#include "factories/SignalFactory.hpp"
+#include "Object.hpp"
 
 namespace echomap
 {
+
+class Signal;
+class Sensor;
+class SignalFactory;
 
 class Project : public Object<Project>
 {

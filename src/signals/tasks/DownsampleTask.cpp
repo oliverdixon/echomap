@@ -9,6 +9,9 @@
 
 #include "DownsampleTask.hpp"
 
+#include "../../objects/FrequencySpectrum.hpp"
+#include "../../objects/Project.hpp"
+#include "../../objects/Sensor.hpp"
 #include "../../objects/factories/SignalFactory.hpp"
 #include "../results/DownsampleResult.hpp"
 

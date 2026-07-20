@@ -9,6 +9,8 @@
 
 #include "DownsampleResult.hpp"
 
+#include "../../objects/Signal.hpp"
+
 namespace echomap
 {
 

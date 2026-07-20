@@ -9,6 +9,8 @@
 
 #include "LoadSignalFileResult.hpp"
 
+#include "../../objects/Signal.hpp"
+
 namespace echomap
 {
 

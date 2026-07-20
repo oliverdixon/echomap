@@ -10,11 +10,15 @@
 #ifndef ECHOMAP_DFTRESULT_HPP
 #define ECHOMAP_DFTRESULT_HPP
 
-#include "../../objects/FrequencySpectrum.hpp"
-#include "../../objects/Signal.hpp"
+#include <memory>
+
+#include "../../objects/IDAllocator.hpp"
 
 namespace echomap
 {
+
+class FrequencySpectrum;
+class Signal;
 
 /**
  * Denotes a completed DFT computation from a DFTTask.
@@ -34,9 +38,9 @@ public:
     [[nodiscard]] std::size_t get_transform_size() const noexcept;
 
 private:
-    const id_type source_id;
+    id_type source_id;
     std::unique_ptr<FrequencySpectrum> spectrum;
-    const std::size_t transform_size;
+    std::size_t transform_size;
 };
 
 } // namespace echomap

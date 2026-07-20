@@ -107,6 +107,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/notifications/AddChannelMappingNotification.cpp
         src/notifications/ModifySensorPositionNotification.cpp
         src/notifications/ModifySensorColourNotification.cpp
+        src/signals/results/WorkerResult.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
