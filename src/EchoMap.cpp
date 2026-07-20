@@ -522,9 +522,7 @@ void EchoMap::handle_notification(
         const AddChannelMappingNotification& task
 ) const
 {
-    if (project == nullptr)
-        throw IgnoredWarning("Dropping AddChannelMappingTask due to empty project.");
-
+    task.verify_project(project.get());
     project->add_association(task.signal_id, task.sensor_id);
 }
 
@@ -532,9 +530,7 @@ void EchoMap::handle_notification(
         const ModifySensorColourNotification& task
 ) const
 {
-    if (project == nullptr)
-        throw IgnoredWarning("Dropping ModifySensorColourTask due to empty project.");
-
+    task.verify_project(project.get());
     project->get_mutable_sensor(task.sensor_id).set_colour(task.colour);
 }
 
@@ -542,9 +538,7 @@ void EchoMap::handle_notification(
         const ModifySensorPositionNotification& task
 ) const
 {
-    if (project == nullptr)
-        throw IgnoredWarning("Dropping ModifySensorPositionTask due to empty project.");
-
+    task.verify_project(project.get());
     project->get_mutable_sensor(task.sensor_id).set_position(task.position);
 }
 
@@ -559,22 +553,7 @@ void EchoMap::handle_notification(
         const CompleteProjectLoadNotification& task
 )
 {
-    upload_modal.reset();
-
-    // Validate that we have correct project loaded.
-
-    if (unloaded_project == nullptr)
-        throw IgnoredWarning("Dropping CompleteProjectLoadNotification due to empty unloaded project.");
-
-    if (unloaded_project->get_id() != task.project_id)
-        throw IgnoredWarning(
-                std::format(
-                        "Dropping CompleteProjectLoadNotification due to incorrect unloaded project: requested {}, but "
-                        "have {}.",
-                        task.project_id,
-                        unloaded_project->get_id()
-                )
-        );
+    task.verify_project(unloaded_project.get());
 
     // For each group, create a worker task to load the corresponding file.
 
@@ -594,22 +573,7 @@ void EchoMap::handle_notification(
         const RegisterVFSMappingNotification& task
 ) const
 {
-    // Validate that we have correct project loaded.
-
-    if (unloaded_project == nullptr)
-        throw IgnoredWarning("Dropping RegisterVFSMappingNotification due to empty unloaded project.");
-
-    if (unloaded_project->get_id() != task.project_id)
-        throw IgnoredWarning(
-                std::format(
-                        "Dropping RegisterVFSMappingNotification due to incorrect unloaded project: requested {}, but "
-                        "have {}.",
-                        task.project_id,
-                        unloaded_project->get_id()
-                )
-        );
-
-    // Add it.
+    task.verify_project(unloaded_project.get());
 
     const auto map_it = unloaded_project->unloaded_signals.find(task.external);
 

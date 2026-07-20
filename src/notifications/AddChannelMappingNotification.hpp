@@ -33,19 +33,22 @@ struct AddChannelMappingNotification
      * @param sensor_id The ID of the participating Sensor.
      */
     AddChannelMappingNotification(
-            const Project::id_type project_id,
-            const Signal::id_type signal_id,
-            const Sensor::id_type sensor_id
-    ) :
-        project_id(project_id),
-        signal_id(signal_id),
-        sensor_id(sensor_id)
-    {
-    }
+            Project::id_type project_id,
+            Signal::id_type signal_id,
+            Sensor::id_type sensor_id
+    );
+
+    /**
+     * Verify that the given Project matches the intended target.
+     *
+     * @param context The context to which the notification will apply.
+     * @throws IgnoredWarning The notification does not apply to the given context and should be ignored.
+     */
+    void verify_project(const Project* context) const;
 
     Project::id_type project_id; /** The ID of the Project detaining the Signal and Sensor. */
-    Signal::id_type signal_id; /**< The ID of the participating Signal. */
-    Sensor::id_type sensor_id; /**< The ID of the participating Sensor. */
+    Signal::id_type signal_id;   /**< The ID of the participating Signal. */
+    Sensor::id_type sensor_id;   /**< The ID of the participating Sensor. */
 };
 
 } // namespace echomap

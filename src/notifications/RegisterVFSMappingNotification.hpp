@@ -18,7 +18,10 @@ namespace echomap
 /**
  * A notification to indicate a new VFS mapping from an external source.
  *
- * @ingroup Notifications
+ * Produced by the ActionController on RegisterVFSMapping callbacks to indicate a new VFS file mapping has been defined
+ * by the user.
+ *
+ * @ingroup Notifications RegisterVFSMapping
  */
 struct RegisterVFSMappingNotification
 {
@@ -30,15 +33,18 @@ struct RegisterVFSMappingNotification
      * @param internal The path on the internal (accessible) VFS corresponding to the external path.
      */
     RegisterVFSMappingNotification(
-            const Project::id_type project_id,
+            Project::id_type project_id,
             std::filesystem::path external,
             std::filesystem::path internal
-    ) :
-        project_id(project_id),
-        external(std::move(external)),
-        internal(std::move(internal))
-    {
-    }
+    );
+
+    /**
+     * Verify that the given Project matches the intended target.
+     *
+     * @param context The context to which the notification will apply.
+     * @throws IgnoredWarning The notification does not apply to the given context and should be ignored.
+     */
+    void verify_project(const Project* context) const;
 
     Project::id_type project_id;    /**< The ID of the Project to which the mapping relates. */
     std::filesystem::path external; /**< The path on the external file system. */

@@ -101,6 +101,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
             std::array<float, 4> new_colour = {colour.x, colour.y, colour.z, colour.w};
             if (ImGui::ColorEdit4("##colour", new_colour.data(), ImGuiColorEditFlags_NoInputs)) {
                 app->notify(ModifySensorColourNotification(
+                        active_project->get_id(),
                         sensor.get_id(),
                         {
                                 .r = new_colour[0],
@@ -141,7 +142,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
             ++row_idx;
 
             if (position_changed)
-                app->notify(ModifySensorPositionNotification(sensor.get_id(), new_position));
+                app->notify(ModifySensorPositionNotification(active_project->get_id(), sensor.get_id(), new_position));
         }
 
         ImGui::EndTable();

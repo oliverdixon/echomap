@@ -18,6 +18,9 @@ namespace echomap
 /**
  * A notification indicating that a pending Project is ready to be loaded.
  *
+ * Produced by the IndividualUploadModal once the user has prepared a sufficient set of VFS mappings, such that all
+ * externally sourced files are associated with uploads in the WebAssembly VFS.
+ *
  * @ingroup Notifications
  */
 class CompleteProjectLoadNotification
@@ -28,12 +31,15 @@ public:
      *
      * @param project_id The ID of the Project to be loaded.
      */
-    explicit CompleteProjectLoadNotification(
-            const Project::id_type project_id
-    ) :
-        project_id(project_id)
-    {
-    }
+    explicit CompleteProjectLoadNotification(Project::id_type project_id);
+
+    /**
+     * Verify that the given Project matches the intended target.
+     *
+     * @param context The context to which the notification will apply.
+     * @throws IgnoredWarning The notification does not apply to the given context and should be ignored.
+     */
+    void verify_project(const Project* context) const;
 
     Project::id_type project_id; /**< The ID of the Project to be loaded. */
 };

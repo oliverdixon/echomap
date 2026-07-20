@@ -102,6 +102,11 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/notifications/ProjectSelectedNotification.hpp
         src/notifications/CompleteProjectLoadNotification.hpp
         src/notifications/RegisterVFSMappingNotification.hpp
+        src/notifications/RegisterVFSMappingNotification.cpp
+        src/notifications/CompleteProjectLoadNotification.cpp
+        src/notifications/AddChannelMappingNotification.cpp
+        src/notifications/ModifySensorPositionNotification.cpp
+        src/notifications/ModifySensorColourNotification.cpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
