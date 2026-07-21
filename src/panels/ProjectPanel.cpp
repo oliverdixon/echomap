@@ -6,10 +6,11 @@
 
 #include <imgui.h>
 
+#include "../objects/Project.hpp"
+#include "../objects/Sensor.hpp"
+#include "../objects/Signal.hpp"
 #include "../signals/WorkerResultDespatcher.hpp"
 #include "../signals/results/LoadProjectResult.hpp"
-#include "../objects/Signal.hpp"
-#include "../objects/Sensor.hpp"
 
 namespace echomap
 {

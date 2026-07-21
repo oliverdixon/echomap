@@ -11,6 +11,7 @@
 
 #include "../Logger.hpp"
 #include "../objects/Project.hpp"
+#include "../objects/Signal.hpp"
 #include "../signals/Worker.hpp"
 #include "../signals/WorkerResultDespatcher.hpp"
 #include "../signals/results/DownsampleResult.hpp"
@@ -24,6 +25,12 @@ SignalWaveformPanel::SignalWaveformPanel(
         WorkerResultDespatcher& despatcher,
         const Project* const initial_project
 ) :
+    bounding_box{
+            std::numeric_limits<double>::max(),
+            std::numeric_limits<double>::lowest(),
+            Signal::normalised_range.first,
+            Signal::normalised_range.second
+    },
     parent_worker(parent_worker),
     active_project(initial_project)
 {
@@ -37,6 +44,12 @@ SignalWaveformPanel::SignalWaveformPanel(
             sigc::mem_fun(*this, &SignalWaveformPanel::handle_downsampled_result)
     ));
 }
+
+SignalWaveformPanel::~SignalWaveformPanel() noexcept = default;
+
+SignalWaveformPanel::SignalWaveformPanel(SignalWaveformPanel&&) noexcept = default;
+
+SignalWaveformPanel& SignalWaveformPanel::operator=(SignalWaveformPanel&&) noexcept = default;
 
 const char* SignalWaveformPanel::get_imgui_name() const noexcept
 {

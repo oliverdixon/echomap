@@ -25,6 +25,7 @@
 #include "errors/ConfigurationError.hpp"
 #include "errors/IgnoredWarning.hpp"
 #include "objects/Project.hpp"
+#include "objects/Signal.hpp"
 #include "panels/ChannelMappingPanel.hpp"
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
@@ -221,7 +222,8 @@ void EchoMap::setup_subscriptions()
                             result.get_project_id()
                     );
                 else {
-                    for (auto&& signals = std::move(result).take_signals(); auto signal : signals)
+                    for (auto&& signals = std::move(result).take_signals();
+                         auto signal : signals | std::views::as_rvalue)
                         target->add_signal(std::move(signal));
 
                     if (target == unloaded_project.get())

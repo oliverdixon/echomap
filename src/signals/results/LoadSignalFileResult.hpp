@@ -32,10 +32,15 @@ public:
             std::vector<std::unique_ptr<Signal>> loaded_signal
     );
 
-    [[nodiscard]] auto take_signals() && noexcept
-    {
-        return std::move(loaded_signals) | std::views::as_rvalue;
-    }
+    ~LoadSignalFileResult() noexcept;
+
+    LoadSignalFileResult(const LoadSignalFileResult&) = delete;
+    LoadSignalFileResult& operator=(const LoadSignalFileResult&) = delete;
+
+    LoadSignalFileResult(LoadSignalFileResult&&) noexcept;
+    LoadSignalFileResult& operator=(LoadSignalFileResult&&) noexcept;
+
+    [[nodiscard]] std::vector<std::unique_ptr<Signal>> take_signals() && noexcept;
 
     [[nodiscard]] auto observe_signals() const noexcept
     {

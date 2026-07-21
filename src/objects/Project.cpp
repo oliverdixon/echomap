@@ -20,6 +20,8 @@ Project::Project(
 {
 }
 
+Project::~Project() = default;
+
 const Signal* Project::add_signal(
         std::shared_ptr<Signal>&& signal
 )

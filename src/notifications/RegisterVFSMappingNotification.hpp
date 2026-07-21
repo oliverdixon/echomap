@@ -10,10 +10,14 @@
 #ifndef ECHOMAP_REGISTERVFSMAPPINGNOTIFICATION_HPP
 #define ECHOMAP_REGISTERVFSMAPPINGNOTIFICATION_HPP
 
-#include "../objects/Project.hpp"
+#include <filesystem>
+
+#include "../objects/IDAllocator.hpp"
 
 namespace echomap
 {
+
+class Project;
 
 /**
  * A notification to indicate a new VFS mapping from an external source.

@@ -31,7 +31,7 @@ concept SignalFactoryRange =
  * This is most useful in browser (WebAssembly VFS) contexts where the application cannot interrogate the file system
  * directly.
  */
-class IndividualUploadModal : public IPanel
+class IndividualUploadModal final : public IPanel
 {
 public:
     explicit IndividualUploadModal(

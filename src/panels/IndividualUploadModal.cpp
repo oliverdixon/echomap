@@ -12,6 +12,7 @@
 #include "../EchoMap.hpp"
 #include "../actions/ActionController.hpp"
 #include "../objects/Project.hpp"
+#include "../objects/factories/SignalFactory.hpp"
 
 namespace echomap
 {

@@ -32,6 +32,14 @@ public:
             std::size_t transform_size
     );
 
+    ~DFTResult() noexcept;
+
+    DFTResult(const DFTResult&) = delete;
+    DFTResult& operator=(const DFTResult&) = delete;
+
+    DFTResult(DFTResult&&) noexcept;
+    DFTResult& operator=(DFTResult&&) noexcept;
+
     [[nodiscard]] std::unique_ptr<FrequencySpectrum> take_spectrum() && noexcept;
     [[nodiscard]] const FrequencySpectrum* observe_spectrum() const noexcept;
     [[nodiscard]] id_type get_source_id() const noexcept;

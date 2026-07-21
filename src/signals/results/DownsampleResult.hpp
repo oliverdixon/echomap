@@ -30,6 +30,14 @@ public:
             std::unique_ptr<Signal> downsampled
     );
 
+    ~DownsampleResult() noexcept;
+
+    DownsampleResult(const DownsampleResult&) = delete;
+    DownsampleResult& operator=(const DownsampleResult&) = delete;
+
+    DownsampleResult(DownsampleResult&&) noexcept;
+    DownsampleResult& operator=(DownsampleResult&&) noexcept;
+
     [[nodiscard]] std::unique_ptr<Signal> take_downsampled() && noexcept;
     [[nodiscard]] const Signal* observe_downsampled() const noexcept;
     [[nodiscard]] id_type get_source_id() const noexcept;

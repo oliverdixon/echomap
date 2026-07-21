@@ -10,11 +10,13 @@
 #ifndef ECHOMAP_MODIFYSENSORPOSITIONNOTIFICATION_HPP
 #define ECHOMAP_MODIFYSENSORPOSITIONNOTIFICATION_HPP
 
-#include "../objects/Project.hpp"
-#include "../objects/Sensor.hpp"
+#include "../objects/IDAllocator.hpp"
+#include "../objects/Sensor.hpp" // TODO remove.
 
 namespace echomap
 {
+
+class Project;
 
 /**
  * A notification indicating that the position of a Sensor should be changed.

@@ -29,6 +29,8 @@ LoadSignalFileTask::LoadSignalFileTask(
 {
 }
 
+LoadSignalFileTask::~LoadSignalFileTask() noexcept = default;
+
 WorkerResult LoadSignalFileTask::execute_work()
 {
     // Prepare the factories as slots for the loader.

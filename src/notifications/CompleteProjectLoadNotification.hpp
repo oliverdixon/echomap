@@ -10,10 +10,12 @@
 #ifndef ECHOMAP_COMPLETEPROJECTLOADNOTIFICATION_HPP
 #define ECHOMAP_COMPLETEPROJECTLOADNOTIFICATION_HPP
 
-#include "../objects/Project.hpp"
+#include "../objects/IDAllocator.hpp"
 
 namespace echomap
 {
+
+class Project;
 
 /**
  * A notification indicating that a pending Project is ready to be loaded.

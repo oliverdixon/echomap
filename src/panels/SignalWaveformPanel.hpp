@@ -11,14 +11,15 @@
 #include <implot.h>
 #include <sigc++/scoped_connection.h>
 
-#include "../objects/Signal.hpp"
 #include "IPanel.hpp"
+#include "../objects/IDAllocator.hpp"
 
 namespace echomap
 {
 
 class WorkerResultDespatcher;
 class DownsampleResult;
+class Signal;
 class Worker;
 
 /**
@@ -43,6 +44,14 @@ public:
             WorkerResultDespatcher& despatcher,
             const Project* initial_project = nullptr
     );
+
+    ~SignalWaveformPanel() noexcept override;
+
+    SignalWaveformPanel(const SignalWaveformPanel&) = delete;
+    SignalWaveformPanel& operator=(const SignalWaveformPanel&) = delete;
+
+    SignalWaveformPanel(SignalWaveformPanel&&) noexcept;
+    SignalWaveformPanel& operator=(SignalWaveformPanel&&) noexcept;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
@@ -99,12 +108,7 @@ private:
      * The Y axis (amplitude) is fixed, since our PCM-normalised values, given as a constraint from the Signal samples,
      * are within a fixed range. The X range is variable and should be updated as new Signal objects are received.
      */
-    ImPlotRect bounding_box{
-            std::numeric_limits<double>::max(),
-            std::numeric_limits<double>::lowest(),
-            Signal::normalised_range.first,
-            Signal::normalised_range.second
-    };
+    ImPlotRect bounding_box;
 
     std::string panel_name = "Signal Waveform Preview";
     ImPlotSpec plotting_spec_2d;

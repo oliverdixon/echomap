@@ -10,11 +10,13 @@
 #ifndef ECHOMAP_MODIFYSENSORCOLOURTASK_HPP
 #define ECHOMAP_MODIFYSENSORCOLOURTASK_HPP
 
-#include "../objects/Project.hpp"
-#include "../objects/Sensor.hpp"
+#include "../objects/IDAllocator.hpp"
+#include "../objects/Sensor.hpp" // TODO remove.
 
 namespace echomap
 {
+
+class Project;
 
 /**
  * A notification indicating that the colour of a Sensor should be changed.
@@ -48,7 +50,7 @@ struct ModifySensorColourNotification
 
     id_type project_id;    /**< The ID of the Project which owns the updated Sensor. */
     id_type sensor_id;     /**< The ID of the moved Sensor. */
-    Sensor::Colour colour;       /**< The new Colour of the referenced Sensor. */
+    Sensor::Colour colour; /**< The new Colour of the referenced Sensor. */
 };
 
 } // namespace echomap

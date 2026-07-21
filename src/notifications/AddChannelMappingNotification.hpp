@@ -10,12 +10,12 @@
 #ifndef ECHOMAP_ADDCHANNELMAPPINGNOTIFICATION_HPP
 #define ECHOMAP_ADDCHANNELMAPPINGNOTIFICATION_HPP
 
-#include "../objects/Sensor.hpp"
-#include "../objects/Signal.hpp"
-#include "../objects/Project.hpp"
+#include "../objects/IDAllocator.hpp"
 
 namespace echomap
 {
+
+class Project;
 
 /**
  * A notification indicating that a new channel mapping should be established.
@@ -46,7 +46,7 @@ struct AddChannelMappingNotification
      */
     void verify_project(const Project* context) const;
 
-    id_type project_id; /** The ID of the Project detaining the Signal and Sensor. */
+    id_type project_id; /**< The ID of the Project detaining the Signal and Sensor. */
     id_type signal_id;  /**< The ID of the participating Signal. */
     id_type sensor_id;  /**< The ID of the participating Sensor. */
 };

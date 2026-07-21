@@ -21,7 +21,7 @@ namespace echomap
  * Error modals provide a message, an optional detail string derived from an exception, and a single button to dismiss
  * the modal.
  */
-class ErrorModal : public IPanel
+class ErrorModal final : public IPanel
 {
 public:
     /**

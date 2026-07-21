@@ -37,6 +37,12 @@ ErrorResult::ErrorResult(
 {
 }
 
+ErrorResult::~ErrorResult() noexcept = default;
+
+ErrorResult::ErrorResult(ErrorResult&&) noexcept = default;
+
+ErrorResult& ErrorResult::operator=(ErrorResult&&) noexcept = default;
+
 std::string_view ErrorResult::what() const noexcept
 {
     return message;
@@ -51,11 +57,5 @@ const ITask* ErrorResult::observe_responsible_task() const noexcept
 {
     return responsible_task.get();
 }
-
-ErrorResult::~ErrorResult() = default;
-
-ErrorResult::ErrorResult(ErrorResult&&) noexcept = default;
-
-ErrorResult& ErrorResult::operator=(ErrorResult&&) noexcept = default;
 
 } // namespace echomap

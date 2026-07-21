@@ -10,6 +10,7 @@
 #include "RegisterVFSMappingNotification.hpp"
 
 #include "../errors/IgnoredWarning.hpp"
+#include "../objects/Project.hpp"
 
 namespace echomap
 {

@@ -50,6 +50,8 @@ public:
      */
     explicit Project(std::string_view project_name = {});
 
+    ~Project();
+
     /**
      * Transfers ownership of a Signal into the Project.
      *

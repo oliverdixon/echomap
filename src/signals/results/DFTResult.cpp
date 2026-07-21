@@ -26,6 +26,12 @@ DFTResult::DFTResult(
     assert(this->spectrum != nullptr);
 }
 
+DFTResult::~DFTResult() noexcept = default;
+
+DFTResult::DFTResult(DFTResult&&) noexcept = default;
+
+DFTResult& DFTResult::operator=(DFTResult&&) noexcept = default;
+
 std::unique_ptr<FrequencySpectrum> DFTResult::take_spectrum() && noexcept
 {
     return std::move(spectrum);

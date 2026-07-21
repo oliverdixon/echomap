@@ -12,7 +12,6 @@
 
 #include "ResultChannel.hpp"
 #include "results/WorkerResult.hpp"
-#include "tasks/ITask.hpp"
 
 namespace echomap
 {

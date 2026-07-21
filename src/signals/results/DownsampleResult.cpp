@@ -24,6 +24,12 @@ DownsampleResult::DownsampleResult(
     assert(this->downsampled != nullptr);
 }
 
+DownsampleResult::~DownsampleResult() noexcept = default;
+
+DownsampleResult::DownsampleResult(DownsampleResult&&) noexcept = default;
+
+DownsampleResult& DownsampleResult::operator=(DownsampleResult&&) noexcept = default;
+
 std::unique_ptr<Signal> DownsampleResult::take_downsampled() && noexcept
 {
     return std::move(downsampled);

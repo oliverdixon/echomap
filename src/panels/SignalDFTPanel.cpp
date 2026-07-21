@@ -16,6 +16,7 @@
 #include "../VariantHelpers.hpp"
 #include "../objects/FrequencySpectrum.hpp"
 #include "../objects/Project.hpp"
+#include "../objects/Signal.hpp"
 #include "../signals/Worker.hpp"
 #include "../signals/results/DFTResult.hpp"
 #include "../signals/tasks/DFTTask.hpp"
@@ -57,6 +58,12 @@ SignalDFTPanel::SignalDFTPanel(
 
     reset_available_transform_sizes();
 }
+
+SignalDFTPanel::~SignalDFTPanel() noexcept = default;
+
+SignalDFTPanel::SignalDFTPanel(SignalDFTPanel&&) noexcept = default;
+
+SignalDFTPanel& SignalDFTPanel::operator=(SignalDFTPanel&&) noexcept = default;
 
 void SignalDFTPanel::draw() noexcept
 {

@@ -12,13 +12,15 @@
 
 #include <sigc++/scoped_connection.h>
 
-#include "../objects/FrequencySpectrum.hpp"
-#include "../objects/Signal.hpp"
 #include "IPanel.hpp"
+#include "../objects/IDAllocator.hpp"
+#include "../objects/factories/WindowFunctions.hpp"
 
 namespace echomap
 {
 
+class Signal;
+class FrequencySpectrum;
 class WorkerResultDespatcher;
 class DFTResult;
 class EchoMap;
@@ -27,7 +29,7 @@ class Worker;
 /**
  * Provides an IPanel to display and interact with previews of Signal frequency spectra (i.e., Signal DFTs).
  */
-class SignalDFTPanel : public IPanel
+class SignalDFTPanel final : public IPanel
 {
 public:
     /**
@@ -46,6 +48,14 @@ public:
             EchoMap* app,
             const Project* initial_project = nullptr
     );
+
+    ~SignalDFTPanel() noexcept override;
+
+    SignalDFTPanel(const SignalDFTPanel&) = delete;
+    SignalDFTPanel& operator=(const SignalDFTPanel&) = delete;
+
+    SignalDFTPanel(SignalDFTPanel&&) noexcept;
+    SignalDFTPanel& operator=(SignalDFTPanel&&) noexcept;
 
     void draw() noexcept override;
 

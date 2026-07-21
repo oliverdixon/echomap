@@ -8,7 +8,6 @@
 #include "LoadProjectResult.hpp"
 
 #include "../../objects/Project.hpp"
-#include "../../objects/Sensor.hpp"
 
 namespace echomap
 {
@@ -19,6 +18,12 @@ LoadProjectResult::LoadProjectResult(
     loaded_project(std::move(loaded_project))
 {
 }
+
+LoadProjectResult::~LoadProjectResult() noexcept = default;
+
+LoadProjectResult::LoadProjectResult(LoadProjectResult&&) noexcept = default;
+
+LoadProjectResult& LoadProjectResult::operator=(LoadProjectResult&&) noexcept = default;
 
 std::unique_ptr<Project> LoadProjectResult::take_project() && noexcept
 {

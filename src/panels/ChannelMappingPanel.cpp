@@ -6,6 +6,7 @@
 
 #include "../EchoMap.hpp"
 #include "../objects/Project.hpp"
+#include "../objects/Signal.hpp"
 
 namespace echomap
 {
@@ -59,6 +60,8 @@ void ChannelMappingPanel::draw() noexcept
 
 void ChannelMappingPanel::draw_new_channel_mapping() noexcept
 {
+    // TODO refactor monster.
+
     if (ImGui::BeginTable("##NewChannelMapping", 2, table_flags)) {
         ImGui::TableSetupColumn("Signal", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Sensor", ImGuiTableColumnFlags_WidthStretch);
