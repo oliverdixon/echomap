@@ -20,6 +20,7 @@ SensorGeometryPanel::SensorGeometryPanel(
         EchoMap* app,
         const Project* const initial_project
 ) :
+    panel_name(std::string("Sensor Geometry") + get_imgui_stable_name()),
     active_project(initial_project),
     app(app)
 {
@@ -49,6 +50,11 @@ void SensorGeometryPanel::draw() noexcept
     }
 
     ImGui::End();
+}
+
+const char* SensorGeometryPanel::get_imgui_stable_name() noexcept
+{
+    return "###SensorGeometryPanel";
 }
 
 void SensorGeometryPanel::recache_sensor_colours() noexcept

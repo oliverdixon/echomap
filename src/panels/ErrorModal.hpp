@@ -24,6 +24,8 @@ namespace echomap
 class ErrorModal final : public IPanel
 {
 public:
+    ErrorModal();
+
     /**
      * Raise the modal given a simple unformatted message.
      *
@@ -50,12 +52,14 @@ public:
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
+    static const char* get_imgui_stable_name() noexcept;
+
 private:
     bool is_raised = false;
     std::string prefix = "An unknown error occurred.";
     std::optional<std::string> detail;
 
-    std::string panel_name = "Error!";
+    std::string panel_name;
 };
 
 } // namespace echomap

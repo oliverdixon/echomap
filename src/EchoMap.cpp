@@ -344,11 +344,7 @@ void EchoMap::render() noexcept
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    const ImGuiViewport* viewport = ImGui::GetMainViewport();
-    if (!dockspace_configured)
-        dockspace_configured = true;
-
-    ImGui::DockSpaceOverViewport(dockspace_id, viewport, ImGuiDockNodeFlags_None);
+    setup_dockspace();
 
     // Draw the panels and express any applicable error state.
     for (const auto& panel : panels)
@@ -435,6 +431,62 @@ void EchoMap::setup_imgui()
      */
     ImGui_ImplGlfw_InstallEmscriptenCallbacks(window, "#canvas");
 #endif
+}
+
+void EchoMap::setup_dockspace()
+{
+    const auto* const viewport = ImGui::GetMainViewport();
+
+    if (!dockspace_configured) {
+        dockspace_configured = true;
+
+        if (ImGui::DockBuilderGetNode(dockspace_id) == nullptr) {
+            // Root dockspace node.
+            ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+            ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
+
+            // Left (narrow project explorer pane) and main workspace.
+            ImGuiID dock_id_left = 0;
+            ImGuiID dock_id_main = 0;
+            ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, .15f, &dock_id_left, &dock_id_main);
+            ImGui::DockBuilderDockWindow(ProjectPanel::get_imgui_stable_name(), dock_id_left);
+
+            // Upper/lower
+            ImGuiID dock_id_main_upper = 0;
+            ImGuiID dock_id_main_lower = 0;
+            ImGui::DockBuilderSplitNode(dock_id_main, ImGuiDir_Up, .33f, &dock_id_main_upper, &dock_id_main_lower);
+
+            // Upper left/right
+            ImGuiID dock_id_main_upper_left = 0;
+            ImGuiID dock_id_main_upper_right = 0;
+            ImGui::DockBuilderSplitNode(
+                    dock_id_main_upper,
+                    ImGuiDir_Left,
+                    .5f,
+                    &dock_id_main_upper_left,
+                    &dock_id_main_upper_right
+            );
+            ImGui::DockBuilderDockWindow(ChannelMappingPanel::get_imgui_stable_name(), dock_id_main_upper_left);
+            ImGui::DockBuilderDockWindow(SensorGeometryPanel::get_imgui_stable_name(), dock_id_main_upper_right);
+
+            // Lower left/right
+            ImGuiID dock_id_main_lower_left = 0;
+            ImGuiID dock_id_main_lower_right = 0;
+            ImGui::DockBuilderSplitNode(
+                    dock_id_main_lower,
+                    ImGuiDir_Left,
+                    .5f,
+                    &dock_id_main_lower_left,
+                    &dock_id_main_lower_right
+            );
+            ImGui::DockBuilderDockWindow(SignalWaveformPanel::get_imgui_stable_name(), dock_id_main_lower_left);
+            ImGui::DockBuilderDockWindow(SignalDFTPanel::get_imgui_stable_name(), dock_id_main_lower_right);
+
+            ImGui::DockBuilderFinish(dockspace_id);
+        }
+    }
+
+    ImGui::DockSpaceOverViewport(dockspace_id, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
 }
 
 // ReSharper disable once CppDFAUnreachableFunctionCall

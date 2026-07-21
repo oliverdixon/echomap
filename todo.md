@@ -2,16 +2,13 @@
 
 ## Short Term
 
-1. Use the ImGui DockBuilder API to configure a sane default panel configuration:
-   https://github.com/ocornut/imgui/wiki/Docking#programmatically-setting-up-docking-layout-dockbuider-api
+1. Add project loader dialog as a native action.
 
-2. Harden! Doxygen where necessary, remove incorrect exception specifications, and verify dereferencing behaviour.
+2. Add a wave file loader as a native action.
 
-3. Add project loader dialog as a native action.
+3. Harden! Doxygen where necessary, remove incorrect exception specifications, and verify dereferencing behaviour.
 
-4. Add a wave file loader as a native action.
-
-5. Resolve TODOs in code.
+4. Resolve TODOs in code.
 
 ## Medium/Long Term
 

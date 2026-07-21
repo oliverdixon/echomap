@@ -40,6 +40,7 @@ SignalDFTPanel::SignalDFTPanel(
         EchoMap* app,
         const Project* const initial_project
 ) :
+    panel_name(std::string("Signal DFT Panel") + get_imgui_stable_name()),
     parent_worker(parent_worker),
     active_project(initial_project),
     app(app)
@@ -92,6 +93,11 @@ void SignalDFTPanel::draw() noexcept
 const char* SignalDFTPanel::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
+}
+
+const char* SignalDFTPanel::get_imgui_stable_name() noexcept
+{
+    return "###SignalDFTPanel";
 }
 
 void SignalDFTPanel::handle_completed_dft(

@@ -31,6 +31,7 @@ SignalWaveformPanel::SignalWaveformPanel(
             Signal::normalised_range.first,
             Signal::normalised_range.second
     },
+    panel_name(std::string("Signal Waveform Preview") + get_imgui_stable_name()),
     parent_worker(parent_worker),
     active_project(initial_project)
 {
@@ -96,6 +97,11 @@ void SignalWaveformPanel::draw() noexcept
     }
 
     ImGui::End();
+}
+
+const char* SignalWaveformPanel::get_imgui_stable_name() noexcept
+{
+    return "###SignalWaveformPanel";
 }
 
 void SignalWaveformPanel::handle_downsampled_result(

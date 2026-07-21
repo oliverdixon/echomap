@@ -21,6 +21,7 @@ IndividualUploadModal::IndividualUploadModal(
         EchoMap* const app,
         const Project* const project
 ) :
+    panel_name(std::string("Upload External Files") + get_imgui_stable_name()),
     app(app),
     project(project)
 {
@@ -32,13 +33,12 @@ void IndividualUploadModal::draw() noexcept // TODO remove noexcepts where neces
         return;
 
     if (std::exchange(should_open, false))
-        ImGui::OpenPopup("Upload External Files##UploadExternalModal");
+        ImGui::OpenPopup(get_imgui_name());
 
     ImGui::SetNextWindowSize(default_modal_size, ImGuiCond_Appearing);
 
     if (ImGui::BeginPopupModal(
-                "Upload External Files##UploadExternalModal",
-                nullptr,
+                get_imgui_name(), nullptr,
                 ImGuiWindowFlags_AlwaysAutoResize
         )) {
         ImGui::PushID("UploadExternalModal");
@@ -85,6 +85,11 @@ const char* IndividualUploadModal::get_imgui_name() const noexcept
 void IndividualUploadModal::reshow() noexcept
 {
     should_open = true;
+}
+
+const char* IndividualUploadModal::get_imgui_stable_name() noexcept
+{
+    return "###IndividualUploadModal";
 }
 
 void IndividualUploadModal::draw_preamble() const noexcept

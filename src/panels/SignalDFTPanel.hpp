@@ -63,6 +63,8 @@ public:
 
     const char* get_imgui_name() const noexcept override;
 
+    static const char* get_imgui_stable_name() noexcept;
+
 private:
     struct CallbackData
     {
@@ -110,7 +112,7 @@ private:
 
     ImPlotRect viewport_bounds; /**< The user-controlled bounding box of the DFT plots. */
 
-    std::string panel_name = "Signal DFT Preview";
+    std::string panel_name;
     ImPlotSpec plotting_spec_2d;
     Worker* parent_worker;
     const Project* active_project = nullptr;

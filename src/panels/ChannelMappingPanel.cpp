@@ -17,6 +17,7 @@ ChannelMappingPanel::ChannelMappingPanel(
         EchoMap* app,
         const Project* const initial_project
 ) :
+    panel_name(std::string("Channel Mapping") + get_imgui_stable_name()),
     app(app),
     active_project(initial_project)
 {
@@ -57,6 +58,11 @@ void ChannelMappingPanel::draw() noexcept
     }
 
     ImGui::End();
+}
+
+const char* ChannelMappingPanel::get_imgui_stable_name() noexcept
+{
+    return "###ChannelMappingPanel";
 }
 
 void ChannelMappingPanel::draw_new_channel_mapping() noexcept

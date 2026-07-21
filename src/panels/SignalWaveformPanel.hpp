@@ -59,6 +59,8 @@ public:
 
     void draw() noexcept override;
 
+    static const char* get_imgui_stable_name() noexcept;
+
 private:
     static constexpr float default_downsample_factor = 50.0f;
 
@@ -112,7 +114,7 @@ private:
      */
     ImPlotRect bounding_box;
 
-    std::string panel_name = "Signal Waveform Preview";
+    std::string panel_name;
     ImPlotSpec plotting_spec_2d;
     Worker* parent_worker;
     const Project* active_project = nullptr;
