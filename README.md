@@ -92,6 +92,11 @@ will work. Users without a Rust toolchain installed may look to Python's
       must be cross-origin isolated. A helper script is provided for this purpose:
       `/miniserve.sh cmake-build-wasm-debug`.
 
+4. For use of WebAssembly deployments, browsers must
+   support [JavaScript promise integration](https://emscripten.org/docs/porting/asyncify.html). Technically, this is
+   necessary to support exception-handling and access to the asynchronous WebGPU API, which are both two sides of the
+   same (stack-unwinding) coin. As of June 2026, Chrome stable supports JSPI; Firefox stable does not.
+
 ## Documentation
 
 Currently, "documentation" refers to generated HTML from Doxygen. The HTML is fully reproducible from the source, so
