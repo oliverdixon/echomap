@@ -110,6 +110,8 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/signals/results/WorkerResult.hpp
         src/utility/Colour.hpp
         src/utility/Position.hpp
+        src/notifications/CancelProjectLoadNotification.cpp
+        src/notifications/CancelProjectLoadNotification.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

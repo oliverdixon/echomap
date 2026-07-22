@@ -122,7 +122,7 @@ void IndividualUploadModal::draw_buttons(
     ImGui::Spacing();
 
     if (ImGui::Button("Cancel", button_size)) {
-        // TODO send an abort message to the project. Will need a new notification.
+        app->notify(CancelProjectLoadNotification(project->get_id()));
         ImGui::CloseCurrentPopup();
         should_open = false;
     }

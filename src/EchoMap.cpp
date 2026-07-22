@@ -540,6 +540,7 @@ void EchoMap::process_notifications()
                 [this](const ProjectSelectedNotification& task) { handle_notification(task); },
                 [this](const CompleteProjectLoadNotification& task) { handle_notification(task); },
                 [this](const RegisterVFSMappingNotification& task) { handle_notification(task); },
+                [this](const CancelProjectLoadNotification& task) { handle_notification(task); },
                 },
                 notify_queue.back()
             );
@@ -641,6 +642,15 @@ void EchoMap::handle_notification(
         );
 
     map_it->second.first = task.internal;
+}
+
+void EchoMap::handle_notification(
+        const CancelProjectLoadNotification& task
+)
+{
+    task.verify_project(unloaded_project.get());
+
+    unloaded_project.reset();
 }
 
 void EchoMap::change_active_project(

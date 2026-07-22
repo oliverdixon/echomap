@@ -14,6 +14,7 @@
 #include <webgpu/webgpu_cpp.h>
 
 #include "notifications/AddChannelMappingNotification.hpp"
+#include "notifications/CancelProjectLoadNotification.hpp"
 #include "notifications/CompleteProjectLoadNotification.hpp"
 #include "notifications/ModifySensorColourNotification.hpp"
 #include "notifications/ModifySensorPositionNotification.hpp"
@@ -57,7 +58,8 @@ public:
             ModifySensorPositionNotification,
             ProjectSelectedNotification,
             CompleteProjectLoadNotification,
-            RegisterVFSMappingNotification>;
+            RegisterVFSMappingNotification,
+            CancelProjectLoadNotification>; // TODO fwd-decl this variant, wrapped inside a struct maybe.
 
     /**
      * Initialise a EchoMap application instance.
@@ -209,6 +211,7 @@ private:
     void handle_notification(const ProjectSelectedNotification& task);
     void handle_notification(const CompleteProjectLoadNotification& task);
     void handle_notification(const RegisterVFSMappingNotification& task) const;
+    void handle_notification(const CancelProjectLoadNotification& task);
 
 #ifdef __EMSCRIPTEN__
 
