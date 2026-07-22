@@ -88,6 +88,13 @@ void IndividualUploadModal::reshow() noexcept
     should_open = true;
 }
 
+void IndividualUploadModal::change_active_project(
+        const Project* const new_project
+)
+{
+    std::ignore = new_project;
+}
+
 const char* IndividualUploadModal::get_imgui_stable_name() noexcept
 {
     return "###IndividualUploadModal";

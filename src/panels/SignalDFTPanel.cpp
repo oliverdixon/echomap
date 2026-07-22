@@ -45,14 +45,6 @@ SignalDFTPanel::SignalDFTPanel(
     active_project(initial_project),
     app(app)
 {
-    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
-        active_project = result.observe_project();
-        spectra_cache.clear();
-        reset_available_transform_sizes();
-        update_spectrum_bounds();
-        reset_viewport_bounds();
-    }));
-
     connections.emplace_back(despatcher.dft_finished_channel.nominate_consumer(
             sigc::mem_fun(*this, &SignalDFTPanel::handle_completed_dft)
     ));
@@ -93,6 +85,17 @@ void SignalDFTPanel::draw() noexcept
 const char* SignalDFTPanel::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
+}
+
+void SignalDFTPanel::change_active_project(
+        const Project* const new_project
+)
+{
+    active_project = new_project;
+    spectra_cache.clear();
+    reset_available_transform_sizes();
+    update_spectrum_bounds();
+    reset_viewport_bounds();
 }
 
 const char* SignalDFTPanel::get_imgui_stable_name() noexcept

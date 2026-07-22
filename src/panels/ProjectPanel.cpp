@@ -9,22 +9,16 @@
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
 #include "../objects/Signal.hpp"
-#include "../signals/WorkerResultDespatcher.hpp"
-#include "../signals/results/LoadProjectResult.hpp"
 
 namespace echomap
 {
 
 ProjectPanel::ProjectPanel(
-        WorkerResultDespatcher& despatcher,
         const Project* const initial_project
 ) :
     panel_name(std::string("Project Explorer") + get_imgui_stable_name()),
     active_project(initial_project)
 {
-    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
-        active_project = result.observe_project();
-    }));
 }
 
 void ProjectPanel::draw() noexcept
@@ -56,6 +50,13 @@ void ProjectPanel::draw() noexcept
 const char* ProjectPanel::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
+}
+
+void ProjectPanel::change_active_project(
+        const Project* const new_project
+)
+{
+    active_project = new_project;
 }
 
 const char* ProjectPanel::get_imgui_stable_name() noexcept

@@ -45,6 +45,16 @@ public:
 
     void reshow() noexcept;
 
+    /**
+     * Do nothing.
+     *
+     * THe active Project may be changed in the background, but that shouldn't interfere with an active modal. This
+     * modal will also typically relate to an unloaded (or partially loaded) Project, not the active one.
+     *
+     * @param new_project Ignored.
+     */
+    void change_active_project(const Project* new_project) override;
+
     static const char* get_imgui_stable_name() noexcept;
 
 private:

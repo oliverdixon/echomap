@@ -84,6 +84,13 @@ const char* ErrorModal::get_imgui_name() const noexcept
     return panel_name.c_str();
 }
 
+void ErrorModal::change_active_project(
+        const Project* const new_project
+)
+{
+    std::ignore = new_project;
+}
+
 const char* ErrorModal::get_imgui_stable_name() noexcept
 {
     return "###ErrorModal";

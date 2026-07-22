@@ -28,14 +28,10 @@ public:
     /**
      * Create a new ChannelMappingPanel to describe and configure Signal-Sensor mappings.
      *
-     * The ChannelMappingPanel observes the LoadProjectResult message.
-     *
-     * @param despatcher The despatcher to expose the result buses.
      * @param app The parent application instance.
      * @param initial_project An optional initial Project for the IPanel to display.
      */
     explicit ChannelMappingPanel(
-            WorkerResultDespatcher& despatcher,
             EchoMap* app,
             const Project* initial_project = nullptr
     );
@@ -43,6 +39,8 @@ public:
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
+
+    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 

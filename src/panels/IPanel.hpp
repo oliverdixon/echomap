@@ -52,9 +52,18 @@ public:
         std::ignore = command_encoder;
     }
 
+    /**
+     * Updates the active Project being described by the IPanel.
+     *
+     * @param new_project An observing pointer to the new active Project.
+     */
+    virtual void change_active_project(const Project * new_project) = 0;
+
 protected:
+    // NOLINTBEGIN(*-signed-bitwise) - Intended ImGui API usage.
     static constexpr auto table_flags =
             ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
+    // NOLINTEND(*-signed-bitwise)
 };
 
 } // namespace echomap

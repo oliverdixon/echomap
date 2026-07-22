@@ -35,7 +35,7 @@ public:
     /**
      * Create a new SignalWaveformPanel to display downsampled Signal waveforms in the time domain.
      *
-     * The SignalWaveformPanel observes the LoadProjectResult message and consumes the DownsampleResult message.
+     * The SignalWaveformPanel consumes the DownsampleResult message.
      *
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
@@ -58,6 +58,8 @@ public:
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
+
+    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 

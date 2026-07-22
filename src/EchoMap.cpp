@@ -86,10 +86,10 @@ EchoMap::EchoMap() :
     setup_imgui();
 
     panels.push_back(std::make_unique<MenuPanel>());
-    panels.push_back(std::make_unique<ProjectPanel>(despatcher));
+    panels.push_back(std::make_unique<ProjectPanel>());
     panels.push_back(std::make_unique<SignalWaveformPanel>(&worker, despatcher));
-    panels.push_back(std::make_unique<SensorGeometryPanel>(despatcher, this));
-    panels.push_back(std::make_unique<ChannelMappingPanel>(despatcher, this));
+    panels.push_back(std::make_unique<SensorGeometryPanel>(this));
+    panels.push_back(std::make_unique<ChannelMappingPanel>(this));
     panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
 }
 
@@ -529,7 +529,7 @@ void EchoMap::process_notifications()
         const auto task_position = notify_queue.size() - 1;
 
         // TODO variant_helpers
-        LOG_F_DEBUG("Consuming LWT with hint {} (#{}).", task_hint, task_position);
+        LOG_F_DEBUG("Consuming notification with hint {} (#{}).", task_hint, task_position);
 
         try {
 
@@ -549,12 +549,12 @@ void EchoMap::process_notifications()
 
         } catch (const IgnoredWarning& warning) {
             // TODO variant_helpers
-            LOG_F_WARN("LWT with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
+            LOG_F_WARN("Notification with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
         } catch (const std::exception& exception) {
             error_modal.raise_error(exception.what());
             // TODO variant_helpers
             LOG_F_ERROR(
-                    "LWT with hint {} (#{}) was responsible for error: {}",
+                    "Notification with hint {} (#{}) was responsible for error: {}",
                     task_hint,
                     task_position,
                     exception.what()
@@ -620,10 +620,13 @@ void EchoMap::handle_notification(
         if (!vfs_path.has_value())
             throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
 
+        // Once these tasks return, if everything is loaded correctly, we'll change the active project.
         worker.submit(
                 std::make_unique<LoadSignalFileTask>(unloaded_project->get_id(), *vfs_path, std::move(factories))
         );
     }
+
+    upload_modal.reset();
 }
 
 void EchoMap::handle_notification(
@@ -651,6 +654,7 @@ void EchoMap::handle_notification(
 {
     task.verify_project(unloaded_project.get());
 
+    upload_modal.reset();
     unloaded_project.reset();
 }
 
@@ -658,8 +662,13 @@ void EchoMap::change_active_project(
         std::unique_ptr<Project> new_project
 ) noexcept
 {
-    if (new_project != nullptr)
+    if (new_project == nullptr)
+        LOG_DEBUG("Clearing the active project.");
+    else
         LOG_F_DEBUG("Changing active project to {}.", new_project->get_name());
+
+    for (const auto& panel : panels)
+        panel->change_active_project(new_project.get());
 
     project = std::move(new_project);
 }

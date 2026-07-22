@@ -35,12 +35,6 @@ SignalWaveformPanel::SignalWaveformPanel(
     parent_worker(parent_worker),
     active_project(initial_project)
 {
-    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
-        active_project = result.observe_project();
-        downsample_cache.clear();
-        update_bounding_box();
-    }));
-
     connections.emplace_back(despatcher.downsample_finished_channel.nominate_consumer(
             sigc::mem_fun(*this, &SignalWaveformPanel::handle_downsampled_result)
     ));
@@ -97,6 +91,15 @@ void SignalWaveformPanel::draw() noexcept
     }
 
     ImGui::End();
+}
+
+void SignalWaveformPanel::change_active_project(
+        const Project* const new_project
+)
+{
+    active_project = new_project;
+    downsample_cache.clear();
+    update_bounding_box();
 }
 
 const char* SignalWaveformPanel::get_imgui_stable_name() noexcept

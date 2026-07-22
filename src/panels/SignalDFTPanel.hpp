@@ -37,7 +37,7 @@ public:
     /**
      * Create a new SignalDFTPanel to display DFTs of Signal waveforms in the frequency domain.
      *
-     * The SignalDFTPanel observes the LoadProjectResult message and consumes the DFTResult message.
+     * The SignalDFTPanel consumes the DFTResult message.
      *
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
@@ -61,7 +61,9 @@ public:
 
     void draw() noexcept override;
 
-    const char* get_imgui_name() const noexcept override;
+    [[nodiscard]] const char* get_imgui_name() const noexcept override;
+
+    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 

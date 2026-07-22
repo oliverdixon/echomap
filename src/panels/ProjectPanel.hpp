@@ -22,19 +22,15 @@ public:
     /**
      * Create a new ProjectPanel to display Project metadata.
      *
-     * The SensorGeometryPanel observes the LoadProjectResult message.
-     *
-     * @param despatcher The despatcher to expose the result buses.
      * @param initial_project An optional initial Project for the IPanel to describe.
      */
-    explicit ProjectPanel(
-            WorkerResultDespatcher& despatcher,
-            const Project* initial_project = nullptr
-    );
+    explicit ProjectPanel(const Project* initial_project = nullptr);
 
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
+
+    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 

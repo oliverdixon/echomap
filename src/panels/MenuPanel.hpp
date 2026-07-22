@@ -19,6 +19,8 @@ public:
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
+    void change_active_project(const Project* new_project) override;
+
 private:
     std::string panel_name = "Menu";
 };

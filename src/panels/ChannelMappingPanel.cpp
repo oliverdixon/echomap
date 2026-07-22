@@ -14,7 +14,6 @@ namespace echomap
 {
 
 ChannelMappingPanel::ChannelMappingPanel(
-        WorkerResultDespatcher& despatcher,
         EchoMap* app,
         const Project* const initial_project
 ) :
@@ -22,9 +21,6 @@ ChannelMappingPanel::ChannelMappingPanel(
     app(app),
     active_project(initial_project)
 {
-    connections.emplace_back(despatcher.load_project_finished_channel.observe([this](const LoadProjectResult& result) {
-        active_project = result.observe_project();
-    }));
 }
 
 const char* ChannelMappingPanel::get_imgui_name() const noexcept
@@ -59,6 +55,13 @@ void ChannelMappingPanel::draw() noexcept
     }
 
     ImGui::End();
+}
+
+void ChannelMappingPanel::change_active_project(
+        const Project* const new_project
+)
+{
+    active_project = new_project;
 }
 
 const char* ChannelMappingPanel::get_imgui_stable_name() noexcept
