@@ -12,7 +12,7 @@
 
 #ifndef __EMSCRIPTEN__
 
-#include "EchoMap.hpp"
+#include "../EchoMap.hpp"
 
 namespace echomap
 {

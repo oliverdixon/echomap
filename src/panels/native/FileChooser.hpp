@@ -10,12 +10,12 @@
 #ifndef ECHOMAP_FILECHOOSER_HPP
 #define ECHOMAP_FILECHOOSER_HPP
 
-#include <filesystem>
-
 #include <sigc++/slot.h>
 
-#include "../../utility/FilesystemCombo.hpp"
+#include <filesystem>
+
 #include "../IPanel.hpp"
+#include "FilesystemCombo.hpp"
 
 namespace echomap
 {

@@ -13,7 +13,7 @@
 
 #include <emscripten/emscripten.h>
 
-#include "notifications/AllNotifications.hpp"
+#include "../notifications/AllNotifications.hpp"
 
 #ifndef __EMSCRIPTEN_PTHREADS__
 #warning "The Emscripten application will be single-threaded."

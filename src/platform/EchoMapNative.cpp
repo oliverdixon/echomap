@@ -11,9 +11,9 @@
 
 #include "EchoMapNative.hpp"
 
-#include "notifications/AllNotifications.hpp"
-#include "panels/native/FileChooser.hpp"
-#include "utility/Logger.hpp"
+#include "../notifications/AllNotifications.hpp"
+#include "../panels/native/FileChooser.hpp"
+#include "../utility/Logger.hpp"
 
 namespace echomap
 {

@@ -5,9 +5,9 @@
  * @date 2026-07-05
  */
 
-#include <GLFW/glfw3.h>
-
 #include "SurfaceFactory.hpp"
+
+#include <GLFW/glfw3.h>
 
 #if defined(_WIN32)
 #define GLFW_EXPOSE_NATIVE_WIN32 1

@@ -6,9 +6,9 @@
  */
 
 #ifdef __EMSCRIPTEN__
-#include "EchoMapWeb.hpp"
+#include "platform/EchoMapWeb.hpp"
 #else
-#include "EchoMapNative.hpp"
+#include "platform/EchoMapNative.hpp"
 #endif // __EMSCRIPTEN__
 
 #include "StaticInstanceController.hpp"

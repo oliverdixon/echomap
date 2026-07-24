@@ -14,7 +14,6 @@
 #include <implot3d.h>
 
 #include "RobotoMedium.hpp"
-#include "SurfaceFactory.hpp"
 #include "errors/ConfigurationError.hpp"
 #include "errors/IgnoredWarning.hpp"
 #include "notifications/AllNotifications.hpp"
@@ -28,6 +27,7 @@
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalDFTPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
+#include "platform/SurfaceFactory.hpp"
 #include "signals/tasks/LoadProjectTask.hpp"
 #include "signals/tasks/LoadSignalFileTask.hpp"
 #include "utility/Logger.hpp"

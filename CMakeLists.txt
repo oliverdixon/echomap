@@ -34,8 +34,8 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/IDAllocator.hpp
         src/panels/ErrorModal.cpp
         src/panels/ErrorModal.hpp
-        src/SurfaceFactory.cpp
-        src/SurfaceFactory.hpp
+        src/platform/SurfaceFactory.cpp
+        src/platform/SurfaceFactory.hpp
         src/errors/LocatableError.cpp
         src/errors/LocatableError.hpp
         src/objects/persistence/JSONSerialiser.cpp
@@ -121,8 +121,8 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     target_sources(DummyTarget PRIVATE
             src/actions/JSActionController.cpp
             src/actions/JSActionController.hpp
-            src/EchoMapWeb.cpp
-            src/EchoMapWeb.hpp
+            src/platform/EchoMapWeb.cpp
+            src/platform/EchoMapWeb.hpp
     )
 endif ()
 
@@ -132,12 +132,12 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/actions/NativeActionController.cpp
             src/actions/NativeActionController.hpp
             src/notifications/native/RaiseFileChooserNotification.hpp
-            src/EchoMapNative.cpp
-            src/EchoMapNative.hpp
+            src/platform/EchoMapNative.cpp
+            src/platform/EchoMapNative.hpp
             src/panels/native/FileChooser.cpp
             src/panels/native/FileChooser.hpp
-            src/utility/FilesystemCombo.cpp
-            src/utility/FilesystemCombo.hpp
+            src/panels/native/FilesystemCombo.cpp
+            src/panels/native/FilesystemCombo.hpp
     )
 endif ()
 
