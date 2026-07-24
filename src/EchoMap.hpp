@@ -98,7 +98,7 @@ protected:
             [this](const AddChannelMappingNotification& n) { handle_notification(n); },
             [this](const ModifySensorColourNotification& n) { handle_notification(n); },
             [this](const ModifySensorPositionNotification& n) { handle_notification(n); },
-            [this](const ProjectSelectedNotification& n) { handle_notification(n); },
+            [this](const ProjectSelectionCompleteNotification& n) { handle_notification(n); },
             [this](const CompleteProjectLoadNotification& n) { handle_notification(n); },
             [this](RegisterVFSMappingNotification& n) { handle_notification(n); },
             [this](const CancelProjectLoadNotification& n) { handle_notification(n); },
@@ -220,7 +220,7 @@ protected:
     void handle_notification(const AddChannelMappingNotification& notification) const;
     void handle_notification(const ModifySensorColourNotification& notification) const;
     void handle_notification(const ModifySensorPositionNotification& notification) const;
-    void handle_notification(const ProjectSelectedNotification& notification);
+    void handle_notification(const ProjectSelectionCompleteNotification& notification);
     void handle_notification(const CompleteProjectLoadNotification& notification);
     void handle_notification(RegisterVFSMappingNotification& notification) const;
     void handle_notification(const CancelProjectLoadNotification& notification);

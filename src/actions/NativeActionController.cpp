@@ -17,8 +17,8 @@ namespace echomap
 void NativeActionController::select_project_file_impl()
 {
     notify<RaiseFileChooserNotification>(
-        sigc::ptr_fun(&notify<ProjectSelectedNotification, const std::filesystem::path&>),
-        sigc::ptr_fun(&notify<ProjectSelectedNotification>)
+        sigc::ptr_fun(&notify<ProjectSelectionCompleteNotification, const std::filesystem::path&>),
+        sigc::ptr_fun(&notify<ProjectSelectionCompleteNotification>)
     );
 }
 

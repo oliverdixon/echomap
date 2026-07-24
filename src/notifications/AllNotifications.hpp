@@ -13,12 +13,12 @@
 #include "AddChannelMappingNotification.hpp"
 #include "AllNotificationsFwd.hpp"
 #include "CancelProjectLoadNotification.hpp"
+#include "ClearErrorNotification.hpp"
 #include "CompleteProjectLoadNotification.hpp"
 #include "ModifySensorColourNotification.hpp"
 #include "ModifySensorPositionNotification.hpp"
-#include "ProjectSelectedNotification.hpp"
+#include "ProjectSelectionCompleteNotification.hpp"
 #include "RegisterVFSMappingNotification.hpp"
-#include "ClearErrorNotification.hpp"
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 

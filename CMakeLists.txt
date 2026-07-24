@@ -99,7 +99,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/StaticInstanceController.hpp
         src/errors/IgnoredWarning.cpp
         src/errors/IgnoredWarning.hpp
-        src/notifications/ProjectSelectedNotification.hpp
+        src/notifications/ProjectSelectionCompleteNotification.hpp
         src/notifications/CompleteProjectLoadNotification.hpp
         src/notifications/RegisterVFSMappingNotification.hpp
         src/notifications/RegisterVFSMappingNotification.cpp

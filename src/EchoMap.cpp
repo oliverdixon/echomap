@@ -541,7 +541,7 @@ void EchoMap::handle_notification(
 }
 
 void EchoMap::handle_notification(
-        const ProjectSelectedNotification& notification
+        const ProjectSelectionCompleteNotification& notification
 )
 {
     active_modal.reset();

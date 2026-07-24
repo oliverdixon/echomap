@@ -99,7 +99,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_project_file_picked(
         return 2;
 
     try {
-        JSActionController::notify<ProjectSelectedNotification>(path);
+        JSActionController::notify<ProjectSelectionCompleteNotification>(path);
         return 0;
     } catch (const ConfigurationError& error) {
         LOG_F_ERROR("Could not load path {} due to error: {}", path, error.what());
