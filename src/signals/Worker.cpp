@@ -64,7 +64,7 @@ void Worker::execute(
                 LOG_F_DEBUG("Finished {}.", task->get_name());
                 result_queue.produce(std::move(result));
             } catch (const std::exception& exception) {
-                LOG_F_ERROR("{} failed with message: {}.", task->get_name(), exception.what());
+                LOG_F_ERROR("{} failed with message: {}", task->get_name(), exception.what());
                 result_queue.produce(ErrorResult(exception.what(), std::source_location::current(), std::move(task)));
             } catch (...) {
                 LOG_F_ERROR("{} failed with a system error. This is bug.", task->get_name());

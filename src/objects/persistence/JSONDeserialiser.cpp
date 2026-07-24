@@ -506,7 +506,9 @@ std::unique_ptr<Project> JSONDeserialiser::deserialise_project(
     auto project = std::make_unique<Project>();
 
     if (const auto error = doc.get(*project); error)
-        return nullptr;
+        throw std::runtime_error(
+                std::format("Could not load Project at {} due to error: {}", path, simdjson::error_message(error))
+        );
 
     return project;
 }
