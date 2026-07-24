@@ -18,6 +18,7 @@
 #include "ModifySensorPositionNotification.hpp"
 #include "ProjectSelectedNotification.hpp"
 #include "RegisterVFSMappingNotification.hpp"
+#include "ClearErrorNotification.hpp"
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 

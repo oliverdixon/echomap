@@ -15,44 +15,39 @@ namespace echomap
 {
 
 ErrorModal::ErrorModal(
-        const std::string_view message
+        const std::string_view message,
+        DismissedCallbackT&& dismissed_callback
 ) :
-    panel_name(std::string("Error!") + get_imgui_stable_name())
+    panel_name(std::string("Error!") + get_imgui_stable_name()),
+    dismissed_callback(std::move(dismissed_callback))
 {
     try {
         prefix = message;
     } catch (const std::exception&) {
         LOG_ERROR("Could not allocate memory to display modal on UI.");
-        is_raised = false;
         return;
     }
-
-    is_raised = true;
 }
 
 ErrorModal::ErrorModal(
         const std::string_view new_prefix,
-        const std::runtime_error& exception
+        const std::runtime_error& exception,
+        DismissedCallbackT&& dismissed_callback
 ) :
-    panel_name(std::string("Error!") + get_imgui_stable_name())
+    panel_name(std::string("Error!") + get_imgui_stable_name()),
+    dismissed_callback(std::move(dismissed_callback))
 {
     try {
         detail = exception.what();
         prefix = new_prefix;
     } catch (const std::exception&) {
         LOG_ERROR("Could not allocate memory to display modal on UI.");
-        is_raised = false;
         return;
     }
-
-    is_raised = true;
 }
 
 void ErrorModal::draw() noexcept
 {
-    if (!is_raised)
-        return;
-
     ImGui::OpenPopup(get_imgui_name());
     if (ImGui::BeginPopupModal(get_imgui_name(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::TextUnformatted(prefix.c_str());
@@ -64,8 +59,8 @@ void ErrorModal::draw() noexcept
         }
 
         if (ImGui::Button("Dismiss", button_size)) {
-            is_raised = false;
             ImGui::CloseCurrentPopup();
+            dismissed_callback();
         }
 
         ImGui::EndPopup();

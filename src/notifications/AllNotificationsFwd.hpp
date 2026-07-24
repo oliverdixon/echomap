@@ -22,6 +22,7 @@ struct ProjectSelectedNotification;
 struct CompleteProjectLoadNotification;
 struct RegisterVFSMappingNotification;
 struct CancelProjectLoadNotification;
+struct ClearErrorNotification;
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
@@ -41,7 +42,7 @@ struct RaiseFileChooserNotification;
  *
  * To add a new Notification:
  *  -# Create the struct in a file and add to the CMake DummyTarget source vector;
- *  -# Add the struct type to the forward includes in this file;
+ *  -# Add the struct type to the forward declarations in this file;
  *  -# Add the forward-declared type to this variant;
  *  -# Specialise the NotificationNames::get member function to produce a human-readable name;
  *  -# Include the full type in AllNotifications.hpp;
@@ -66,7 +67,8 @@ using Notification = std::variant<
         ProjectSelectedNotification,
         CompleteProjectLoadNotification,
         RegisterVFSMappingNotification,
-        CancelProjectLoadNotification
+        CancelProjectLoadNotification,
+        ClearErrorNotification
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         // Native-only notifications.
         ,
@@ -135,7 +137,12 @@ template <> constexpr std::string_view NotificationNames::get<ProjectSelectedNot
 
 template <> constexpr std::string_view NotificationNames::get<RegisterVFSMappingNotification>()
 {
-    return "Register VFS Mapping";
+    return "Register VFS Mapping Notification";
+}
+
+template <> constexpr std::string_view NotificationNames::get<ClearErrorNotification>()
+{
+    return "Clear Error State Notification";
 }
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)

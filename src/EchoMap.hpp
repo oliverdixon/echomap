@@ -102,6 +102,7 @@ protected:
             [this](const CompleteProjectLoadNotification& n) { handle_notification(n); },
             [this](RegisterVFSMappingNotification& n) { handle_notification(n); },
             [this](const CancelProjectLoadNotification& n) { handle_notification(n); },
+            [this](const ClearErrorNotification& n) { handle_notification(n); },
         };
         // clang-format on
     }
@@ -210,6 +211,12 @@ protected:
      */
     void process_worker_results();
 
+    void raise_error(std::string_view message);
+    void raise_error(
+            std::string_view message,
+            const std::runtime_error& exception
+    );
+
     void handle_notification(const AddChannelMappingNotification& notification) const;
     void handle_notification(const ModifySensorColourNotification& notification) const;
     void handle_notification(const ModifySensorPositionNotification& notification) const;
@@ -217,6 +224,7 @@ protected:
     void handle_notification(const CompleteProjectLoadNotification& notification);
     void handle_notification(RegisterVFSMappingNotification& notification) const;
     void handle_notification(const CancelProjectLoadNotification& notification);
+    void handle_notification(const ClearErrorNotification& notification);
 
     void handle_result(LoadProjectResult&& result);
     void handle_result(LoadSignalFileResult&& result);

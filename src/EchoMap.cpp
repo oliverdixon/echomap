@@ -12,6 +12,7 @@
 #include <imgui_internal.h>
 #include <implot.h>
 #include <implot3d.h>
+#include <sigc++/adaptors/bind.h>
 
 #include "RobotoMedium.hpp"
 #include "errors/ConfigurationError.hpp"
@@ -175,7 +176,7 @@ void EchoMap::setup_subscriptions()
     // NOLINTEND(*-redundant-casting)
 
     connections.emplace_back(despatcher.error_channel.observe([this](const ErrorResult& error) {
-        error_modal.emplace(error.what());
+        raise_error(error.what());
         LOG_F_ERROR("Error modal raised due to error: {}", error.what());
     }));
 }
@@ -478,7 +479,7 @@ void EchoMap::process_notifications()
         } catch (const IgnoredWarning& warning) {
             LOG_F_WARN("{} with hint {} was dropped: {}", type_name, hint, warning.what());
         } catch (const std::exception& exception) {
-            error_modal.emplace(exception.what());
+            raise_error(exception.what());
             LOG_F_ERROR("{} with hint {} was responsible for error: {}", type_name, hint, exception.what());
         }
 
@@ -494,6 +495,25 @@ void EchoMap::process_worker_results()
         } catch (const std::exception& exception) {
             Logger::log(Logger::Level::Error, exception.what(), std::source_location::current());
         }
+}
+
+void EchoMap::raise_error(
+        const std::string_view message
+)
+{
+    error_modal.emplace(message, [this] {
+        notify(ClearErrorNotification{});
+    });
+}
+
+void EchoMap::raise_error(
+        const std::string_view message,
+        const std::runtime_error& exception
+)
+{
+    error_modal.emplace(message, exception, [this] {
+        notify(ClearErrorNotification{});
+    });
 }
 
 void EchoMap::handle_notification(
@@ -581,6 +601,14 @@ void EchoMap::handle_notification(
 
     active_modal.reset();
     unloaded_project.reset();
+}
+
+void EchoMap::handle_notification(
+        const ClearErrorNotification& notification
+)
+{
+    std::ignore = notification;
+    error_modal.reset();
 }
 
 void EchoMap::handle_result(
