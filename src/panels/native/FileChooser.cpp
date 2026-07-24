@@ -15,11 +15,13 @@ namespace echomap
 {
 
 FileChooser::FileChooser(
-        EchoMap* const app
+        EchoMap* const app,
+        CallbackT&& callback
 ) :
     file_combo(app),
     panel_name(std::string("Select File to Open") + get_imgui_stable_name()),
-    app(app)
+    app(app),
+    callback(std::move(callback))
 {
 }
 
@@ -41,15 +43,16 @@ void FileChooser::draw() noexcept
         ImGui::Spacing();
 
         if (ImGui::Button("Cancel", button_size)) {
-            ImGui::CloseCurrentPopup();
+            ImGui::CloseCurrentPopup(); // TODO should be done with notification.
             should_open = false;
         }
 
         ImGui::SameLine();
 
-        if (chosen_path.extension() == expected_extension)
-            ImGui::Button("OK", button_size);
-        else {
+        if (chosen_path.extension() == expected_extension) {
+            if (ImGui::Button("OK", button_size))
+                callback(chosen_path);
+        } else {
             ImGui::BeginDisabled();
             ImGui::Button("OK", button_size);
             ImGui::SetItemTooltip("To continue, select a JSON EchoMap project file.");

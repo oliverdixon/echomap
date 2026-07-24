@@ -100,18 +100,6 @@ public:
     }
 
 protected:
-#ifndef __EMSCRIPTEN__
-    // Native-only notifiers.
-
-    static void raise_project_file_chooser()
-    {
-        if (callback.empty())
-            LOG_WARN("Dropping project file selection request since no application instance is bound.");
-        else
-            callback(RaiseNativeFileChooser());
-    }
-#endif // __EMSCRIPTEN__
-
     /**
      * Invokes the notification callback.
      *
@@ -133,8 +121,7 @@ protected:
     {
         if (callback.empty())
             LOG_F_WARN(
-                    "Dropping {} due to missing bound application instance.",
-                    NotificationNames::get<NotificationT>()
+                    "Dropping {} due to unbound application instance.", NotificationNames::get<NotificationT>()
             );
         else
             callback(NotificationT(std::forward<Args>(args)...));

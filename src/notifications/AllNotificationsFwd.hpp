@@ -27,7 +27,7 @@ struct CancelProjectLoadNotification;
 
 // Native-only notifications.
 
-struct RaiseNativeFileChooser;
+struct RaiseFileChooserNotification;
 
 #endif // __EMSCRIPTEN__
 
@@ -53,7 +53,7 @@ using Notification = std::variant<
 #ifndef __EMSCRIPTEN__
         // Native-only notifications.
         ,
-        RaiseNativeFileChooser
+        RaiseFileChooserNotification
 #endif // __EMSCRIPTEN__
         >;
 
@@ -120,9 +120,9 @@ template <> constexpr std::string_view NotificationNames::get<RegisterVFSMapping
 
 // Names of native-only notifications.
 
-template <> constexpr std::string_view NotificationNames::get<RaiseNativeFileChooser>()
+template <> constexpr std::string_view NotificationNames::get<RaiseFileChooserNotification>()
 {
-    return "Raise Native File Chooser Notification";
+    return "Raise File Chooser Notification";
 }
 
 #endif // __EMSCRIPTEN__

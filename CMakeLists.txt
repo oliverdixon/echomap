@@ -131,7 +131,7 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     target_sources(DummyTarget PRIVATE
             src/actions/NativeActionController.cpp
             src/actions/NativeActionController.hpp
-            src/notifications/native/RaiseNativeFileChooser.hpp
+            src/notifications/native/RaiseFileChooserNotification.hpp
     )
 endif ()
 

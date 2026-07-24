@@ -20,8 +20,11 @@
 #include "RegisterVFSMappingNotification.hpp"
 
 #ifndef __EMSCRIPTEN__
+
 // Native-only notifications.
-#include "native/RaiseNativeFileChooser.hpp"
+
+#include "native/RaiseFileChooserNotification.hpp"
+
 #endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_ALLNOTIFICATIONS_HPP

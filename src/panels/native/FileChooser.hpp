@@ -12,6 +12,8 @@
 
 #include <filesystem>
 
+#include <sigc++/slot.h>
+
 #include "../../utility/FilesystemCombo.hpp"
 #include "../IPanel.hpp"
 
@@ -25,8 +27,10 @@ class EchoMap;
  */
 class FileChooser : public IPanel
 {
+    using CallbackT = sigc::slot<void(const std::filesystem::path&)>;
+
 public:
-    explicit FileChooser(EchoMap* app);
+    explicit FileChooser(EchoMap* app, CallbackT&& callback);
 
     void draw() noexcept override;
 
@@ -46,6 +50,7 @@ private:
     std::string panel_name;
     bool should_open = true;
     EchoMap* app;
+    CallbackT callback;
 };
 
 } // namespace echomap

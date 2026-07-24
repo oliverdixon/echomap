@@ -15,7 +15,6 @@
 
 #include "notifications/AllNotificationsFwd.hpp"
 #include "panels/ErrorModal.hpp"
-#include "panels/MapSourcesModal.hpp"
 #include "signals/Worker.hpp"
 #include "signals/WorkerResultDespatcher.hpp"
 
@@ -187,6 +186,10 @@ private:
     void handle_notification(const RegisterVFSMappingNotification& task) const;
     void handle_notification(const CancelProjectLoadNotification& task);
 
+#ifndef __EMSCRIPTEN__
+    void handle_notification(RaiseFileChooserNotification& task);
+#endif // __EMSCRIPTEN__
+
     void handle_result(LoadProjectResult&& result);
     void handle_result(LoadSignalFileResult&& result);
 
@@ -222,12 +225,11 @@ private:
     std::vector<sigc::scoped_connection> connections; /**< RAII lifetime manager for signal connections. */
 
     std::vector<std::unique_ptr<IPanel>> panels;      /**< Individual display components. */
-    ErrorModal error_modal;                           /**< Persistent panel to indicate errors over all other panels. */
+    std::optional<ErrorModal> error_modal;            /**< Persistent panel to indicate errors over all other panels. */
     std::vector<Notification> notify_queue;    /**< Queue for simple tasks that needn't go through the despatcher. */
     std::unique_ptr<Project> project;          /**< Owning container for the active Project. */
     std::unique_ptr<Project> unloaded_project; /**< Owning container for the unloaded Project. */
-
-    std::optional<MapSourcesModal> map_sources_modal;
+    std::unique_ptr<IPanel> active_modal;      /**< The current active non-ErrorModal modal panel. */
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

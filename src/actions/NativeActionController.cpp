@@ -16,8 +16,9 @@ namespace echomap
 
 void NativeActionController::select_project_file_impl()
 {
-    // TODO
-    throw std::runtime_error("Not implemented");
+    notify<RaiseFileChooserNotification>([](const std::filesystem::path& path) {
+        notify<ProjectSelectedNotification>(path);
+    });
 }
 
 void NativeActionController::register_vfs_mapping_impl(

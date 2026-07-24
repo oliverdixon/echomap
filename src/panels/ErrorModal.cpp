@@ -14,14 +14,10 @@
 namespace echomap
 {
 
-ErrorModal::ErrorModal() :
-    panel_name(std::string("Error!") + get_imgui_stable_name())
-{
-}
-
-void ErrorModal::raise_error(
+ErrorModal::ErrorModal(
         const std::string_view message
-) noexcept
+) :
+    panel_name(std::string("Error!") + get_imgui_stable_name())
 {
     try {
         prefix = message;
@@ -34,10 +30,11 @@ void ErrorModal::raise_error(
     is_raised = true;
 }
 
-void ErrorModal::raise_error(
+ErrorModal::ErrorModal(
         const std::string_view new_prefix,
         const std::runtime_error& exception
-) noexcept
+) :
+    panel_name(std::string("Error!") + get_imgui_stable_name())
 {
     try {
         detail = exception.what();

@@ -15,7 +15,11 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
-#endif
+#endif // __EMSCRIPTEN__
+
+#ifndef __EMSCRIPTEN__
+#include "panels/native/FileChooser.hpp"
+#endif // __EMSCRIPTEN__
 
 #include "EchoMap.hpp"
 #include "RobotoMedium.hpp"
@@ -27,6 +31,7 @@
 #include "objects/Sensor.hpp"
 #include "objects/Signal.hpp"
 #include "panels/ChannelMappingPanel.hpp"
+#include "panels/MapSourcesModal.hpp"
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
 #include "panels/SensorGeometryPanel.hpp"
@@ -204,7 +209,7 @@ void EchoMap::setup_subscriptions()
     // NOLINTEND(*-redundant-casting)
 
     connections.emplace_back(despatcher.error_channel.observe([this](const ErrorResult& error) {
-        error_modal.raise_error(error.what());
+        error_modal.emplace(error.what());
         LOG_F_ERROR("Error modal raised due to error: {}", error.what());
     }));
 }
@@ -320,10 +325,12 @@ void EchoMap::render() noexcept
     for (const auto& panel : panels)
         panel->draw();
 
-    if (map_sources_modal.has_value())
-        map_sources_modal->draw();
+    if (active_modal != nullptr)
+        active_modal->draw();
 
-    error_modal.draw();
+    if (error_modal.has_value())
+        error_modal->draw();
+
     ImGui::Render();
 
     // Set up a command encoder for the render and allow Dear ImGui panels to provide work.
@@ -504,6 +511,7 @@ void EchoMap::process_notifications()
 
             // clang-format off
             std::visit(variant_helpers::Overloaded{
+                // TODO why need to use lambdas?
                 [this](const AddChannelMappingNotification& task) { handle_notification(task); },
                 [this](const ModifySensorColourNotification& task) { handle_notification(task); },
                 [this](const ModifySensorPositionNotification& task) { handle_notification(task); },
@@ -511,6 +519,10 @@ void EchoMap::process_notifications()
                 [this](const CompleteProjectLoadNotification& task) { handle_notification(task); },
                 [this](const RegisterVFSMappingNotification& task) { handle_notification(task); },
                 [this](const CancelProjectLoadNotification& task) { handle_notification(task); },
+#ifndef __EMSCRIPTEN__
+                    // Native-only callbacks
+                [this](RaiseFileChooserNotification& task) { handle_notification(task); },
+#endif // __EMSCRIPTEN__
                 },
                 notify_queue.back()
             );
@@ -520,7 +532,7 @@ void EchoMap::process_notifications()
             // TODO variant_helpers
             LOG_F_WARN("Notification with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
         } catch (const std::exception& exception) {
-            error_modal.raise_error(exception.what());
+            error_modal.emplace(exception.what());
             // TODO variant_helpers
             LOG_F_ERROR(
                     "Notification with hint {} (#{}) was responsible for error: {}",
@@ -572,6 +584,7 @@ void EchoMap::handle_notification(
         const ProjectSelectedNotification& task
 )
 {
+    active_modal.reset();
     worker.submit(std::make_unique<LoadProjectTask>(task.path, &worker));
 }
 
@@ -595,7 +608,7 @@ void EchoMap::handle_notification(
         );
     }
 
-    map_sources_modal.reset();
+    active_modal.reset();
 }
 
 void EchoMap::handle_notification(
@@ -623,16 +636,32 @@ void EchoMap::handle_notification(
 {
     task.verify_project(unloaded_project.get());
 
-    map_sources_modal.reset();
+    active_modal.reset();
     unloaded_project.reset();
 }
+
+#ifndef __EMSCRIPTEN__
+
+// TODO subclass for native-only operations.
+void EchoMap::handle_notification(
+        RaiseFileChooserNotification& task
+)
+{
+    if (active_modal != nullptr) {
+        LOG_WARN("Ignoring request to raise file chooser since there is an active modal.");
+        return;
+    }
+
+    active_modal = std::make_unique<FileChooser>(this, std::move(task.callback));
+}
+
+#endif // __EMSCRIPTEN__
 
 void EchoMap::handle_result(
         LoadProjectResult&& result
 )
 {
-    if (map_sources_modal.has_value()) {
-        // How have we loaded a new project whilst we're still querying for sources from another one?
+    if (active_modal != nullptr) {
         LOG_WARN("Ignoring request to change active Project since there is an active modal.");
         return;
     }
@@ -641,7 +670,7 @@ void EchoMap::handle_result(
 
     if (!new_project->unloaded_signals.empty()) {
         // Raise the modal to query for the sources.
-        map_sources_modal = MapSourcesModal(this, new_project.get());
+        active_modal = std::make_unique<MapSourcesModal>(this, new_project.get());
         unloaded_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));

@@ -24,14 +24,12 @@ namespace echomap
 class ErrorModal final : public IPanel
 {
 public:
-    ErrorModal();
-
     /**
      * Raise the modal given a simple unformatted message.
      *
      * @param message The unformatted string literal to display.
      */
-    void raise_error(std::string_view message) noexcept;
+    explicit ErrorModal(std::string_view message);
 
     /**
      * Raise the modal given a prefix and a detailed exception.
@@ -43,10 +41,10 @@ public:
      * program termination). If a low-level system call fails, such as memory allocation to copy the error text, the
      * exception is caught and logged with the system logger; the modal is not raised.
      */
-    void raise_error(
+    ErrorModal(
             std::string_view new_prefix,
             const std::runtime_error& exception
-    ) noexcept;
+    );
 
     void draw() noexcept override;
 
