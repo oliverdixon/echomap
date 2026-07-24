@@ -5,6 +5,7 @@
 #ifndef ECHOMAP_JSONDESERIALISER_HPP
 #define ECHOMAP_JSONDESERIALISER_HPP
 
+#include <__filesystem/path.h>
 #include <simdjson.h>
 
 #include "IDeserialiser.hpp"
@@ -16,7 +17,7 @@ class JSONDeserialiser : public IDeserialiser
 {
 public:
     std::unique_ptr<Project> deserialise_project(
-            std::string_view path,
+            const std::filesystem::path& path,
             Worker* worker
     ) override;
 

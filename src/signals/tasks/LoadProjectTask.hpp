@@ -34,7 +34,7 @@ public:
      * @param worker A thread-safe Worker capable of accepting sub-work requests.
      */
     explicit LoadProjectTask(
-            const std::filesystem::path& path,
+            std::filesystem::path path,
             Worker* worker
     );
 
@@ -62,7 +62,7 @@ private:
     /**
      * The deserialiser takes just strings for paths, so we "downgrade" the typed path to a string.
      */
-    std::string project_file_path;
+    std::filesystem::path project_file_path;
 
     Worker* worker;
 };

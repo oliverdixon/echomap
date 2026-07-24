@@ -79,39 +79,22 @@ auto get_signals(
     if (const auto error = root["signals"].get(factories))
         return error;
 
-#ifdef __EMSCRIPTEN__
-    // Step 2 (Wasm).  Add the partially completed factories to the project.
-    for (auto factory : factories | std::views::as_rvalue) {
-        const auto& signal = factory->observe_signal();
-        const auto& source = signal.observe_source();
-        assert(source.has_value());
+    /*
+     * We now have a number of factories. Their destination depends on our platform:
+     *
+     * If on WebAssembly, they can't be used yet, since we need to establish VFS mappings. In this case, we declare them
+     * to the project to use later on, once the VFS mappings are done.
+     *
+     * If on native,
+     */
 
-        if (!loaded.emplace(signal.get_name(), signal.get_id()).second)
+#ifdef __EMSCRIPTEN__
+    // Step 2 (Wasm).
+    for (auto factory : factories | std::views::as_rvalue) {
+        if (const auto& signal = factory->observe_signal(); !loaded.emplace(signal.get_name(), signal.get_id()).second)
             throw std::runtime_error(std::format("Project contains duplicate signal {}.", signal.get_name()));
 
-        // TODO this logic can go in Project when we make unloaded_signals private.
-
-        auto file_group_it = project.unloaded_signals.find(source->path);
-
-        if (file_group_it == project.unloaded_signals.end()) {
-            decltype(echomap::Project::unloaded_signals)::mapped_type pair{
-                    {},
-                    std::vector<std::unique_ptr<echomap::SignalFactory>>(source->channel)
-            };
-
-            const auto [it, success] = project.unloaded_signals.emplace(source->path, std::move(pair));
-            if (!success)
-                throw std::runtime_error("Could not register VFS channel mappings.");
-
-            file_group_it = it;
-        }
-
-        auto& group_factories = file_group_it->second.second;
-
-        if (group_factories.size() < source->channel)
-            group_factories.resize(source->channel);
-
-        group_factories[source->channel - 1] = std::move(factory);
+        project.indicate_unloaded_signal(std::move(factory));
     }
 #else
     /*
@@ -496,18 +479,22 @@ namespace echomap
 {
 
 std::unique_ptr<Project> JSONDeserialiser::deserialise_project(
-        const std::string_view path,
+        const std::filesystem::path& path,
         Worker* const worker
 )
 {
     parent_worker = worker;
-    const auto json = simdjson::padded_string::load(path);
+    const auto json = simdjson::padded_string::load(path.c_str());
     auto doc = parser.iterate(json);
     auto project = std::make_unique<Project>();
 
     if (const auto error = doc.get(*project); error)
         throw std::runtime_error(
-                std::format("Could not load Project at {} due to error: {}", path, simdjson::error_message(error))
+                std::format(
+                        "Could not load Project at {} due to error: {}",
+                        path.c_str(),
+                        simdjson::error_message(error)
+                )
         );
 
     return project;

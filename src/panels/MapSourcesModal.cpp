@@ -29,7 +29,7 @@ MapSourcesModal::MapSourcesModal(
 
 void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
 {
-    if (project->unloaded_signals.empty())
+    if (project->observe_unloaded_signals().empty())
         return;
 
     if (std::exchange(should_open, false))
@@ -46,7 +46,7 @@ void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
         draw_preamble();
 
         // The remaining number of signals for which there is no given path in VFS, decremented as we enumerate.
-        auto unmapped_count = project->unloaded_signals.size();
+        auto unmapped_count = project->observe_unloaded_signals().size();
 
         if (ImGui::BeginTable("##UploadTable", 5, table_flags)) {
             ImGui::TableSetupColumn("##UploadButton", ImGuiTableColumnFlags_WidthFixed, button_size.x);
@@ -56,7 +56,7 @@ void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
             ImGui::TableSetupColumn("Given Path", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableHeadersRow();
 
-            for (const auto& [external_path, mapping_info] : project->unloaded_signals)
+            for (const auto& [external_path, mapping_info] : project->observe_unloaded_signals())
                 if (draw_table_entry(
                             external_path,
                             mapping_info.first,

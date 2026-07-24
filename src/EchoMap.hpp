@@ -100,7 +100,7 @@ protected:
             [this](const ModifySensorPositionNotification& n) { handle_notification(n); },
             [this](const ProjectSelectedNotification& n) { handle_notification(n); },
             [this](const CompleteProjectLoadNotification& n) { handle_notification(n); },
-            [this](const RegisterVFSMappingNotification& n) { handle_notification(n); },
+            [this](RegisterVFSMappingNotification& n) { handle_notification(n); },
             [this](const CancelProjectLoadNotification& n) { handle_notification(n); },
         };
         // clang-format on
@@ -215,7 +215,7 @@ protected:
     void handle_notification(const ModifySensorPositionNotification& notification) const;
     void handle_notification(const ProjectSelectedNotification& notification);
     void handle_notification(const CompleteProjectLoadNotification& notification);
-    void handle_notification(const RegisterVFSMappingNotification& notification) const;
+    void handle_notification(RegisterVFSMappingNotification& notification) const;
     void handle_notification(const CancelProjectLoadNotification& notification);
 
     void handle_result(LoadProjectResult&& result);

@@ -536,8 +536,7 @@ void EchoMap::handle_notification(
 
     // For each group, create a worker notification to load the corresponding file.
 
-    for (auto&& [vfs_path, factories] :
-         unloaded_project->unloaded_signals | std::views::values | std::views::as_rvalue) {
+    for (auto&& [vfs_path, factories] : unloaded_project->take_unloaded_factories()) {
 
         if (!vfs_path.has_value())
             throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
@@ -552,22 +551,24 @@ void EchoMap::handle_notification(
 }
 
 void EchoMap::handle_notification(
-        const RegisterVFSMappingNotification& notification
+        RegisterVFSMappingNotification& notification
 ) const
 {
     notification.verify_project(unloaded_project.get());
 
-    const auto map_it = unloaded_project->unloaded_signals.find(notification.external);
-
-    if (map_it == unloaded_project->unloaded_signals.end())
+    try {
+        unloaded_project->add_vfs_mapping_for_unavailable_signal(
+                notification.external,
+                std::move(notification.internal)
+        );
+    } catch (const std::runtime_error&) {
         throw IgnoredWarning(
                 std::format(
                         "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
                         notification.external.c_str()
                 )
         );
-
-    map_it->second.first = notification.internal;
+    }
 }
 
 void EchoMap::handle_notification(
@@ -591,7 +592,7 @@ void EchoMap::handle_result(
 
     auto&& new_project = std::move(result).take_project();
 
-    if (!new_project->unloaded_signals.empty()) {
+    if (!new_project->observe_unloaded_signals().empty()) {
         // Raise the modal to query for the sources.
         active_modal = std::make_unique<MapSourcesModal>(this, new_project.get());
         unloaded_project = std::move(new_project);
