@@ -44,7 +44,7 @@ void EchoMapNative::visit_notification(
 
             variant_helpers::Overloaded{
                 make_common_notification_visitors(),
-                [this](RaiseFileChooserNotification& task) { handle_notification(task); },
+                [this](RaiseFileChooserNotification& n) { handle_notification(n); },
             },
 
             // clang-format on
@@ -53,7 +53,7 @@ void EchoMapNative::visit_notification(
 }
 
 void EchoMapNative::handle_notification(
-        RaiseFileChooserNotification& task
+        RaiseFileChooserNotification& notification
 )
 {
     if (active_modal != nullptr) {
@@ -61,7 +61,7 @@ void EchoMapNative::handle_notification(
         return;
     }
 
-    active_modal = std::make_unique<FileChooser>(this, std::move(task.callback));
+    active_modal = std::make_unique<FileChooser>(this, std::move(notification.callback));
 }
 
 } // namespace echomap

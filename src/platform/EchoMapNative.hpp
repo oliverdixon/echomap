@@ -29,7 +29,7 @@ protected:
     void visit_notification(Notification& notification) override;
 
 private:
-    void handle_notification(RaiseFileChooserNotification& task);
+    void handle_notification(RaiseFileChooserNotification& notification);
 };
 
 } // namespace echomap

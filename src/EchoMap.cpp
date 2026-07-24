@@ -467,26 +467,19 @@ bool EchoMap::handle_window_resize() noexcept
 void EchoMap::process_notifications()
 {
     while (!notification_queue.empty()) {
-        auto* const task_hint = static_cast<void*>(&notification_queue.back());
-        const auto task_position = notification_queue.size() - 1;
+        auto& notification = notification_queue.back();
+        const auto type_name = NotificationNames::indexed_names[notification.index()];
+        auto* const hint = static_cast<void*>(&notification);
 
-        // TODO variant_helpers
-        LOG_F_DEBUG("Consuming notification with hint {} (#{}).", task_hint, task_position);
+        LOG_F_DEBUG("Consuming {} with hint {}.", type_name, hint);
 
         try {
-            visit_notification(notification_queue.back());
+            visit_notification(notification);
         } catch (const IgnoredWarning& warning) {
-            // TODO variant_helpers
-            LOG_F_WARN("Notification with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
+            LOG_F_WARN("{} with hint {} was dropped: {}", type_name, hint, warning.what());
         } catch (const std::exception& exception) {
             error_modal.emplace(exception.what());
-            // TODO variant_helpers
-            LOG_F_ERROR(
-                    "Notification with hint {} (#{}) was responsible for error: {}",
-                    task_hint,
-                    task_position,
-                    exception.what()
-            );
+            LOG_F_ERROR("{} with hint {} was responsible for error: {}", type_name, hint, exception.what());
         }
 
         notification_queue.pop_back();
@@ -504,44 +497,44 @@ void EchoMap::process_worker_results()
 }
 
 void EchoMap::handle_notification(
-        const AddChannelMappingNotification& task
+        const AddChannelMappingNotification& notification
 ) const
 {
-    task.verify_project(project.get());
-    project->add_association(task.signal_id, task.sensor_id);
+    notification.verify_project(project.get());
+    project->add_association(notification.signal_id, notification.sensor_id);
 }
 
 void EchoMap::handle_notification(
-        const ModifySensorColourNotification& task
+        const ModifySensorColourNotification& notification
 ) const
 {
-    task.verify_project(project.get());
-    project->get_mutable_sensor(task.sensor_id).set_colour(task.colour);
+    notification.verify_project(project.get());
+    project->get_mutable_sensor(notification.sensor_id).set_colour(notification.colour);
 }
 
 void EchoMap::handle_notification(
-        const ModifySensorPositionNotification& task
+        const ModifySensorPositionNotification& notification
 ) const
 {
-    task.verify_project(project.get());
-    project->get_mutable_sensor(task.sensor_id).set_position(task.position);
+    notification.verify_project(project.get());
+    project->get_mutable_sensor(notification.sensor_id).set_position(notification.position);
 }
 
 void EchoMap::handle_notification(
-        const ProjectSelectedNotification& task
+        const ProjectSelectedNotification& notification
 )
 {
     active_modal.reset();
-    worker.submit(std::make_unique<LoadProjectTask>(task.path, &worker));
+    worker.submit(std::make_unique<LoadProjectTask>(notification.path, &worker));
 }
 
 void EchoMap::handle_notification(
-        const CompleteProjectLoadNotification& task
+        const CompleteProjectLoadNotification& notification
 )
 {
-    task.verify_project(unloaded_project.get());
+    notification.verify_project(unloaded_project.get());
 
-    // For each group, create a worker task to load the corresponding file.
+    // For each group, create a worker notification to load the corresponding file.
 
     for (auto&& [vfs_path, factories] :
          unloaded_project->unloaded_signals | std::views::values | std::views::as_rvalue) {
@@ -549,7 +542,7 @@ void EchoMap::handle_notification(
         if (!vfs_path.has_value())
             throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
 
-        // Once these tasks return, if everything is loaded correctly, we'll change the active project.
+        // Once these notifications return, if everything is loaded correctly, we'll change the active project.
         worker.submit(
                 std::make_unique<LoadSignalFileTask>(unloaded_project->get_id(), *vfs_path, std::move(factories))
         );
@@ -559,29 +552,29 @@ void EchoMap::handle_notification(
 }
 
 void EchoMap::handle_notification(
-        const RegisterVFSMappingNotification& task
+        const RegisterVFSMappingNotification& notification
 ) const
 {
-    task.verify_project(unloaded_project.get());
+    notification.verify_project(unloaded_project.get());
 
-    const auto map_it = unloaded_project->unloaded_signals.find(task.external);
+    const auto map_it = unloaded_project->unloaded_signals.find(notification.external);
 
     if (map_it == unloaded_project->unloaded_signals.end())
         throw IgnoredWarning(
                 std::format(
                         "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
-                        task.external.c_str()
+                        notification.external.c_str()
                 )
         );
 
-    map_it->second.first = task.internal;
+    map_it->second.first = notification.internal;
 }
 
 void EchoMap::handle_notification(
-        const CancelProjectLoadNotification& task
+        const CancelProjectLoadNotification& notification
 )
 {
-    task.verify_project(unloaded_project.get());
+    notification.verify_project(unloaded_project.get());
 
     active_modal.reset();
     unloaded_project.reset();
@@ -648,18 +641,18 @@ void EchoMap::change_active_project(
 }
 
 void EchoMap::notify(
-        const Notification& task
+        const Notification& notification
 )
 {
-    notification_queue.emplace_back(task);
+    notification_queue.emplace_back(notification);
 
     /*
      * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess
      * effort to quickly discriminate o notification without adding bloat to their structures.
      */
-    // TODO use variant_helpers to statically determine names.
     LOG_F_DEBUG(
-            "Scheduling notification with hint {} at position {}.",
+            "Scheduling {} with hint {} at position {}.",
+            NotificationNames::indexed_names[notification_queue.back().index()],
             static_cast<void*>(&notification_queue.back()),
             notification_queue.size() - 1
     );

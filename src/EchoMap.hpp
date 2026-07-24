@@ -61,13 +61,13 @@ public:
     void change_active_project(std::unique_ptr<Project> new_project) noexcept;
 
     /**
-     * Submit a new Notification task to the application queue.
+     * Submit a new Notification to the application queue.
      *
      * Notifications are processed at the beginning of render cycles in a first-come first-served ordering.
      *
-     * @param task The trivial task to schedule.
+     * @param notification The Notification to schedule.
      */
-    void notify(const Notification& task);
+    void notify(const Notification& notification);
 
     /**
      * Indicate to the renderer that the following frames should always be rendered, regardless of whether there are any
@@ -95,13 +95,13 @@ protected:
     {
         // clang-format off
         return variant_helpers::Overloaded{
-            [this](const AddChannelMappingNotification& task) { handle_notification(task); },
-            [this](const ModifySensorColourNotification& task) { handle_notification(task); },
-            [this](const ModifySensorPositionNotification& task) { handle_notification(task); },
-            [this](const ProjectSelectedNotification& task) { handle_notification(task); },
-            [this](const CompleteProjectLoadNotification& task) { handle_notification(task); },
-            [this](const RegisterVFSMappingNotification& task) { handle_notification(task); },
-            [this](const CancelProjectLoadNotification& task) { handle_notification(task); },
+            [this](const AddChannelMappingNotification& n) { handle_notification(n); },
+            [this](const ModifySensorColourNotification& n) { handle_notification(n); },
+            [this](const ModifySensorPositionNotification& n) { handle_notification(n); },
+            [this](const ProjectSelectedNotification& n) { handle_notification(n); },
+            [this](const CompleteProjectLoadNotification& n) { handle_notification(n); },
+            [this](const RegisterVFSMappingNotification& n) { handle_notification(n); },
+            [this](const CancelProjectLoadNotification& n) { handle_notification(n); },
         };
         // clang-format on
     }
@@ -201,7 +201,7 @@ protected:
     bool handle_window_resize() noexcept;
 
     /**
-     * Handle any unconsumed Notification objects from the task queue.
+     * Handle any unconsumed Notification objects from the queue.
      */
     void process_notifications();
 
@@ -210,13 +210,13 @@ protected:
      */
     void process_worker_results();
 
-    void handle_notification(const AddChannelMappingNotification& task) const;
-    void handle_notification(const ModifySensorColourNotification& task) const;
-    void handle_notification(const ModifySensorPositionNotification& task) const;
-    void handle_notification(const ProjectSelectedNotification& task);
-    void handle_notification(const CompleteProjectLoadNotification& task);
-    void handle_notification(const RegisterVFSMappingNotification& task) const;
-    void handle_notification(const CancelProjectLoadNotification& task);
+    void handle_notification(const AddChannelMappingNotification& notification) const;
+    void handle_notification(const ModifySensorColourNotification& notification) const;
+    void handle_notification(const ModifySensorPositionNotification& notification) const;
+    void handle_notification(const ProjectSelectedNotification& notification);
+    void handle_notification(const CompleteProjectLoadNotification& notification);
+    void handle_notification(const RegisterVFSMappingNotification& notification) const;
+    void handle_notification(const CancelProjectLoadNotification& notification);
 
     void handle_result(LoadProjectResult&& result);
     void handle_result(LoadSignalFileResult&& result);
@@ -239,7 +239,7 @@ protected:
 
     std::vector<std::unique_ptr<IPanel>> panels;      /**< Individual display components. */
     std::optional<ErrorModal> error_modal;            /**< Persistent panel to indicate errors over all other panels. */
-    std::vector<Notification> notification_queue;    /**< Queue for simple tasks that needn't go through the despatcher. */
+    std::vector<Notification> notification_queue;
     std::unique_ptr<Project> project;          /**< Owning container for the active Project. */
     std::unique_ptr<Project> unloaded_project; /**< Owning container for the unloaded Project. */
     std::unique_ptr<IPanel> active_modal;      /**< The current active non-ErrorModal modal panel. */

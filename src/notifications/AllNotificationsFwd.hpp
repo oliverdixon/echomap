@@ -79,6 +79,11 @@ struct NotificationNames
         static_assert(false, "Missing notification name.");
         return {};
     }
+
+    /**
+     * Aggregated names by the index of the alternative.
+     */
+    static const std::array<std::string_view, std::variant_size_v<Notification>> indexed_names;
 };
 
 template <> constexpr std::string_view NotificationNames::get<AddChannelMappingNotification>()
@@ -126,6 +131,9 @@ template <> constexpr std::string_view NotificationNames::get<RaiseFileChooserNo
 }
 
 #endif // __EMSCRIPTEN__
+
+constexpr std::array<std::string_view, std::variant_size_v<Notification>> NotificationNames::indexed_names =
+        variant_helpers::variant_name_array<Notification, NotificationNames>;
 
 } // namespace echomap
 
