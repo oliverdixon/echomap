@@ -14,7 +14,9 @@
 
 #include <filesystem>
 
+#include "../notifications/AllNotifications.hpp"
 #include "../utility/Logger.hpp"
+#include "../utility/VariantHelpers.hpp"
 
 namespace echomap
 {
@@ -25,85 +27,50 @@ namespace echomap
  */
 
 /**
- * Provides a target-independent static mechanism for performing "actions", such as raising a file-selector dialog, and
- * invoking callbacks upon action completion.
+ * Provides a platform-independent static mechanism for performing "system actions", such as raising a file-selector
+ * dialog, and invoking callbacks upon completion.
  *
- * Prior to using any actions with callbacks, callers should call @ref bind to provide callbacks as slots. Slots may be
- * disconnected with @ref unbind.
+ * The intended workflow is:
+ *  -# Application controller invokes ActionControllerBase::bind to provide a slot capable of accepting Notification
+ *     objects.
+ *  -# Components <b>on the main thread</b> invoke actions, such as ActionControllerBase::select_project_file.
+ *  -# The specialisation of ActionControllerBase (either JSActionController or NativeActionController) carries out the
+ *     action. This may or may not involve invoking the bound callback slot with a constructed Notification.
+ *  -# Following completion of the action, the specialisation reports its status through the bound callback slot with
+ *     a notification.
  *
- * Due to the extensive reliance upon static storage, this class (and any of its inheritors) is not thread-safe. This
- * data model is necessary to accommodate elaborate callback routines, such as Emscripten's @c ccall API, in which
- * calling code cannot reasonably retrieve a pointer to any C++ objects.
+ * Due to the reliance upon static storage, this class (and any of its inheritors) is not thread-safe. This data model
+ * is necessary to accommodate elaborate callback routines, such as Emscripten's @c ccall API, in which calling code
+ * cannot reasonably retrieve a pointer to any C++ objects.
  *
  * @ingroup Actions
  */
 template <typename Derived> class ActionControllerBase
 {
-    /**
-     * Simple aggregate for callbacks registered to actions and their slot types.
-     * @ingroup Actions
-     */
-    struct Callbacks
-    {
-        /**
-         * @defgroup ProjectFileAction Project File Action
-         * Queries the user for the location of a Project file to load.
-         * @ingroup Actions
-         * @{
-         */
-
-        /** Call signature type the @ref ProjectFileAction. */
-        using ProjectFile = sigc::slot<void(const std::filesystem::path&)>;
-        /** Stored callback for the @ref ProjectFileAction .*/
-        ProjectFile project_file_slot;
-
-        /** @} */
-
-        /**
-         * @defgroup RegisterVFSMapping Register VFS Mapping
-         * Queries the user for the location of an externally sourced file.
-         * @ingroup Actions
-         * @{
-         */
-
-        /** Call signature type the @ref RegisterVFSMapping. @todo Use id_type on the C++ side. */
-        using RegisterVFS =
-                sigc::slot<void(std::size_t project_id, const std::filesystem::path&, const std::filesystem::path&)>;
-        /** Stored callback for the @ref RegisterVFSMapping .*/
-        RegisterVFS register_vfs_slot;
-
-        /** @} */
-    };
-
-    static Callbacks callbacks;
+    using CallbackT = sigc::slot<void(const Notification&)>;
+    static CallbackT callback;
 
 public:
     /**
-     * Bind callbacks as slots.
-     *
-     * If a callback is empty, callbacks on the corresponding action will be dropped and a warning logged.
-     *
-     * @param project_file_slot_v Callback for @ref ProjectFileAction.
-     * @param register_vfs_slot_v Callback for @ref RegisterVFSMapping.
+     * Bind the callback slot.
      *
      * @ingroup Actions
      */
     static void bind(
-            Callbacks::ProjectFile&& project_file_slot_v,
-            Callbacks::RegisterVFS&& register_vfs_slot_v
+            CallbackT&& bound_callback
     )
     {
-        callbacks.project_file_slot = std::move(project_file_slot_v);
-        callbacks.register_vfs_slot = std::move(register_vfs_slot_v);
+        callback = std::move(bound_callback);
     }
 
     /**
-     * Disconnect all callbacks.
+     * Disconnect the callback.
+     *
      * @ingroup Actions
      */
     static void unbind()
     {
-        callbacks.project_file_slot.disconnect();
+        callback.disconnect();
     }
 
     /**
@@ -133,49 +100,48 @@ public:
     }
 
 protected:
-    /**
-     * Executes the callback for the @ref ProjectFileAction.
-     *
-     * @param path The path derived from the prompt.
-     * @ingroup ProjectFileAction
-     */
-    static void notify_project_file(
-            const std::filesystem::path& path
-    )
+#ifndef __EMSCRIPTEN__
+    // Native-only notifiers.
+
+    static void raise_project_file_chooser()
     {
-        if (callbacks.project_file_slot.empty())
-            LOG_F_WARN("Dropping project file selection for {} since no application instance is bound.", path.c_str());
+        if (callback.empty())
+            LOG_WARN("Dropping project file selection request since no application instance is bound.");
         else
-            callbacks.project_file_slot(path);
+            callback(RaiseNativeFileChooser());
     }
+#endif // __EMSCRIPTEN__
 
     /**
-     * Executes the callback for the @ref RegisterVFSMapping.
+     * Invokes the notification callback.
      *
-     * @param project_id The ID of the Project that owns the destination Signal.
-     * @param external The path of the external file being mapped into the VFS.
-     * @param internal The path of the VFS file.
+     * If no callback is bound, a warning is issued and the Notification is dropped.
      *
-     * @ingroup RegisterVFSMapping
+     * @tparam NotificationT The type of Notification to send.
+     * @tparam Args The parameter types of the Notification constructor.
+     * @param args The arguments for the Notification constructor.
      */
-    static void notify_vfs_mapping(
-            const std::size_t project_id,
-            const std::filesystem::path& external,
-            const std::filesystem::path& internal
+    template <
+            class NotificationT,
+            class... Args>
+        requires variant_helpers::VariantAlternative<
+                NotificationT,
+                Notification>
+    static void notify(
+            Args&&... args
     )
     {
-        if (callbacks.register_vfs_slot.empty())
+        if (callback.empty())
             LOG_F_WARN(
-                    "Dropping VFS mapping for {} / {} since no application instance is bound.",
-                    external.c_str(),
-                    internal.c_str()
+                    "Dropping {} due to missing bound application instance.",
+                    NotificationNames::get<NotificationT>()
             );
         else
-            callbacks.register_vfs_slot(project_id, external, internal);
+            callback(NotificationT(std::forward<Args>(args)...));
     }
 };
 
-template <typename Derived> ActionControllerBase<Derived>::Callbacks ActionControllerBase<Derived>::callbacks{};
+template <typename Derived> ActionControllerBase<Derived>::CallbackT ActionControllerBase<Derived>::callback{};
 
 } // namespace echomap
 

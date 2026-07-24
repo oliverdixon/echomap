@@ -13,6 +13,7 @@
 #include <sigc++/scoped_connection.h>
 #include <webgpu/webgpu_cpp.h>
 
+#include "notifications/AllNotificationsFwd.hpp"
 #include "panels/ErrorModal.hpp"
 #include "panels/MapSourcesModal.hpp"
 #include "signals/Worker.hpp"
@@ -27,14 +28,6 @@ namespace echomap
 class IPanel;
 class Project;
 
-struct AddChannelMappingNotification;
-struct ModifySensorColourNotification;
-struct ModifySensorPositionNotification;
-struct ProjectSelectedNotification;
-struct CompleteProjectLoadNotification;
-struct RegisterVFSMappingNotification;
-struct CancelProjectLoadNotification;
-
 /**
  * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating
  * initialisation, game loop, interaction, and clean-up.
@@ -42,26 +35,6 @@ struct CancelProjectLoadNotification;
 class EchoMap
 {
 public:
-    /**
-     * @defgroup Notifications Notifications
-     * A trivial message sent exclusively to the EchoMap controller.
-     * @todo Add relevant member functions
-     */
-
-    /**
-     * A Notification is a trivial message sent exclusively to the EchoMap controller.
-     *
-     * @ingroup Notifications
-     */
-    using Notification = std::variant<
-            AddChannelMappingNotification,
-            ModifySensorColourNotification,
-            ModifySensorPositionNotification,
-            ProjectSelectedNotification,
-            CompleteProjectLoadNotification,
-            RegisterVFSMappingNotification,
-            CancelProjectLoadNotification>;
-
     /**
      * Initialise a EchoMap application instance.
      *

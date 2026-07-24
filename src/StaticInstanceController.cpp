@@ -13,7 +13,6 @@
 
 #include "EchoMap.hpp"
 #include "actions/ActionController.hpp"
-#include "notifications/AllNotifications.hpp"
 
 namespace echomap
 {
@@ -22,15 +21,7 @@ StaticInstanceController::StaticInstanceController(
         EchoMap& app
 )
 {
-    ActionController::bind([&app](const std::filesystem::path& path) {
-        app.notify(ProjectSelectedNotification(path));
-    },
-            [&app](const std::size_t project_id,
-                   const std::filesystem::path& external,
-                   const std::filesystem::path& internal) {
-                app.notify(RegisterVFSMappingNotification(project_id, external, internal));
-            }
-    );
+    ActionController::bind(sigc::mem_fun(app, &EchoMap::notify));
 }
 
 StaticInstanceController::~StaticInstanceController() noexcept

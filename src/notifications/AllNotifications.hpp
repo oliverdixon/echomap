@@ -10,12 +10,18 @@
 #ifndef ECHOMAP_ALLNOTIFICATIONS_HPP
 #define ECHOMAP_ALLNOTIFICATIONS_HPP
 
-#include "../notifications/AddChannelMappingNotification.hpp"
-#include "../notifications/CancelProjectLoadNotification.hpp"
-#include "../notifications/CompleteProjectLoadNotification.hpp"
-#include "../notifications/ModifySensorColourNotification.hpp"
-#include "../notifications/ModifySensorPositionNotification.hpp"
-#include "../notifications/ProjectSelectedNotification.hpp"
-#include "../notifications/RegisterVFSMappingNotification.hpp"
+#include "AddChannelMappingNotification.hpp"
+#include "AllNotificationsFwd.hpp"
+#include "CancelProjectLoadNotification.hpp"
+#include "CompleteProjectLoadNotification.hpp"
+#include "ModifySensorColourNotification.hpp"
+#include "ModifySensorPositionNotification.hpp"
+#include "ProjectSelectedNotification.hpp"
+#include "RegisterVFSMappingNotification.hpp"
+
+#ifndef __EMSCRIPTEN__
+// Native-only notifications.
+#include "native/RaiseNativeFileChooser.hpp"
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_ALLNOTIFICATIONS_HPP

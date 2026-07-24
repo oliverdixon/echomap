@@ -117,6 +117,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/panels/native/FileChooser.hpp
         src/utility/FilesystemCombo.cpp
         src/utility/FilesystemCombo.hpp
+        src/notifications/AllNotificationsFwd.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
@@ -130,6 +131,7 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     target_sources(DummyTarget PRIVATE
             src/actions/NativeActionController.cpp
             src/actions/NativeActionController.hpp
+            src/notifications/native/RaiseNativeFileChooser.hpp
     )
 endif ()
 
