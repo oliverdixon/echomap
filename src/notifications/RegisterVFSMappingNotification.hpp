@@ -22,6 +22,8 @@ class Project;
 /**
  * A notification to indicate a new VFS mapping from an external source.
  *
+ * @todo Generalise this.  See TODO.md.  Must be done before merging native-actions back into master.
+ *
  * Produced by the ActionController on RegisterVFSMapping callbacks to indicate a new VFS file mapping has been defined
  * by the user.
  *
