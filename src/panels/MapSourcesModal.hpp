@@ -31,10 +31,10 @@ concept SignalFactoryRange =
  * This is most useful in browser (WebAssembly VFS) contexts where the application cannot interrogate the file system
  * directly.
  */
-class IndividualUploadModal final : public IPanel
+class MapSourcesModal final : public IPanel
 {
 public:
-    explicit IndividualUploadModal(
+    explicit MapSourcesModal(
             EchoMap* app,
             const Project* project
     );

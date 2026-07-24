@@ -1,19 +1,19 @@
 /**
  * @file
  *
- * NativeFileChooser specification
+ * FileChooser specification
  *
  * @author Oliver Dixon
  * @date 2026-07-22
  */
 
-#ifndef ECHOMAP_NATIVEFILECHOOSER_HPP
-#define ECHOMAP_NATIVEFILECHOOSER_HPP
+#ifndef ECHOMAP_FILECHOOSER_HPP
+#define ECHOMAP_FILECHOOSER_HPP
 
 #include <filesystem>
 
-#include "../utility/FilesystemCombo.hpp"
-#include "IPanel.hpp"
+#include "../../utility/FilesystemCombo.hpp"
+#include "../IPanel.hpp"
 
 namespace echomap
 {
@@ -23,10 +23,10 @@ class EchoMap;
 /**
  * @todo Document
  */
-class NativeFileChooser : public IPanel
+class FileChooser : public IPanel
 {
 public:
-    explicit NativeFileChooser(EchoMap* app);
+    explicit FileChooser(EchoMap* app);
 
     void draw() noexcept override;
 
@@ -50,4 +50,4 @@ private:
 
 } // namespace echomap
 
-#endif // ECHOMAP_NATIVEFILECHOOSER_HPP
+#endif // ECHOMAP_FILECHOOSER_HPP

@@ -1,20 +1,20 @@
 /**
  * @file
  *
- * NativeFileChooser implementation
+ * FileChooser implementation
  *
  * @author Oliver Dixon
  * @date 2026-07-22
  */
 
-#include "NativeFileChooser.hpp"
+#include "FileChooser.hpp"
 
-#include "../utility/Logger.hpp"
+#include "../../utility/Logger.hpp"
 
 namespace echomap
 {
 
-NativeFileChooser::NativeFileChooser(
+FileChooser::FileChooser(
         EchoMap* const app
 ) :
     file_combo(app),
@@ -23,7 +23,7 @@ NativeFileChooser::NativeFileChooser(
 {
 }
 
-void NativeFileChooser::draw() noexcept
+void FileChooser::draw() noexcept
 {
     if (std::exchange(should_open, false))
         ImGui::OpenPopup(get_imgui_name());
@@ -61,21 +61,21 @@ void NativeFileChooser::draw() noexcept
     }
 }
 
-const char* NativeFileChooser::get_imgui_name() const noexcept
+const char* FileChooser::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
 }
 
-void NativeFileChooser::change_active_project(
+void FileChooser::change_active_project(
         const Project* const new_project
 )
 {
     std::ignore = new_project;
 }
 
-const char* NativeFileChooser::get_imgui_stable_name() noexcept
+const char* FileChooser::get_imgui_stable_name() noexcept
 {
-    return "###NativeFileChooser";
+    return "###FileChooser";
 }
 
 } // namespace echomap

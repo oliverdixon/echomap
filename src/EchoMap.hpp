@@ -14,7 +14,7 @@
 #include <webgpu/webgpu_cpp.h>
 
 #include "panels/ErrorModal.hpp"
-#include "panels/IndividualUploadModal.hpp"
+#include "panels/MapSourcesModal.hpp"
 #include "signals/Worker.hpp"
 #include "signals/WorkerResultDespatcher.hpp"
 
@@ -250,10 +250,11 @@ private:
 
     std::vector<std::unique_ptr<IPanel>> panels;      /**< Individual display components. */
     ErrorModal error_modal;                           /**< Persistent panel to indicate errors over all other panels. */
-    std::optional<IndividualUploadModal> upload_modal;
     std::vector<Notification> notify_queue;    /**< Queue for simple tasks that needn't go through the despatcher. */
     std::unique_ptr<Project> project;          /**< Owning container for the active Project. */
     std::unique_ptr<Project> unloaded_project; /**< Owning container for the unloaded Project. */
+
+    std::optional<MapSourcesModal> map_sources_modal;
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_JSACTIONCONTROLLER_HPP
 #define ECHOMAP_JSACTIONCONTROLLER_HPP
 
+#ifdef __EMSCRIPTEN__
+
 #include "ActionControllerBase.hpp"
 
 extern "C" int echomap_on_project_file_picked(const char* path) noexcept;
@@ -60,5 +62,7 @@ class JSActionController : public ActionControllerBase<JSActionController>
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_JSACTIONCONTROLLER_HPP

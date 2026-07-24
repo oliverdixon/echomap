@@ -7,18 +7,17 @@
  * @date 2026-07-17
  */
 
-#include "IndividualUploadModal.hpp"
-
 #include "../EchoMap.hpp"
 #include "../actions/ActionController.hpp"
 #include "../notifications/AllNotifications.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/factories/SignalFactory.hpp"
+#include "MapSourcesModal.hpp"
 
 namespace echomap
 {
 
-IndividualUploadModal::IndividualUploadModal(
+MapSourcesModal::MapSourcesModal(
         EchoMap* const app,
         const Project* const project
 ) :
@@ -28,7 +27,7 @@ IndividualUploadModal::IndividualUploadModal(
 {
 }
 
-void IndividualUploadModal::draw() noexcept // TODO remove noexcepts where necessary.
+void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
 {
     if (project->unloaded_signals.empty())
         return;
@@ -78,29 +77,29 @@ void IndividualUploadModal::draw() noexcept // TODO remove noexcepts where neces
     }
 }
 
-const char* IndividualUploadModal::get_imgui_name() const noexcept
+const char* MapSourcesModal::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
 }
 
-void IndividualUploadModal::reshow() noexcept
+void MapSourcesModal::reshow() noexcept
 {
     should_open = true;
 }
 
-void IndividualUploadModal::change_active_project(
+void MapSourcesModal::change_active_project(
         const Project* const new_project
 )
 {
     std::ignore = new_project;
 }
 
-const char* IndividualUploadModal::get_imgui_stable_name() noexcept
+const char* MapSourcesModal::get_imgui_stable_name() noexcept
 {
     return "###IndividualUploadModal";
 }
 
-void IndividualUploadModal::draw_preamble() const noexcept
+void MapSourcesModal::draw_preamble() const noexcept
 {
     ImGui::TextWrapped(
                 "%s contains references to externally sourced signals. Browser security requires that each externally "
@@ -121,7 +120,7 @@ void IndividualUploadModal::draw_preamble() const noexcept
     ImGui::Spacing();
 }
 
-void IndividualUploadModal::draw_buttons(
+void MapSourcesModal::draw_buttons(
         const bool are_all_mapped
 )
 {
@@ -150,7 +149,7 @@ void IndividualUploadModal::draw_buttons(
     }
 }
 
-bool IndividualUploadModal::draw_table_entry(
+bool MapSourcesModal::draw_table_entry(
         const std::filesystem::path& external_path,
         const std::optional<std::filesystem::path>& vfs_path,
         SignalFactoryRange auto&& factories

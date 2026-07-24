@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_NATIVEACTIONCONTROLLER_HPP
 #define ECHOMAP_NATIVEACTIONCONTROLLER_HPP
 
+#ifndef __EMSCRIPTEN__
+
 #include "ActionControllerBase.hpp"
 
 namespace echomap
@@ -47,5 +49,7 @@ class NativeActionController : public ActionControllerBase<NativeActionControlle
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_NATIVEACTIONCONTROLLER_HPP

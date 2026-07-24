@@ -7,6 +7,8 @@
  * @date 2026-07-18
  */
 
+#ifdef __EMSCRIPTEN__
+
 #include "JSActionController.hpp"
 
 #include <emscripten/em_js.h>
@@ -147,3 +149,5 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
         return 5;
     }
 }
+
+#endif // __EMSCRIPTEN__

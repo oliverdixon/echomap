@@ -320,8 +320,8 @@ void EchoMap::render() noexcept
     for (const auto& panel : panels)
         panel->draw();
 
-    if (upload_modal.has_value())
-        upload_modal->draw();
+    if (map_sources_modal.has_value())
+        map_sources_modal->draw();
 
     error_modal.draw();
     ImGui::Render();
@@ -595,7 +595,7 @@ void EchoMap::handle_notification(
         );
     }
 
-    upload_modal.reset();
+    map_sources_modal.reset();
 }
 
 void EchoMap::handle_notification(
@@ -623,7 +623,7 @@ void EchoMap::handle_notification(
 {
     task.verify_project(unloaded_project.get());
 
-    upload_modal.reset();
+    map_sources_modal.reset();
     unloaded_project.reset();
 }
 
@@ -631,7 +631,7 @@ void EchoMap::handle_result(
         LoadProjectResult&& result
 )
 {
-    if (upload_modal.has_value()) {
+    if (map_sources_modal.has_value()) {
         // How have we loaded a new project whilst we're still querying for sources from another one?
         LOG_WARN("Ignoring request to change active Project since there is an active modal.");
         return;
@@ -641,7 +641,7 @@ void EchoMap::handle_result(
 
     if (!new_project->unloaded_signals.empty()) {
         // Raise the modal to query for the sources.
-        upload_modal = IndividualUploadModal(this, new_project.get());
+        map_sources_modal = MapSourcesModal(this, new_project.get());
         unloaded_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));

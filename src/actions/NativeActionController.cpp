@@ -7,6 +7,8 @@
  * @date 2026-07-18
  */
 
+#ifndef __EMSCRIPTEN__
+
 #include "NativeActionController.hpp"
 
 namespace echomap
@@ -33,3 +35,5 @@ void NativeActionController::register_vfs_mapping_impl(
 }
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__

@@ -91,8 +91,8 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/signals/tasks/LoadSignalFileTask.hpp
         src/signals/results/LoadSignalFileResult.cpp
         src/signals/results/LoadSignalFileResult.hpp
-        src/panels/IndividualUploadModal.cpp
-        src/panels/IndividualUploadModal.hpp
+        src/panels/MapSourcesModal.cpp
+        src/panels/MapSourcesModal.hpp
         src/actions/ActionController.hpp
         src/actions/ActionControllerBase.hpp
         src/StaticInstanceController.cpp
@@ -113,8 +113,8 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/notifications/CancelProjectLoadNotification.cpp
         src/notifications/CancelProjectLoadNotification.hpp
         src/notifications/AllNotifications.hpp
-        src/panels/NativeFileChooser.cpp
-        src/panels/NativeFileChooser.hpp
+        src/panels/native/FileChooser.cpp
+        src/panels/native/FileChooser.hpp
         src/utility/FilesystemCombo.cpp
         src/utility/FilesystemCombo.hpp
 )
