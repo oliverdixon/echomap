@@ -28,14 +28,26 @@ namespace echomap
  */
 struct RaiseFileChooserNotification
 {
+    using SuccessCallbackT = sigc::slot<void(const std::filesystem::path&)>;
+    using CancelledCallbackT = sigc::slot<void()>;
+
+    /**
+     * Create a new RaiseFileChooserNotification to indicate that the FileChooser should be raised.
+     *
+     * @param success_callback The callback for FileChooser to invoke once a file has been selected.
+     * @param cancelled_callback The callback for FileChooser to invoke if it is dismissed prior to selection.
+     */
     explicit RaiseFileChooserNotification(
-            sigc::slot<void(const std::filesystem::path&)>&& callback
+            SuccessCallbackT&& success_callback,
+            CancelledCallbackT&& cancelled_callback
     ) :
-        callback(std::move(callback))
+        success_callback(std::move(success_callback)),
+        cancelled_callback(std::move(cancelled_callback))
     {
     }
 
-    sigc::slot<void(const std::filesystem::path&)> callback;
+    SuccessCallbackT success_callback;
+    CancelledCallbackT cancelled_callback;
 };
 
 } // namespace echomap

@@ -61,7 +61,11 @@ void EchoMapNative::handle_notification(
         return;
     }
 
-    active_modal = std::make_unique<FileChooser>(this, std::move(notification.callback));
+    active_modal = std::make_unique<FileChooser>(
+            this,
+            std::move(notification.success_callback),
+            std::move(notification.cancelled_callback)
+    );
 }
 
 } // namespace echomap

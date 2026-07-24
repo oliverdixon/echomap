@@ -18,18 +18,20 @@ namespace echomap
 
 FileChooser::FileChooser(
         EchoMap* const app,
-        CallbackT&& callback
+        RaiseFileChooserNotification::SuccessCallbackT&& success_callback,
+        RaiseFileChooserNotification::CancelledCallbackT&& cancelled_callback
 ) :
     file_combo(app),
     panel_name(std::string("Select File to Open") + get_imgui_stable_name()),
     app(app),
-    callback(std::move(callback))
+    success_callback(std::move(success_callback)),
+    cancelled_callback(std::move(cancelled_callback))
 {
 }
 
 void FileChooser::draw() noexcept
 {
-    if (std::exchange(should_open, false))
+    if (!std::exchange(is_open, true))
         ImGui::OpenPopup(get_imgui_name());
 
     ImGui::SetNextWindowSize(default_modal_size, ImGuiCond_Appearing);
@@ -45,15 +47,15 @@ void FileChooser::draw() noexcept
         ImGui::Spacing();
 
         if (ImGui::Button("Cancel", button_size)) {
-            ImGui::CloseCurrentPopup(); // TODO should be done with notification.
-            should_open = false;
+            ImGui::CloseCurrentPopup();
+            cancelled_callback();
         }
 
         ImGui::SameLine();
 
         if (chosen_path.extension() == expected_extension) {
             if (ImGui::Button("OK", button_size))
-                callback(chosen_path);
+                success_callback(chosen_path);
         } else {
             ImGui::BeginDisabled();
             ImGui::Button("OK", button_size);

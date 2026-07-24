@@ -525,7 +525,9 @@ void EchoMap::handle_notification(
 )
 {
     active_modal.reset();
-    worker.submit(std::make_unique<LoadProjectTask>(notification.path, &worker));
+
+    if (notification.path.has_value())
+        worker.submit(std::make_unique<LoadProjectTask>(*notification.path, &worker));
 }
 
 void EchoMap::handle_notification(

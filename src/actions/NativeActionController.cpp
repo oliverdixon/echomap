@@ -16,9 +16,10 @@ namespace echomap
 
 void NativeActionController::select_project_file_impl()
 {
-    notify<RaiseFileChooserNotification>([](const std::filesystem::path& path) {
-        notify<ProjectSelectedNotification>(path);
-    });
+    notify<RaiseFileChooserNotification>(
+        sigc::ptr_fun(&notify<ProjectSelectedNotification, const std::filesystem::path&>),
+        sigc::ptr_fun(&notify<ProjectSelectedNotification>)
+    );
 }
 
 void NativeActionController::register_vfs_mapping_impl(

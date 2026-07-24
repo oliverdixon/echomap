@@ -18,6 +18,7 @@
 
 #include "../IPanel.hpp"
 #include "FilesystemCombo.hpp"
+#include "../../notifications/native/RaiseFileChooserNotification.hpp"
 
 namespace echomap
 {
@@ -29,16 +30,19 @@ class EchoMap;
  */
 class FileChooser : public IPanel
 {
-    using CallbackT = sigc::slot<void(const std::filesystem::path&)>;
-
 public:
     /**
      * Create a new FileChooser modal for the given EchoMap instance.
      *
      * @param app The owning EchoMap instance.
-     * @param callback The slot to invoke with the path once a file has been selected.
+     * @param success_callback The slot to invoke with the path once a file has been selected.
+     * @param cancelled_callback The slot to invoke if the operation is cancelled.
      */
-    explicit FileChooser(EchoMap* app, CallbackT&& callback);
+    explicit FileChooser(
+            EchoMap* app,
+            RaiseFileChooserNotification::SuccessCallbackT&& success_callback,
+            RaiseFileChooserNotification::CancelledCallbackT&& cancelled_callback
+    );
 
     void draw() noexcept override;
 
@@ -56,9 +60,10 @@ private:
     FilesystemCombo file_combo;
 
     std::string panel_name;
-    bool should_open = true;
+    bool is_open = false;
     EchoMap* app;
-    CallbackT callback;
+    RaiseFileChooserNotification::SuccessCallbackT success_callback;
+    RaiseFileChooserNotification::CancelledCallbackT cancelled_callback;
 };
 
 } // namespace echomap
