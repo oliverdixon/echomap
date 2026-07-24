@@ -5,7 +5,12 @@
  * @date 2026-05-05
  */
 
-#include "EchoMap.hpp"
+#ifdef __EMSCRIPTEN__
+#include "EchoMapWeb.hpp"
+#else
+#include "EchoMapNative.hpp"
+#endif // __EMSCRIPTEN__
+
 #include "StaticInstanceController.hpp"
 #include "errors/ConfigurationError.hpp"
 #include "utility/Logger.hpp"
@@ -20,19 +25,19 @@ int main()
     try {
 #ifdef __EMSCRIPTEN__
 
-        // Emscripten will manage our heap memory.
+        // NOLINTBEGIN(*-owning-memory, *-cplusplus.NewDeleteLeaks) - Emscripten will manage our heap memory.
 
-        // NOLINTBEGIN(*-owning-memory, *-cplusplus.NewDeleteLeaks)
-        auto* const application = new echomap::EchoMap();
+        auto* const application = new echomap::EchoMapWeb();
         [[maybe_unused]] auto* const controller = new echomap::StaticInstanceController(*application);
         application->run_event_loop();
+
         // NOLINTEND(*-owning-memory, *-cplusplus.NewDeleteLeaks)
 
 #else
 
         // Native platforms can use the RAII facilities of EchoMap and StaticInstanceController.
 
-        echomap::EchoMap application;
+        echomap::EchoMapNative application;
         const echomap::StaticInstanceController instance_controller(application);
         application.run_event_loop();
 

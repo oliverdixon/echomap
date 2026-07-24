@@ -5,23 +5,14 @@
  * @date 2026-05-05
  */
 
+#include "EchoMap.hpp"
+
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_wgpu.h>
 #include <imgui_internal.h>
 #include <implot.h>
 #include <implot3d.h>
 
-#include "signals/tasks/LoadProjectTask.hpp"
-
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-#endif // __EMSCRIPTEN__
-
-#ifndef __EMSCRIPTEN__
-#include "panels/native/FileChooser.hpp"
-#endif // __EMSCRIPTEN__
-
-#include "EchoMap.hpp"
 #include "RobotoMedium.hpp"
 #include "SurfaceFactory.hpp"
 #include "errors/ConfigurationError.hpp"
@@ -37,13 +28,9 @@
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalDFTPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
+#include "signals/tasks/LoadProjectTask.hpp"
 #include "signals/tasks/LoadSignalFileTask.hpp"
 #include "utility/Logger.hpp"
-#include "utility/VariantHelpers.hpp"
-
-#if defined(__EMSCRIPTEN__) and !defined(__EMSCRIPTEN_PTHREADS__)
-#warning "The Emscripten application will be single-threaded."
-#endif
 
 namespace echomap
 {
@@ -96,27 +83,6 @@ EchoMap::EchoMap() :
     panels.push_back(std::make_unique<SensorGeometryPanel>(this));
     panels.push_back(std::make_unique<ChannelMappingPanel>(this));
     panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
-}
-
-void EchoMap::run_event_loop()
-{
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop_arg(&EchoMap::render_shim, this, 0, true);
-#else
-    render();
-    instance.ProcessEvents();
-
-    while (glfwWindowShouldClose(window) == 0) {
-        if (forced_frames > 0) {
-            glfwPollEvents();
-            --forced_frames;
-        } else
-            glfwWaitEvents();
-
-        render();
-        instance.ProcessEvents();
-    }
-#endif
 }
 
 EchoMap::~EchoMap() noexcept
@@ -500,34 +466,15 @@ bool EchoMap::handle_window_resize() noexcept
 
 void EchoMap::process_notifications()
 {
-    while (!notify_queue.empty()) {
-        auto* const task_hint = static_cast<void*>(&notify_queue.back());
-        const auto task_position = notify_queue.size() - 1;
+    while (!notification_queue.empty()) {
+        auto* const task_hint = static_cast<void*>(&notification_queue.back());
+        const auto task_position = notification_queue.size() - 1;
 
         // TODO variant_helpers
         LOG_F_DEBUG("Consuming notification with hint {} (#{}).", task_hint, task_position);
 
         try {
-
-            // clang-format off
-            std::visit(variant_helpers::Overloaded{
-                // TODO why need to use lambdas?
-                [this](const AddChannelMappingNotification& task) { handle_notification(task); },
-                [this](const ModifySensorColourNotification& task) { handle_notification(task); },
-                [this](const ModifySensorPositionNotification& task) { handle_notification(task); },
-                [this](const ProjectSelectedNotification& task) { handle_notification(task); },
-                [this](const CompleteProjectLoadNotification& task) { handle_notification(task); },
-                [this](const RegisterVFSMappingNotification& task) { handle_notification(task); },
-                [this](const CancelProjectLoadNotification& task) { handle_notification(task); },
-#ifndef __EMSCRIPTEN__
-                    // Native-only callbacks
-                [this](RaiseFileChooserNotification& task) { handle_notification(task); },
-#endif // __EMSCRIPTEN__
-                },
-                notify_queue.back()
-            );
-            // clang-format on
-
+            visit_notification(notification_queue.back());
         } catch (const IgnoredWarning& warning) {
             // TODO variant_helpers
             LOG_F_WARN("Notification with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
@@ -542,7 +489,7 @@ void EchoMap::process_notifications()
             );
         }
 
-        notify_queue.pop_back();
+        notification_queue.pop_back();
     }
 }
 
@@ -640,23 +587,6 @@ void EchoMap::handle_notification(
     unloaded_project.reset();
 }
 
-#ifndef __EMSCRIPTEN__
-
-// TODO subclass for native-only operations.
-void EchoMap::handle_notification(
-        RaiseFileChooserNotification& task
-)
-{
-    if (active_modal != nullptr) {
-        LOG_WARN("Ignoring request to raise file chooser since there is an active modal.");
-        return;
-    }
-
-    active_modal = std::make_unique<FileChooser>(this, std::move(task.callback));
-}
-
-#endif // __EMSCRIPTEN__
-
 void EchoMap::handle_result(
         LoadProjectResult&& result
 )
@@ -721,7 +651,7 @@ void EchoMap::notify(
         const Notification& task
 )
 {
-    notify_queue.emplace_back(task);
+    notification_queue.emplace_back(task);
 
     /*
      * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess
@@ -730,8 +660,8 @@ void EchoMap::notify(
     // TODO use variant_helpers to statically determine names.
     LOG_F_DEBUG(
             "Scheduling notification with hint {} at position {}.",
-            static_cast<void*>(&notify_queue.back()),
-            notify_queue.size() - 1
+            static_cast<void*>(&notification_queue.back()),
+            notification_queue.size() - 1
     );
 }
 

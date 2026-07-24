@@ -113,25 +113,31 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/notifications/CancelProjectLoadNotification.cpp
         src/notifications/CancelProjectLoadNotification.hpp
         src/notifications/AllNotifications.hpp
-        src/panels/native/FileChooser.cpp
-        src/panels/native/FileChooser.hpp
-        src/utility/FilesystemCombo.cpp
-        src/utility/FilesystemCombo.hpp
         src/notifications/AllNotificationsFwd.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
+    # WebAssembly/Emscripten-only translation units.
     target_sources(DummyTarget PRIVATE
             src/actions/JSActionController.cpp
             src/actions/JSActionController.hpp
+            src/EchoMapWeb.cpp
+            src/EchoMapWeb.hpp
     )
 endif ()
 
 if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
+    # Native-only translation units.
     target_sources(DummyTarget PRIVATE
             src/actions/NativeActionController.cpp
             src/actions/NativeActionController.hpp
             src/notifications/native/RaiseFileChooserNotification.hpp
+            src/EchoMapNative.cpp
+            src/EchoMapNative.hpp
+            src/panels/native/FileChooser.cpp
+            src/panels/native/FileChooser.hpp
+            src/utility/FilesystemCombo.cpp
+            src/utility/FilesystemCombo.hpp
     )
 endif ()
 
