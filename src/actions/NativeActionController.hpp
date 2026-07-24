@@ -10,7 +10,7 @@
 #ifndef ECHOMAP_NATIVEACTIONCONTROLLER_HPP
 #define ECHOMAP_NATIVEACTIONCONTROLLER_HPP
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "ActionControllerBase.hpp"
 

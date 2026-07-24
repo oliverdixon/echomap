@@ -5,7 +5,7 @@
  * @date 2026-05-05
  */
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 #include "platform/EchoMapWeb.hpp"
 #else
 #include "platform/EchoMapNative.hpp"
@@ -23,7 +23,7 @@
 int main()
 {
     try {
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
         // NOLINTBEGIN(*-owning-memory, *-cplusplus.NewDeleteLeaks) - Emscripten will manage our heap memory.
 

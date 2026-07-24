@@ -41,7 +41,7 @@ EchoMap::EchoMap() :
             static_cast<int>(viewport_height)
     )),
     worker{[] {
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         glfwPostEmptyEvent();
 #endif
     }},
@@ -323,7 +323,7 @@ void EchoMap::render() noexcept
     // Submit batched work to the GPU.
     device.GetQueue().Submit(1, &commands);
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
     // ReSharper disable once CppExpressionWithoutSideEffects
     surface.Present();
 #endif
@@ -366,7 +366,7 @@ void EchoMap::setup_imgui()
     if (!ImGui_ImplWGPU_Init(&init_info))
         throw ConfigurationError("ImGui_ImplWGPU_Init failed");
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
     /*
      * If we're targeting WebAssembly, the window dimensions reported by GLFW should match the size of the canvas
      * identified by the CSS selector <code>#canvas</code>. Dear ImGui provides the helper

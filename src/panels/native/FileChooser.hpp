@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_FILECHOOSER_HPP
 #define ECHOMAP_FILECHOOSER_HPP
 
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include <sigc++/slot.h>
 
 #include <filesystem>
@@ -23,13 +25,19 @@ namespace echomap
 class EchoMap;
 
 /**
- * @todo Document
+ * Modal containing controls for interactively selecting a file from the file-system.
  */
 class FileChooser : public IPanel
 {
     using CallbackT = sigc::slot<void(const std::filesystem::path&)>;
 
 public:
+    /**
+     * Create a new FileChooser modal for the given EchoMap instance.
+     *
+     * @param app The owning EchoMap instance.
+     * @param callback The slot to invoke with the path once a file has been selected.
+     */
     explicit FileChooser(EchoMap* app, CallbackT&& callback);
 
     void draw() noexcept override;
@@ -54,5 +62,7 @@ private:
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_FILECHOOSER_HPP

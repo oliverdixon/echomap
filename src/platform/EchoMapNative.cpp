@@ -7,7 +7,7 @@
  * @date 2026-07-24
  */
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "EchoMapNative.hpp"
 

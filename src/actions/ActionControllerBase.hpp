@@ -27,6 +27,18 @@ namespace echomap
  */
 
 /**
+ * @defgroup ProjectFileAction Project File Action
+ * Queries the user for the location of a Project file to load.
+ * @ingroup Actions
+ */
+
+/**
+ * @defgroup RegisterVFSMapping Register VFS Mapping
+ * Queries the user for the location of an externally sourced file.
+ * @ingroup Actions
+ */
+
+/**
  * Provides a platform-independent static mechanism for performing "system actions", such as raising a file-selector
  * dialog, and invoking callbacks upon completion.
  *

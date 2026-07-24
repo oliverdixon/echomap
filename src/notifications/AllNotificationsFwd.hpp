@@ -23,7 +23,7 @@ struct CompleteProjectLoadNotification;
 struct RegisterVFSMappingNotification;
 struct CancelProjectLoadNotification;
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Native-only notifications.
 
@@ -34,11 +34,28 @@ struct RaiseFileChooserNotification;
 /**
  * @defgroup Notifications Notifications
  * A trivial message sent exclusively to the EchoMap controller.
- * @todo Add relevant member functions
  */
 
 /**
  * A Notification is a trivial message sent exclusively to the EchoMap controller.
+ *
+ * To add a new Notification:
+ *  -# Create the struct in a file and add to the CMake DummyTarget source vector;
+ *  -# Add the struct type to the forward includes in this file;
+ *  -# Add the forward-declared type to this variant;
+ *  -# Specialise the NotificationNames::get member function to produce a human-readable name;
+ *  -# Include the full type in AllNotifications.hpp;
+ *  -# Add a handler for its messages in an EchoMap derived class;
+ *  -# Add the handler function to any visitors; platform-independent handlers go in
+ *      @ref EchoMap::make_common_notification_visitors.
+ *
+ * Once the type is added to this variant, all further steps are verified statically.
+ *
+ * If the Notification is applicable only to a certain platform, its symbols should not be included in translation units
+ * compiled for anything except the target platform. The mechanism for managing this split is:
+ *  - Separate CMake source vectors for platform-dependent translation units;
+ *  - Separate inheritors of EchoMap for each platform (e.g. EchoMapNative, EchoMapWeb);
+ *  - Where absolutely necessary, inline macro checks e.g. @c __EMSCRIPTEN__
  *
  * @ingroup Notifications
  */
@@ -50,7 +67,7 @@ using Notification = std::variant<
         CompleteProjectLoadNotification,
         RegisterVFSMappingNotification,
         CancelProjectLoadNotification
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         // Native-only notifications.
         ,
         RaiseFileChooserNotification
@@ -121,7 +138,7 @@ template <> constexpr std::string_view NotificationNames::get<RegisterVFSMapping
     return "Register VFS Mapping";
 }
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Names of native-only notifications.
 

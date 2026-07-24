@@ -10,7 +10,7 @@
 #ifndef ECHOMAP_EMSCRIPTENEXTRA_HPP
 #define ECHOMAP_EMSCRIPTENEXTRA_HPP
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include <type_traits>
 

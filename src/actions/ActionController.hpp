@@ -10,7 +10,7 @@
 #ifndef ECHOMAP_ACTIONCONTROLLER_HPP
 #define ECHOMAP_ACTIONCONTROLLER_HPP
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 #include "JSActionController.hpp"
 #else
 #include "NativeActionController.hpp"
@@ -19,7 +19,7 @@
 namespace echomap
 {
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 /**
  * Provides an ActionControllerBase implementation alias for Emscripten targets.
  * @ingroup Actions

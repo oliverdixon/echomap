@@ -7,7 +7,7 @@
  * @date 2026-07-18
  */
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "JSActionController.hpp"
 
@@ -19,7 +19,7 @@
 namespace echomap
 {
 
-#ifndef DOXYGEN_SKIP
+#ifndef __DOXYGEN__
 
 // (Doxygen can't handle EM_JS declarations.)
 

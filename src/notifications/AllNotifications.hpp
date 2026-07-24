@@ -19,7 +19,7 @@
 #include "ProjectSelectedNotification.hpp"
 #include "RegisterVFSMappingNotification.hpp"
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Native-only notifications.
 

@@ -7,7 +7,7 @@
  * @date 2026-07-18
  */
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "NativeActionController.hpp"
 

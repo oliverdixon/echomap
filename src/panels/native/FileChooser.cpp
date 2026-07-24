@@ -7,6 +7,8 @@
  * @date 2026-07-22
  */
 
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "FileChooser.hpp"
 
 #include "../../utility/Logger.hpp"
@@ -82,3 +84,5 @@ const char* FileChooser::get_imgui_stable_name() noexcept
 }
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__

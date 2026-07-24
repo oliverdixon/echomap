@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_FILESYSTEMCOMBO_HPP
 #define ECHOMAP_FILESYSTEMCOMBO_HPP
 
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include <imgui.h>
 
 #include <array>
@@ -63,8 +65,7 @@ private:
          * @param path The path of the file to represent in the Entry.
          * @param is_directory_hint Should the Entry represent a directory?
          *
-         * @pre The directory hint matches metadata from
-         *  @ref std::filesystem::is_directory(const std::filesystem::path&).
+         * @pre The directory hint matches metadata from @ref std::filesystem::is_directory.
          */
         Entry(const std::filesystem::path& path,
               bool is_directory_hint);
@@ -181,5 +182,7 @@ private:
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_FILESYSTEMCOMBO_HPP

@@ -10,7 +10,7 @@
 #ifndef ECHOMAP_ECHOMAPNATIVE_HPP
 #define ECHOMAP_ECHOMAPNATIVE_HPP
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "../EchoMap.hpp"
 

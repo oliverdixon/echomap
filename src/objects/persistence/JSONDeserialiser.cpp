@@ -88,7 +88,7 @@ auto get_signals(
      * If on native,
      */
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
     // Step 2 (Wasm).
     for (auto factory : factories | std::views::as_rvalue) {
         if (const auto& signal = factory->observe_signal(); !loaded.emplace(signal.get_name(), signal.get_id()).second)

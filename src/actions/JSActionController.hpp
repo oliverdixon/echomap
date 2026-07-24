@@ -10,7 +10,7 @@
 #ifndef ECHOMAP_JSACTIONCONTROLLER_HPP
 #define ECHOMAP_JSACTIONCONTROLLER_HPP
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "ActionControllerBase.hpp"
 

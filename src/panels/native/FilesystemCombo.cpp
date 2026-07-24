@@ -7,6 +7,8 @@
  * @date 2026-07-23
  */
 
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "FilesystemCombo.hpp"
 
 #include <imgui.h>
@@ -259,3 +261,5 @@ void FilesystemCombo::accept_path(
 }
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__

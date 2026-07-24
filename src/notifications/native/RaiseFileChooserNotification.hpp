@@ -10,7 +10,7 @@
 #ifndef ECHOMAP_RAISEFILECHOOSERNOTIFICATION_HPP
 #define ECHOMAP_RAISEFILECHOOSERNOTIFICATION_HPP
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include <sigc++/slot.h>
 
