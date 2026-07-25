@@ -15,11 +15,10 @@
 #include <filesystem>
 
 #include "../Project.hpp"
+#include "../factories/SignalFactory.hpp"
 
 namespace echomap
 {
-
-class SignalFactory;
 
 /**
  * @todo Document
@@ -85,13 +84,15 @@ public:
     /**
      * Provide a view to the mutable unloaded SignalFactory objects.
      *
-     * For a description of the viewed values, see @ref observe_unloaded_signals.
+     * For a description of the viewed values, see @ref observe_unloaded_signals. Following this operation, ownership of
+     * the unloaded factories are transferred to the caller and their corresponding entries removed from the underlying
+     * storage.
      *
      * @return A mutating view of the unloaded Signal SignalFactory objects.
      */
     [[nodiscard]] auto take_unloaded_factories() noexcept
     {
-        return unloaded_signals | std::views::values | std::views::as_rvalue;
+        return std::exchange(unloaded_signals, {}) | std::views::values | std::views::as_rvalue;
     }
 };
 
