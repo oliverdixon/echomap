@@ -15,6 +15,7 @@
 #include <sigc++/adaptors/bind.h>
 
 #include "RobotoMedium.hpp"
+#include "async/tasks/LoadProjectTask.hpp"
 #include "errors/ConfigurationError.hpp"
 #include "errors/IgnoredWarning.hpp"
 #include "notifications/AllNotifications.hpp"
@@ -28,7 +29,6 @@
 #include "panels/SignalDFTPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
 #include "platform/SurfaceFactory.hpp"
-#include "signals/tasks/LoadProjectTask.hpp"
 #include "utility/Logger.hpp"
 
 #ifdef __EMSCRIPTEN__

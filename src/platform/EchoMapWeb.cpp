@@ -13,13 +13,13 @@
 
 #include <emscripten/emscripten.h>
 
+#include "../async/tasks/LoadSignalFileTask.hpp"
 #include "../errors/IgnoredWarning.hpp"
 #include "../notifications/AllNotifications.hpp"
 #include "../objects/Signal.hpp"
 #include "../objects/web/PartialProject.hpp"
 #include "../panels/IProjectPanel.hpp"
 #include "../panels/web/MapSourcesModal.hpp"
-#include "../signals/tasks/LoadSignalFileTask.hpp"
 #include "../utility/Logger.hpp"
 
 #ifndef __EMSCRIPTEN_PTHREADS__

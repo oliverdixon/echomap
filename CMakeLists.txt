@@ -47,46 +47,46 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/panels/SensorGeometryPanel.hpp
         src/panels/ChannelMappingPanel.cpp
         src/panels/ChannelMappingPanel.hpp
-        src/signals/ThreadSafeQueue.hpp
-        src/signals/tasks/ITask.hpp
-        src/signals/tasks/LoadProjectTask.cpp
-        src/signals/tasks/LoadProjectTask.hpp
-        src/signals/Worker.cpp
-        src/signals/Worker.hpp
-        src/signals/results/ErrorResult.cpp
-        src/signals/results/ErrorResult.hpp
-        src/signals/results/LoadProjectResult.cpp
-        src/signals/results/LoadProjectResult.hpp
-        src/signals/tasks/DownsampleTask.cpp
-        src/signals/tasks/DownsampleTask.hpp
-        src/signals/results/DownsampleResult.cpp
-        src/signals/results/DownsampleResult.hpp
+        src/async/ThreadSafeQueue.hpp
+        src/async/tasks/ITask.hpp
+        src/async/tasks/LoadProjectTask.cpp
+        src/async/tasks/LoadProjectTask.hpp
+        src/async/Worker.cpp
+        src/async/Worker.hpp
+        src/async/results/ErrorResult.cpp
+        src/async/results/ErrorResult.hpp
+        src/async/results/LoadProjectResult.cpp
+        src/async/results/LoadProjectResult.hpp
+        src/async/tasks/DownsampleTask.cpp
+        src/async/tasks/DownsampleTask.hpp
+        src/async/results/DownsampleResult.cpp
+        src/async/results/DownsampleResult.hpp
         src/objects/FrequencySpectrum.cpp
         src/objects/FrequencySpectrum.hpp
         src/objects/factories/FrequencySpectrumFactory.cpp
         src/objects/factories/FrequencySpectrumFactory.hpp
         src/panels/SignalDFTPanel.cpp
         src/panels/SignalDFTPanel.hpp
-        src/signals/tasks/DFTTask.cpp
-        src/signals/tasks/DFTTask.hpp
-        src/signals/results/DFTResult.cpp
-        src/signals/results/DFTResult.hpp
+        src/async/tasks/DFTTask.cpp
+        src/async/tasks/DFTTask.hpp
+        src/async/results/DFTResult.cpp
+        src/async/results/DFTResult.hpp
         src/notifications/AddChannelMappingNotification.hpp
         src/notifications/ModifySensorPositionNotification.hpp
         src/notifications/ModifySensorColourNotification.hpp
         src/objects/factories/FFTWBuffers.cpp
         src/objects/factories/FFTWBuffers.hpp
-        src/signals/tasks/ITask.cpp
-        src/signals/WorkerResultDespatcher.cpp
-        src/signals/WorkerResultDespatcher.hpp
-        src/signals/ResultChannel.hpp
+        src/async/tasks/ITask.cpp
+        src/async/WorkerResultDespatcher.cpp
+        src/async/WorkerResultDespatcher.hpp
+        src/async/ResultChannel.hpp
         src/objects/factories/WindowFunctions.hpp
         src/objects/factories/WindowFunctions.cpp
         src/utility/VariantHelpers.hpp
-        src/signals/tasks/LoadSignalFileTask.cpp
-        src/signals/tasks/LoadSignalFileTask.hpp
-        src/signals/results/LoadSignalFileResult.cpp
-        src/signals/results/LoadSignalFileResult.hpp
+        src/async/tasks/LoadSignalFileTask.cpp
+        src/async/tasks/LoadSignalFileTask.hpp
+        src/async/results/LoadSignalFileResult.cpp
+        src/async/results/LoadSignalFileResult.hpp
         src/actions/ActionController.hpp
         src/actions/ActionControllerBase.hpp
         src/StaticInstanceController.cpp
@@ -97,7 +97,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/notifications/AddChannelMappingNotification.cpp
         src/notifications/ModifySensorPositionNotification.cpp
         src/notifications/ModifySensorColourNotification.cpp
-        src/signals/results/WorkerResult.hpp
+        src/async/results/WorkerResult.hpp
         src/utility/Colour.hpp
         src/utility/Position.hpp
         src/notifications/AllNotifications.hpp

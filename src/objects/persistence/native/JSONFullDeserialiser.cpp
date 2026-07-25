@@ -3,13 +3,14 @@
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
-#include "../../../signals/Worker.hpp"
-#include "../../../signals/tasks/LoadSignalFileTask.hpp"
+#include "JSONFullDeserialiser.hpp"
+
+#include "../../../async/Worker.hpp"
+#include "../../../async/tasks/LoadSignalFileTask.hpp"
 #include "../../Project.hpp"
 #include "../../Signal.hpp"
 #include "../../factories/SignalFactory.hpp"
 #include "../JSONDeserialiserHelpers.hpp"
-#include "JSONFullDeserialiser.hpp"
 
 /**
  * Free helper functions for simdjson customisation points.

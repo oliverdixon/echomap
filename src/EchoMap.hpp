@@ -13,10 +13,10 @@
 #include <sigc++/scoped_connection.h>
 #include <webgpu/webgpu_cpp.h>
 
+#include "async/Worker.hpp"
+#include "async/WorkerResultDespatcher.hpp"
 #include "notifications/AllNotificationsFwd.hpp"
 #include "panels/ErrorModal.hpp"
-#include "signals/Worker.hpp"
-#include "signals/WorkerResultDespatcher.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.

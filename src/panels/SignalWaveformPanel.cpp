@@ -9,12 +9,12 @@
 
 #include <algorithm>
 
+#include "../async/Worker.hpp"
+#include "../async/WorkerResultDespatcher.hpp"
+#include "../async/results/DownsampleResult.hpp"
+#include "../async/tasks/DownsampleTask.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Signal.hpp"
-#include "../signals/Worker.hpp"
-#include "../signals/WorkerResultDespatcher.hpp"
-#include "../signals/results/DownsampleResult.hpp"
-#include "../signals/tasks/DownsampleTask.hpp"
 #include "../utility/Logger.hpp"
 
 namespace echomap
