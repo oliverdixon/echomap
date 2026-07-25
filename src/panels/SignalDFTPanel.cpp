@@ -116,7 +116,7 @@ void SignalDFTPanel::handle_completed_dft(
 
     const CacheKey key{
         .source_id = result.get_source_id(),
-            .window_function = spectrum->preprocessor,
+            .window_function = spectrum->observe_preprocessor(),
             .transform_size = result.get_transform_size(),
     };
 

@@ -9,14 +9,14 @@
 
 #include <string>
 
-#include "IPanel.hpp"
+#include "IProjectPanel.hpp"
 
 namespace echomap
 {
 
 class WorkerResultDespatcher;
 
-class ProjectPanel final : public IPanel
+class ProjectPanel final : public IProjectPanel
 {
 public:
     /**

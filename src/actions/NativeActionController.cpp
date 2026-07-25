@@ -7,6 +7,8 @@
  * @date 2026-07-18
  */
 
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "NativeActionController.hpp"
 
 namespace echomap
@@ -14,8 +16,10 @@ namespace echomap
 
 void NativeActionController::select_project_file_impl()
 {
-    // TODO
-    throw std::runtime_error("Not implemented");
+    notify<RaiseFileChooserNotification>(
+        sigc::ptr_fun(&notify<ProjectSelectionCompleteNotification, const std::filesystem::path&>),
+        sigc::ptr_fun(&notify<ProjectSelectionCompleteNotification>)
+    );
 }
 
 void NativeActionController::register_vfs_mapping_impl(
@@ -33,3 +37,5 @@ void NativeActionController::register_vfs_mapping_impl(
 }
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__

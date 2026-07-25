@@ -18,6 +18,55 @@ namespace echomap::variant_helpers
 {
 
 /**
+ * Determines whether a type is one of the alternatives of a @ref std::variant.
+ *
+ * The primary template handles non-variant types and evaluates to @ref std::false_type.
+ *
+ * @tparam T The type to test.
+ * @tparam Variant The variant type whose alternatives should be inspected.
+ */
+template <typename T, typename Variant> struct IsVariantAlternative : std::false_type
+{};
+
+/**
+ * Specialisation for @ref std::variant types.
+ *
+ * Evaluates to @ref std::true_type when T, after removing cv-qualifiers and references, is exactly one of the
+ * alternatives of the variant.
+ *
+ * @tparam T The type to test.
+ * @tparam Alternatives The alternatives contained by the @ref std::variant.
+ */
+template <typename T, typename... Alternatives>
+struct IsVariantAlternative<T, std::variant<Alternatives...>>
+    : std::bool_constant<(std::same_as<std::remove_cvref_t<T>, Alternatives> || ...)>
+{};
+
+/**
+ * Whether a type is an alternative of a @ref std::variant.
+ *
+ * Removes cv-qualifiers and references from both T and Variant before performing the test.
+ *
+ * @tparam T The type to test.
+ * @tparam Variant The variant type whose alternatives should be inspected.
+ */
+template <typename T, typename Variant>
+inline constexpr bool is_variant_alternative_v =
+        IsVariantAlternative<std::remove_cvref_t<T>, std::remove_cvref_t<Variant>>::value;
+
+/**
+ * Constrains a type to be one of the alternatives of a @ref std::variant.
+ *
+ * The comparison is exact after removing cv-qualifiers and references from T. Derived types, implicitly convertible
+ * types, and constructible types do not satisfy the concept unless they are explicitly listed as alternatives.
+ *
+ * @tparam T The type to test.
+ * @tparam Variant The variant type whose alternatives should be inspected.
+ */
+template <typename T, typename Variant>
+concept VariantAlternative = is_variant_alternative_v<T, Variant>;
+
+/**
  * A helper type for succinctly specifying callable visitors over a variant alternative.
  *
  * For example,

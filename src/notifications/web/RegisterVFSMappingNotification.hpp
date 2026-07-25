@@ -10,14 +10,16 @@
 #ifndef ECHOMAP_REGISTERVFSMAPPINGNOTIFICATION_HPP
 #define ECHOMAP_REGISTERVFSMAPPINGNOTIFICATION_HPP
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include <filesystem>
 
-#include "../objects/IDAllocator.hpp"
+#include "../../objects/IDAllocator.hpp"
 
 namespace echomap
 {
 
-class Project;
+class PartialProject;
 
 /**
  * A notification to indicate a new VFS mapping from an external source.
@@ -48,7 +50,7 @@ struct RegisterVFSMappingNotification
      * @param context The context to which the notification will apply.
      * @throws IgnoredWarning The notification does not apply to the given context and should be ignored.
      */
-    void verify_project(const Project* context) const;
+    void verify_project(const PartialProject* context) const;
 
     id_type project_id;             /**< The ID of the Project to which the mapping relates. */
     std::filesystem::path external; /**< The path on the external file system. */
@@ -56,5 +58,7 @@ struct RegisterVFSMappingNotification
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_REGISTERVFSMAPPINGNOTIFICATION_HPP

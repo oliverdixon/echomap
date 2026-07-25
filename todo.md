@@ -2,14 +2,16 @@
 
 ## Short Term
 
-1. Harden the project/signal loading! Doxygen where necessary, remove incorrect exception specifications, and verify
+1. Generalise the VFS mappings to work for native platforms as well, in case the paths have changed.
+
+2. Harden the project/signal loading! Doxygen where necessary, remove incorrect exception specifications, and verify
    dereferencing behaviour.
 
-2. Resolve TODOs in code.
+3. Resolve TODOs in code.
 
-3. Add project loader dialog as a native action.
+4. Add project loader dialog as a native action.
 
-4. Add a wave file loader as a native action.
+5. Add a wave file loader as a native action.
 
 ## Medium/Long Term
 

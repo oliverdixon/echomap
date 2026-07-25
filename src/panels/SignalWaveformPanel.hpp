@@ -14,7 +14,7 @@
 #include <string>
 
 #include "../objects/IDAllocator.hpp"
-#include "IPanel.hpp"
+#include "IProjectPanel.hpp"
 
 namespace echomap
 {
@@ -29,7 +29,7 @@ class Worker;
  *
  * Additionally, the panel owns the downsampled time series in a cache used exclusively for visualisation.
  */
-class SignalWaveformPanel final : public IPanel
+class SignalWaveformPanel final : public IProjectPanel
 {
 public:
     /**

@@ -13,8 +13,8 @@
 #include <sigc++/scoped_connection.h>
 #include <webgpu/webgpu_cpp.h>
 
+#include "notifications/AllNotificationsFwd.hpp"
 #include "panels/ErrorModal.hpp"
-#include "panels/IndividualUploadModal.hpp"
 #include "signals/Worker.hpp"
 #include "signals/WorkerResultDespatcher.hpp"
 
@@ -24,16 +24,8 @@
 namespace echomap
 {
 
-class IPanel;
+class IProjectPanel;
 class Project;
-
-struct AddChannelMappingNotification;
-struct ModifySensorColourNotification;
-struct ModifySensorPositionNotification;
-struct ProjectSelectedNotification;
-struct CompleteProjectLoadNotification;
-struct RegisterVFSMappingNotification;
-struct CancelProjectLoadNotification;
 
 /**
  * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating
@@ -42,26 +34,6 @@ struct CancelProjectLoadNotification;
 class EchoMap
 {
 public:
-    /**
-     * @defgroup Notifications Notifications
-     * A trivial message sent exclusively to the EchoMap controller.
-     * @todo Add relevant member functions
-     */
-
-    /**
-     * A Notification is a trivial message sent exclusively to the EchoMap controller.
-     *
-     * @ingroup Notifications
-     */
-    using Notification = std::variant<
-            AddChannelMappingNotification,
-            ModifySensorColourNotification,
-            ModifySensorPositionNotification,
-            ProjectSelectedNotification,
-            CompleteProjectLoadNotification,
-            RegisterVFSMappingNotification,
-            CancelProjectLoadNotification>;
-
     /**
      * Initialise a EchoMap application instance.
      *
@@ -74,28 +46,28 @@ public:
     EchoMap();
 
     /**
-     * Runs the event loop to manage and propagate interaction with the EchoMap application.
+     * Runs the platform-dependent event loop to manage and propagate interaction with the EchoMap application.
      *
      * This function returns only once GLFW indicates that the window should close. Following closure, the event loop
      * could be re-run, or the application could clean up by calling the destructor.
      */
-    void run_event_loop();
+    virtual void run_event_loop() = 0;
 
     /**
      * Clean up all persistent state registered by the application instance.
      */
-    ~EchoMap() noexcept;
+    virtual ~EchoMap() noexcept;
 
     void change_active_project(std::unique_ptr<Project> new_project) noexcept;
 
     /**
-     * Submit a new Notification task to the application queue.
+     * Submit a new Notification to the application queue.
      *
      * Notifications are processed at the beginning of render cycles in a first-come first-served ordering.
      *
-     * @param task The trivial task to schedule.
+     * @param notification The Notification to schedule.
      */
-    void notify(const Notification& task);
+    void notify(const Notification& notification);
 
     /**
      * Indicate to the renderer that the following frames should always be rendered, regardless of whether there are any
@@ -108,11 +80,49 @@ public:
      */
     void increment_forced_frames(unsigned int count = 4) noexcept;
 
-private:
-    static constexpr auto operation_timeout = std::numeric_limits<std::uint64_t>::max();
+    EchoMap(const EchoMap&) = delete;
+    EchoMap& operator=(const EchoMap&) = delete;
+    EchoMap(EchoMap&&) = delete;
+    EchoMap& operator=(EchoMap&&) = delete;
 
-    std::uint32_t viewport_width = 1024;
-    std::uint32_t viewport_height = 1024;
+protected:
+    /**
+     * Produce an overload set for @ref std::visit for all platform-independent Notification objects.
+     *
+     * @return The overload set.
+     */
+    auto make_common_notification_visitors()
+    {
+        // clang-format off
+        return variant_helpers::Overloaded{
+            [this](const AddChannelMappingNotification& n) { handle_notification(n); },
+            [this](const ModifySensorColourNotification& n) { handle_notification(n); },
+            [this](const ModifySensorPositionNotification& n) { handle_notification(n); },
+            [this](const ProjectSelectionCompleteNotification& n) { handle_notification(n); },
+            [this](const ClearErrorNotification& n) { handle_notification(n); },
+        };
+        // clang-format on
+    }
+
+    /**
+     * Uses @ref std::visit on the given notification to invoke the corresponding handler.
+     *
+     * This function is virtual, since the overload set can be platform-dependent in addition to the base handlers
+     * provided by @ref make_common_notification_visitors.
+     *
+     * @param notification The notification to visit.
+     */
+    virtual void visit_notification(Notification& notification) = 0;
+
+    /**
+     * Perform a render cycle on the configured Surface and Device.
+     *
+     * A single render cycle requests all panels to render their state to the Surface, and provides an opportunity to
+     * submit any work to the GPU. Events are also received from GLFW and processed as required.
+     */
+    void render() noexcept;
+
+    static constexpr auto operation_timeout = std::numeric_limits<std::uint64_t>::max();
 
     /**
      * Create a new GLFW window of the specified dimensions from a static context.
@@ -172,14 +182,6 @@ private:
     wgpu::Future request_device() noexcept;
 
     /**
-     * Perform a render cycle on the configured Surface and Device.
-     *
-     * A single render cycle requests all panels to render their state to the Surface, and provides an opportunity to
-     * submit any work to the GPU. Events are also received from GLFW and processed as required.
-     */
-    void render() noexcept;
-
-    /**
      * Create a context for Dear ImGui and ImPlot, and configure the plain GLFW and WebGPU backends.
      *
      * @throws ConfigurationError A Dear ImGui backend could not be initialised.
@@ -197,7 +199,7 @@ private:
     bool handle_window_resize() noexcept;
 
     /**
-     * Handle any unconsumed Notification objects from the task queue.
+     * Handle any unconsumed Notification objects from the queue.
      */
     void process_notifications();
 
@@ -206,36 +208,25 @@ private:
      */
     void process_worker_results();
 
-    void handle_notification(const AddChannelMappingNotification& task) const;
-    void handle_notification(const ModifySensorColourNotification& task) const;
-    void handle_notification(const ModifySensorPositionNotification& task) const;
-    void handle_notification(const ProjectSelectedNotification& task);
-    void handle_notification(const CompleteProjectLoadNotification& task);
-    void handle_notification(const RegisterVFSMappingNotification& task) const;
-    void handle_notification(const CancelProjectLoadNotification& task);
+    void raise_error(std::string_view message);
+    void raise_error(
+            std::string_view message,
+            const std::runtime_error& exception
+    );
 
-    void handle_result(LoadProjectResult&& result);
-    void handle_result(LoadSignalFileResult&& result);
+    void handle_notification(const AddChannelMappingNotification& notification) const;
+    void handle_notification(const ModifySensorColourNotification& notification) const;
+    void handle_notification(const ModifySensorPositionNotification& notification) const;
+    void handle_notification(const ProjectSelectionCompleteNotification& notification);
+    void handle_notification(const ClearErrorNotification& notification);
 
-#ifdef __EMSCRIPTEN__
+    virtual void handle_result(LoadProjectResult&& result);
+    virtual void handle_result(LoadSignalFileResult&& result);
 
-    // ReSharper disable once CppParameterMayBeConstPtrOrRef - Function signature enforced by Emscripten API.
-    /**
-     * Invokes echomap::render from a static context given an untyped mutable pointer to the EchoMap object instance.
-     *
-     * @note This function provided when targeting Emscripten only. It is intended to be used as a function callback
-     *  from the Emscripten C API.
-     *
-     * @param echomap_instance The EchoMap application instance on which to invoke echomap::render.
-     */
-    static void render_shim(
-            void* const echomap_instance
-    )
-    {
-        auto* instance = static_cast<EchoMap*>(echomap_instance);
-        instance->render();
-    }
-#endif
+    // NOLINTBEGIN(*-non-private-member-variables-in-classes)
+
+    std::uint32_t viewport_width = 1024;
+    std::uint32_t viewport_height = 1024;
 
     wgpu::Instance instance;
     wgpu::Adapter adapter;
@@ -248,16 +239,17 @@ private:
     WorkerResultDespatcher despatcher; /**< Despatcher to manage Worker result channels. */
     std::vector<sigc::scoped_connection> connections; /**< RAII lifetime manager for signal connections. */
 
-    std::vector<std::unique_ptr<IPanel>> panels;      /**< Individual display components. */
-    ErrorModal error_modal;                           /**< Persistent panel to indicate errors over all other panels. */
-    std::optional<IndividualUploadModal> upload_modal;
-    std::vector<Notification> notify_queue;    /**< Queue for simple tasks that needn't go through the despatcher. */
-    std::unique_ptr<Project> project;          /**< Owning container for the active Project. */
-    std::unique_ptr<Project> unloaded_project; /**< Owning container for the unloaded Project. */
+    std::vector<std::unique_ptr<IProjectPanel>> panels; /**< Individual display components. */
+    std::optional<ErrorModal> error_modal;       /**< Persistent panel to indicate errors over all other panels. */
+    std::vector<Notification> notification_queue;
+    std::unique_ptr<Project> project;            /**< Owning container for the active Project. */
+    std::unique_ptr<IPanel> active_modal; /**< The current active non-ErrorModal modal panel. */
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;
     unsigned int forced_frames = 0;
+
+    // NOLINTEND(*-non-private-member-variables-in-classes)
 };
 
 } // namespace echomap

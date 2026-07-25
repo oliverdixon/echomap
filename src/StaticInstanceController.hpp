@@ -16,7 +16,7 @@ namespace echomap
 class EchoMap;
 
 /**
- * @todo Document
+ * Provides a binding interface to connect static controllers to an instance of EchoMap.
  */
 class StaticInstanceController
 {

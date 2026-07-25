@@ -34,16 +34,13 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/IDAllocator.hpp
         src/panels/ErrorModal.cpp
         src/panels/ErrorModal.hpp
-        src/SurfaceFactory.cpp
-        src/SurfaceFactory.hpp
+        src/platform/SurfaceFactory.cpp
+        src/platform/SurfaceFactory.hpp
         src/errors/LocatableError.cpp
         src/errors/LocatableError.hpp
         src/objects/persistence/JSONSerialiser.cpp
         src/objects/persistence/JSONSerialiser.hpp
         src/objects/persistence/ISerialiser.hpp
-        src/objects/persistence/IDeserialiser.hpp
-        src/objects/persistence/JSONDeserialiser.cpp
-        src/objects/persistence/JSONDeserialiser.hpp
         src/panels/SignalWaveformPanel.cpp
         src/panels/SignalWaveformPanel.hpp
         src/panels/SensorGeometryPanel.cpp
@@ -86,48 +83,72 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/factories/WindowFunctions.hpp
         src/objects/factories/WindowFunctions.cpp
         src/utility/VariantHelpers.hpp
-        src/web/EmscriptenExtra.hpp
         src/signals/tasks/LoadSignalFileTask.cpp
         src/signals/tasks/LoadSignalFileTask.hpp
         src/signals/results/LoadSignalFileResult.cpp
         src/signals/results/LoadSignalFileResult.hpp
-        src/panels/IndividualUploadModal.cpp
-        src/panels/IndividualUploadModal.hpp
         src/actions/ActionController.hpp
         src/actions/ActionControllerBase.hpp
         src/StaticInstanceController.cpp
         src/StaticInstanceController.hpp
         src/errors/IgnoredWarning.cpp
         src/errors/IgnoredWarning.hpp
-        src/notifications/ProjectSelectedNotification.hpp
-        src/notifications/CompleteProjectLoadNotification.hpp
-        src/notifications/RegisterVFSMappingNotification.hpp
-        src/notifications/RegisterVFSMappingNotification.cpp
-        src/notifications/CompleteProjectLoadNotification.cpp
+        src/notifications/ProjectSelectionCompleteNotification.hpp
         src/notifications/AddChannelMappingNotification.cpp
         src/notifications/ModifySensorPositionNotification.cpp
         src/notifications/ModifySensorColourNotification.cpp
         src/signals/results/WorkerResult.hpp
         src/utility/Colour.hpp
         src/utility/Position.hpp
-        src/notifications/CancelProjectLoadNotification.cpp
-        src/notifications/CancelProjectLoadNotification.hpp
         src/notifications/AllNotifications.hpp
-        src/panels/NativeFileChooser.cpp
-        src/panels/NativeFileChooser.hpp
+        src/notifications/AllNotificationsFwd.hpp
+        src/notifications/ClearErrorNotification.hpp
+        src/panels/IProjectPanel.hpp
+        src/objects/ProjectSelectorFwd.hpp
+        src/objects/ProjectSelector.hpp
+        src/objects/persistence/JSONDeserialiserHelpers.cpp
+        src/objects/persistence/JSONDeserialiserHelpers.hpp
+        src/objects/persistence/JSONDeserialiser.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
+    # WebAssembly/Emscripten-only translation units.
     target_sources(DummyTarget PRIVATE
             src/actions/JSActionController.cpp
             src/actions/JSActionController.hpp
+            src/platform/EchoMapWeb.cpp
+            src/platform/EchoMapWeb.hpp
+            src/notifications/web/RegisterVFSMappingNotification.hpp
+            src/notifications/web/RegisterVFSMappingNotification.cpp
+            src/panels/web/MapSourcesModal.cpp
+            src/panels/web/MapSourcesModal.hpp
+            src/notifications/web/CompleteProjectLoadNotification.hpp
+            src/notifications/web/CompleteProjectLoadNotification.cpp
+            src/web/EmscriptenExtra.hpp
+            src/objects/web/PartialProject.cpp
+            src/objects/web/PartialProject.hpp
+            src/notifications/web/CancelProjectLoadNotification.cpp
+            src/notifications/web/CancelProjectLoadNotification.hpp
+            src/panels/web/IWebPanel.hpp
+            src/objects/persistence/web/JSONPartialDeserialiser.cpp
+            src/objects/persistence/web/JSONPartialDeserialiser.hpp
     )
 endif ()
 
 if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
+    # Native-only translation units.
     target_sources(DummyTarget PRIVATE
             src/actions/NativeActionController.cpp
             src/actions/NativeActionController.hpp
+            src/notifications/native/RaiseFileChooserNotification.hpp
+            src/platform/EchoMapNative.cpp
+            src/platform/EchoMapNative.hpp
+            src/panels/native/FileChooser.cpp
+            src/panels/native/FileChooser.hpp
+            src/panels/native/FilesystemCombo.cpp
+            src/panels/native/FilesystemCombo.hpp
+            src/objects/persistence/native/JSONFullDeserialiser.cpp
+            src/objects/persistence/native/JSONFullDeserialiser.hpp
     )
 endif ()
 

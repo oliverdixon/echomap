@@ -5,25 +5,20 @@
  * @date 2026-05-05
  */
 
+#include "EchoMap.hpp"
+
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_wgpu.h>
 #include <imgui_internal.h>
 #include <implot.h>
 #include <implot3d.h>
+#include <sigc++/adaptors/bind.h>
 
-#include "signals/tasks/LoadProjectTask.hpp"
-
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-#endif
-
-#include "EchoMap.hpp"
 #include "RobotoMedium.hpp"
-#include "SurfaceFactory.hpp"
 #include "errors/ConfigurationError.hpp"
 #include "errors/IgnoredWarning.hpp"
 #include "notifications/AllNotifications.hpp"
-#include "objects/Project.hpp"
+#include "objects/ProjectSelector.hpp"
 #include "objects/Sensor.hpp"
 #include "objects/Signal.hpp"
 #include "panels/ChannelMappingPanel.hpp"
@@ -32,13 +27,9 @@
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalDFTPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
-#include "signals/tasks/LoadSignalFileTask.hpp"
+#include "platform/SurfaceFactory.hpp"
+#include "signals/tasks/LoadProjectTask.hpp"
 #include "utility/Logger.hpp"
-#include "utility/VariantHelpers.hpp"
-
-#if defined(__EMSCRIPTEN__) and !defined(__EMSCRIPTEN_PTHREADS__)
-#warning "The Emscripten application will be single-threaded."
-#endif
 
 namespace echomap
 {
@@ -49,7 +40,7 @@ EchoMap::EchoMap() :
             static_cast<int>(viewport_height)
     )),
     worker{[] {
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         glfwPostEmptyEvent();
 #endif
     }},
@@ -91,27 +82,6 @@ EchoMap::EchoMap() :
     panels.push_back(std::make_unique<SensorGeometryPanel>(this));
     panels.push_back(std::make_unique<ChannelMappingPanel>(this));
     panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, this));
-}
-
-void EchoMap::run_event_loop()
-{
-#ifdef __EMSCRIPTEN__
-    emscripten_set_main_loop_arg(&EchoMap::render_shim, this, 0, true);
-#else
-    render();
-    instance.ProcessEvents();
-
-    while (glfwWindowShouldClose(window) == 0) {
-        if (forced_frames > 0) {
-            glfwPollEvents();
-            --forced_frames;
-        } else
-            glfwWaitEvents();
-
-        render();
-        instance.ProcessEvents();
-    }
-#endif
 }
 
 EchoMap::~EchoMap() noexcept
@@ -204,7 +174,7 @@ void EchoMap::setup_subscriptions()
     // NOLINTEND(*-redundant-casting)
 
     connections.emplace_back(despatcher.error_channel.observe([this](const ErrorResult& error) {
-        error_modal.raise_error(error.what());
+        raise_error(error.what());
         LOG_F_ERROR("Error modal raised due to error: {}", error.what());
     }));
 }
@@ -320,10 +290,12 @@ void EchoMap::render() noexcept
     for (const auto& panel : panels)
         panel->draw();
 
-    if (upload_modal.has_value())
-        upload_modal->draw();
+    if (active_modal != nullptr)
+        active_modal->draw();
 
-    error_modal.draw();
+    if (error_modal.has_value())
+        error_modal->draw();
+
     ImGui::Render();
 
     // Set up a command encoder for the render and allow Dear ImGui panels to provide work.
@@ -350,7 +322,7 @@ void EchoMap::render() noexcept
     // Submit batched work to the GPU.
     device.GetQueue().Submit(1, &commands);
 
-#ifndef __EMSCRIPTEN__
+#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
     // ReSharper disable once CppExpressionWithoutSideEffects
     surface.Present();
 #endif
@@ -393,7 +365,7 @@ void EchoMap::setup_imgui()
     if (!ImGui_ImplWGPU_Init(&init_info))
         throw ConfigurationError("ImGui_ImplWGPU_Init failed");
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
     /*
      * If we're targeting WebAssembly, the window dimensions reported by GLFW should match the size of the canvas
      * identified by the CSS selector <code>#canvas</code>. Dear ImGui provides the helper
@@ -493,44 +465,23 @@ bool EchoMap::handle_window_resize() noexcept
 
 void EchoMap::process_notifications()
 {
-    while (!notify_queue.empty()) {
-        auto* const task_hint = static_cast<void*>(&notify_queue.back());
-        const auto task_position = notify_queue.size() - 1;
+    while (!notification_queue.empty()) {
+        auto& notification = notification_queue.back();
+        const auto type_name = NotificationNames::indexed_names[notification.index()];
+        auto* const hint = static_cast<void*>(&notification);
 
-        // TODO variant_helpers
-        LOG_F_DEBUG("Consuming notification with hint {} (#{}).", task_hint, task_position);
+        LOG_F_DEBUG("Consuming {} with hint {}.", type_name, hint);
 
         try {
-
-            // clang-format off
-            std::visit(variant_helpers::Overloaded{
-                [this](const AddChannelMappingNotification& task) { handle_notification(task); },
-                [this](const ModifySensorColourNotification& task) { handle_notification(task); },
-                [this](const ModifySensorPositionNotification& task) { handle_notification(task); },
-                [this](const ProjectSelectedNotification& task) { handle_notification(task); },
-                [this](const CompleteProjectLoadNotification& task) { handle_notification(task); },
-                [this](const RegisterVFSMappingNotification& task) { handle_notification(task); },
-                [this](const CancelProjectLoadNotification& task) { handle_notification(task); },
-                },
-                notify_queue.back()
-            );
-            // clang-format on
-
+            visit_notification(notification);
         } catch (const IgnoredWarning& warning) {
-            // TODO variant_helpers
-            LOG_F_WARN("Notification with hint {} (#{}) was dropped: {}", task_hint, task_position, warning.what());
+            LOG_F_WARN("{} with hint {} was dropped: {}", type_name, hint, warning.what());
         } catch (const std::exception& exception) {
-            error_modal.raise_error(exception.what());
-            // TODO variant_helpers
-            LOG_F_ERROR(
-                    "Notification with hint {} (#{}) was responsible for error: {}",
-                    task_hint,
-                    task_position,
-                    exception.what()
-            );
+            raise_error(exception.what());
+            LOG_F_ERROR("{} with hint {} was responsible for error: {}", type_name, hint, exception.what());
         }
 
-        notify_queue.pop_back();
+        notification_queue.pop_back();
     }
 }
 
@@ -544,133 +495,91 @@ void EchoMap::process_worker_results()
         }
 }
 
-void EchoMap::handle_notification(
-        const AddChannelMappingNotification& task
-) const
-{
-    task.verify_project(project.get());
-    project->add_association(task.signal_id, task.sensor_id);
-}
-
-void EchoMap::handle_notification(
-        const ModifySensorColourNotification& task
-) const
-{
-    task.verify_project(project.get());
-    project->get_mutable_sensor(task.sensor_id).set_colour(task.colour);
-}
-
-void EchoMap::handle_notification(
-        const ModifySensorPositionNotification& task
-) const
-{
-    task.verify_project(project.get());
-    project->get_mutable_sensor(task.sensor_id).set_position(task.position);
-}
-
-void EchoMap::handle_notification(
-        const ProjectSelectedNotification& task
+void EchoMap::raise_error(
+        const std::string_view message
 )
 {
-    worker.submit(std::make_unique<LoadProjectTask>(task.path, &worker));
+    error_modal.emplace(message, [this] {
+        notify(ClearErrorNotification{});
+    });
 }
 
-void EchoMap::handle_notification(
-        const CompleteProjectLoadNotification& task
+void EchoMap::raise_error(
+        const std::string_view message,
+        const std::runtime_error& exception
 )
 {
-    task.verify_project(unloaded_project.get());
-
-    // For each group, create a worker task to load the corresponding file.
-
-    for (auto&& [vfs_path, factories] :
-         unloaded_project->unloaded_signals | std::views::values | std::views::as_rvalue) {
-
-        if (!vfs_path.has_value())
-            throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
-
-        // Once these tasks return, if everything is loaded correctly, we'll change the active project.
-        worker.submit(
-                std::make_unique<LoadSignalFileTask>(unloaded_project->get_id(), *vfs_path, std::move(factories))
-        );
-    }
-
-    upload_modal.reset();
+    error_modal.emplace(message, exception, [this] {
+        notify(ClearErrorNotification{});
+    });
 }
 
 void EchoMap::handle_notification(
-        const RegisterVFSMappingNotification& task
+        const AddChannelMappingNotification& notification
 ) const
 {
-    task.verify_project(unloaded_project.get());
-
-    const auto map_it = unloaded_project->unloaded_signals.find(task.external);
-
-    if (map_it == unloaded_project->unloaded_signals.end())
-        throw IgnoredWarning(
-                std::format(
-                        "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
-                        task.external.c_str()
-                )
-        );
-
-    map_it->second.first = task.internal;
+    notification.verify_project(project.get());
+    project->add_association(notification.signal_id, notification.sensor_id);
 }
 
 void EchoMap::handle_notification(
-        const CancelProjectLoadNotification& task
+        const ModifySensorColourNotification& notification
+) const
+{
+    notification.verify_project(project.get());
+    project->get_mutable_sensor(notification.sensor_id).set_colour(notification.colour);
+}
+
+void EchoMap::handle_notification(
+        const ModifySensorPositionNotification& notification
+) const
+{
+    notification.verify_project(project.get());
+    project->get_mutable_sensor(notification.sensor_id).set_position(notification.position);
+}
+
+void EchoMap::handle_notification(
+        const ProjectSelectionCompleteNotification& notification
 )
 {
-    task.verify_project(unloaded_project.get());
+    active_modal.reset();
 
-    upload_modal.reset();
-    unloaded_project.reset();
+    if (notification.path.has_value())
+        worker.submit(std::make_unique<LoadProjectTask>(*notification.path, &worker));
+}
+
+void EchoMap::handle_notification(
+        const ClearErrorNotification& notification
+)
+{
+    std::ignore = notification;
+    error_modal.reset();
 }
 
 void EchoMap::handle_result(
         LoadProjectResult&& result
 )
 {
-    if (upload_modal.has_value()) {
-        // How have we loaded a new project whilst we're still querying for sources from another one?
+    if (active_modal != nullptr) {
         LOG_WARN("Ignoring request to change active Project since there is an active modal.");
         return;
     }
 
-    auto&& new_project = std::move(result).take_project();
-
-    if (!new_project->unloaded_signals.empty()) {
-        // Raise the modal to query for the sources.
-        upload_modal = IndividualUploadModal(this, new_project.get());
-        unloaded_project = std::move(new_project);
-    } else
-        change_active_project(std::move(new_project));
+    change_active_project(std::move(std::move(result).take_project()));
 }
 
 void EchoMap::handle_result(
         LoadSignalFileResult&& result
 )
 {
-    Project* target = nullptr;
-    if (project != nullptr && result.get_project_id() == project->get_id())
-        target = project.get();
-    else if (unloaded_project != nullptr && result.get_project_id() == unloaded_project->get_id())
-        target = unloaded_project.get();
-
-    if (target == nullptr) {
+    if (project == nullptr || result.get_project_id() != project->get_id())
         LOG_F_WARN(
                 "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
                 result.get_project_id()
         );
-
-        return;
-    }
-
-    for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
-        target->add_signal(std::move(signal));
-
-    if (target == unloaded_project.get())
-        change_active_project(std::move(unloaded_project));
+    else
+        for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
+            project->add_signal(std::move(signal));
 }
 
 void EchoMap::change_active_project(
@@ -689,20 +598,20 @@ void EchoMap::change_active_project(
 }
 
 void EchoMap::notify(
-        const Notification& task
+        const Notification& notification
 )
 {
-    notify_queue.emplace_back(task);
+    notification_queue.emplace_back(notification);
 
     /*
      * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess
      * effort to quickly discriminate o notification without adding bloat to their structures.
      */
-    // TODO use variant_helpers to statically determine names.
     LOG_F_DEBUG(
-            "Scheduling notification with hint {} at position {}.",
-            static_cast<void*>(&notify_queue.back()),
-            notify_queue.size() - 1
+            "Scheduling {} with hint {} at position {}.",
+            NotificationNames::indexed_names[notification_queue.back().index()],
+            static_cast<void*>(&notification_queue.back()),
+            notification_queue.size() - 1
     );
 }
 

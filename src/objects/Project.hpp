@@ -7,7 +7,6 @@
 
 #include <implot3d.h>
 
-#include <filesystem>
 #include <flat_map>
 #include <map>
 #include <memory>
@@ -22,7 +21,6 @@ namespace echomap
 
 class Signal;
 class Sensor;
-class SignalFactory;
 
 class Project : public Object<Project>
 {
@@ -31,26 +29,14 @@ class Project : public Object<Project>
 
 public:
     /**
-     * Provides a mapping between stated paths of externally sourced signals, and paths in the WebAssembly VFS.
-     *
-     * The key indicates the path of the referenced file. The value composes an optional mapping of the corresponding
-     * path in the VFS and a channel map of factories responsible for constructing the Signal of the file channel.
-     *
-     * @todo make private
-     */
-    std::map<
-            std::filesystem::path,
-            std::pair<std::optional<std::filesystem::path>, std::vector<std::unique_ptr<SignalFactory>>>>
-            unloaded_signals;
-
-    /**
      * Creates a new named Project.
      *
      * @param project_name Optional Project display name.
      */
     explicit Project(std::string_view project_name = {});
 
-    ~Project();
+    // ReSharper disable once CppHidingFunction - We will never want destruct a Project through an Object pointer.
+    virtual ~Project();
 
     /**
      * Transfers ownership of a Signal into the Project.

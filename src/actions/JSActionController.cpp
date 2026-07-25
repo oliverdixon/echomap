@@ -7,6 +7,8 @@
  * @date 2026-07-18
  */
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "JSActionController.hpp"
 
 #include <emscripten/em_js.h>
@@ -17,7 +19,7 @@
 namespace echomap
 {
 
-#ifndef DOXYGEN_SKIP
+#ifndef __DOXYGEN__
 
 // (Doxygen can't handle EM_JS declarations.)
 
@@ -97,7 +99,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_project_file_picked(
         return 2;
 
     try {
-        JSActionController::notify_project_file(path);
+        JSActionController::notify<ProjectSelectionCompleteNotification>(path);
         return 0;
     } catch (const ConfigurationError& error) {
         LOG_F_ERROR("Could not load path {} due to error: {}", path, error.what());
@@ -134,7 +136,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
         return 2;
 
     try {
-        JSActionController::notify_vfs_mapping(project_id, external, internal);
+        JSActionController::notify<RegisterVFSMappingNotification>(project_id, external, internal);
         return 0;
     } catch (const ConfigurationError& error) {
         LOG_F_ERROR("Could not load path {} due to error: {}", internal, error.what());
@@ -147,3 +149,5 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
         return 5;
     }
 }
+
+#endif // __EMSCRIPTEN__

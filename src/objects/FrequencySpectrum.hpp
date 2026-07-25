@@ -41,11 +41,6 @@ private:
     std::vector<Bin> bins;
 
 public:
-    /**
-     * @todo Private
-     */
-    WindowFunctions::AllFunctions preprocessor;
-
     [[nodiscard]] decltype(bins)::const_iterator begin() const;
     [[nodiscard]] decltype(bins)::const_iterator end() const;
     [[nodiscard]] decltype(bins)::const_iterator cbegin() const noexcept;
@@ -57,6 +52,8 @@ public:
     [[nodiscard]] float get_maximum_frequency() const noexcept;
     [[nodiscard]] float get_minimum_magnitude() const noexcept;
     [[nodiscard]] float get_maximum_magnitude() const noexcept;
+
+    const WindowFunctions::AllFunctions& observe_preprocessor() const noexcept;
 
 private:
     friend FrequencySpectrumFactory;
@@ -73,6 +70,8 @@ private:
             float magnitude,
             float phase
     );
+
+    WindowFunctions::AllFunctions preprocessor;
 
     float minimum_frequency = std::numeric_limits<float>::max();
     float maximum_frequency = std::numeric_limits<float>::min();

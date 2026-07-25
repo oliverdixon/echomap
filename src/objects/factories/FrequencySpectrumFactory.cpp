@@ -11,7 +11,7 @@
 
 #include <fftw3.h>
 
-#if __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
 #include "../../web/EmscriptenExtra.hpp"
 #else
 #include <cmath>
@@ -108,7 +108,7 @@ Signal::Sample::AmplitudeT FrequencySpectrumFactory::amplitude_to_dbfs(
         const Signal::Sample::AmplitudeT amplitude
 ) noexcept
 {
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
     constexpr auto full = std::max(web::abs(Signal::normalised_range.first), web::abs(Signal::normalised_range.second));
 #else
     constexpr auto full = std::max(std::abs(Signal::normalised_range.first), std::abs(Signal::normalised_range.second));

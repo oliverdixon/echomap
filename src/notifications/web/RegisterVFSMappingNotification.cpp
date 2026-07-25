@@ -7,10 +7,12 @@
  * @date 2026-07-20
  */
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "RegisterVFSMappingNotification.hpp"
 
-#include "../errors/IgnoredWarning.hpp"
-#include "../objects/Project.hpp"
+#include "../../errors/IgnoredWarning.hpp"
+#include "../../objects/web/PartialProject.hpp"
 
 namespace echomap
 {
@@ -27,7 +29,7 @@ RegisterVFSMappingNotification::RegisterVFSMappingNotification(
 }
 
 void RegisterVFSMappingNotification::verify_project(
-        const Project* const context
+        const PartialProject* const context
 ) const
 {
     if (context == nullptr)
@@ -44,3 +46,5 @@ void RegisterVFSMappingNotification::verify_project(
 }
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__

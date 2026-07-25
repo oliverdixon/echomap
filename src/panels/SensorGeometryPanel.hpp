@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include "IPanel.hpp"
+#include "IProjectPanel.hpp"
 
 namespace echomap
 {
@@ -25,7 +25,7 @@ class WorkerResultDespatcher;
 /**
  * Provides a panel for defining and reviewing (in a 3D plot) positions of loaded Sensor objects in the active Project.
  */
-class SensorGeometryPanel final : public IPanel
+class SensorGeometryPanel final : public IProjectPanel
 {
 public:
     /**

@@ -14,48 +14,40 @@
 namespace echomap
 {
 
-ErrorModal::ErrorModal() :
-    panel_name(std::string("Error!") + get_imgui_stable_name())
-{
-}
-
-void ErrorModal::raise_error(
-        const std::string_view message
-) noexcept
+ErrorModal::ErrorModal(
+        const std::string_view message,
+        DismissedCallbackT&& dismissed_callback
+) :
+    panel_name(std::string("Error!") + get_imgui_stable_name()),
+    dismissed_callback(std::move(dismissed_callback))
 {
     try {
         prefix = message;
     } catch (const std::exception&) {
         LOG_ERROR("Could not allocate memory to display modal on UI.");
-        is_raised = false;
         return;
     }
-
-    is_raised = true;
 }
 
-void ErrorModal::raise_error(
+ErrorModal::ErrorModal(
         const std::string_view new_prefix,
-        const std::runtime_error& exception
-) noexcept
+        const std::runtime_error& exception,
+        DismissedCallbackT&& dismissed_callback
+) :
+    panel_name(std::string("Error!") + get_imgui_stable_name()),
+    dismissed_callback(std::move(dismissed_callback))
 {
     try {
         detail = exception.what();
         prefix = new_prefix;
     } catch (const std::exception&) {
         LOG_ERROR("Could not allocate memory to display modal on UI.");
-        is_raised = false;
         return;
     }
-
-    is_raised = true;
 }
 
 void ErrorModal::draw() noexcept
 {
-    if (!is_raised)
-        return;
-
     ImGui::OpenPopup(get_imgui_name());
     if (ImGui::BeginPopupModal(get_imgui_name(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::TextUnformatted(prefix.c_str());
@@ -66,13 +58,9 @@ void ErrorModal::draw() noexcept
             ImGui::Separator();
         }
 
-        constexpr float button_width = 80.0f;
-        const float available_width = ImGui::GetContentRegionAvail().x;
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + available_width - button_width);
-
-        if (ImGui::Button("Dismiss", ImVec2(button_width, 0.0f))) {
-            is_raised = false;
+        if (ImGui::Button("Dismiss", button_size)) {
             ImGui::CloseCurrentPopup();
+            dismissed_callback();
         }
 
         ImGui::EndPopup();
@@ -82,13 +70,6 @@ void ErrorModal::draw() noexcept
 const char* ErrorModal::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
-}
-
-void ErrorModal::change_active_project(
-        const Project* const new_project
-)
-{
-    std::ignore = new_project;
 }
 
 const char* ErrorModal::get_imgui_stable_name() noexcept

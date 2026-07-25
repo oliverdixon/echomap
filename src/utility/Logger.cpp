@@ -9,7 +9,7 @@
 
 #include <thread>
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 #include <emscripten/console.h>
 #else
 #include <iostream>
@@ -34,7 +34,7 @@ void Logger::log(
             message
     );
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
     switch (level) {
     case Level::Error:
         emscripten_console_error(line.c_str());

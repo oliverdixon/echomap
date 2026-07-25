@@ -59,6 +59,11 @@ float FrequencySpectrum::get_maximum_magnitude() const noexcept
     return maximum_magnitude;
 }
 
+const WindowFunctions::AllFunctions& FrequencySpectrum::observe_preprocessor() const noexcept
+{
+    return preprocessor;
+}
+
 FrequencySpectrum::FrequencySpectrum(
         const WindowFunctions::AllFunctions preprocessor,
         const std::string_view name

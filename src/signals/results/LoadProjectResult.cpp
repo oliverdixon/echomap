@@ -7,13 +7,13 @@
 
 #include "LoadProjectResult.hpp"
 
-#include "../../objects/Project.hpp"
+#include "../../objects/ProjectSelector.hpp"
 
 namespace echomap
 {
 
 LoadProjectResult::LoadProjectResult(
-        std::unique_ptr<Project> loaded_project
+        std::unique_ptr<ProjectT> loaded_project
 ) :
     loaded_project(std::move(loaded_project))
 {
@@ -25,12 +25,12 @@ LoadProjectResult::LoadProjectResult(LoadProjectResult&&) noexcept = default;
 
 LoadProjectResult& LoadProjectResult::operator=(LoadProjectResult&&) noexcept = default;
 
-std::unique_ptr<Project> LoadProjectResult::take_project() && noexcept
+std::unique_ptr<ProjectT> LoadProjectResult::take_project() && noexcept
 {
     return std::move(loaded_project);
 }
 
-const Project* LoadProjectResult::observe_project() const noexcept
+const ProjectT * LoadProjectResult::observe_project() const noexcept
 {
     return loaded_project.get();
 }
