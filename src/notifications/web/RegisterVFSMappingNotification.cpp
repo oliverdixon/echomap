@@ -12,7 +12,7 @@
 #include "RegisterVFSMappingNotification.hpp"
 
 #include "../../errors/IgnoredWarning.hpp"
-#include "../../objects/Project.hpp"
+#include "../../objects/web/PartialProject.hpp"
 
 namespace echomap
 {
@@ -29,7 +29,7 @@ RegisterVFSMappingNotification::RegisterVFSMappingNotification(
 }
 
 void RegisterVFSMappingNotification::verify_project(
-        const Project* const context
+        const PartialProject* const context
 ) const
 {
     if (context == nullptr)

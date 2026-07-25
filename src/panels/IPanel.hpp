@@ -52,13 +52,6 @@ public:
         std::ignore = command_encoder;
     }
 
-    /**
-     * Updates the active Project being described by the IPanel.
-     *
-     * @param new_project An observing pointer to the new active Project.
-     */
-    virtual void change_active_project(const Project * new_project) = 0;
-
 protected:
     constexpr static ImVec2 button_size{80.0f, 20.0f};
 

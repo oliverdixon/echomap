@@ -16,9 +16,9 @@
 
 #include <filesystem>
 
-#include "../IPanel.hpp"
-#include "FilesystemCombo.hpp"
 #include "../../notifications/native/RaiseFileChooserNotification.hpp"
+#include "../IProjectPanel.hpp"
+#include "FilesystemCombo.hpp"
 
 namespace echomap
 {
@@ -28,7 +28,7 @@ class EchoMap;
 /**
  * Modal containing controls for interactively selecting a file from the file-system.
  */
-class FileChooser : public IPanel
+class FileChooser : public IProjectPanel
 {
 public:
     /**

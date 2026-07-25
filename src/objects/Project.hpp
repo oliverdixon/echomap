@@ -35,7 +35,8 @@ public:
      */
     explicit Project(std::string_view project_name = {});
 
-    ~Project();
+    // ReSharper disable once CppHidingFunction - We will never want destruct a Project through an Object pointer.
+    virtual ~Project();
 
     /**
      * Transfers ownership of a Signal into the Project.

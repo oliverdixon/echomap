@@ -12,7 +12,7 @@
 #include "../../EchoMap.hpp"
 #include "../../actions/ActionController.hpp"
 #include "../../notifications/AllNotifications.hpp"
-#include "../../objects/Project.hpp"
+#include "../../objects/web/PartialProject.hpp"
 #include "../../objects/factories/SignalFactory.hpp"
 
 namespace echomap
@@ -20,7 +20,7 @@ namespace echomap
 
 MapSourcesModal::MapSourcesModal(
         EchoMap* const app,
-        const Project* const project
+        const PartialProject* const project
 ) :
     panel_name(std::string("Upload External Files") + get_imgui_stable_name()),
     app(app),
@@ -89,7 +89,7 @@ void MapSourcesModal::reshow() noexcept
 }
 
 void MapSourcesModal::change_active_project(
-        const Project* const new_project
+        const PartialProject* new_project
 )
 {
     std::ignore = new_project;

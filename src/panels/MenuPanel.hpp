@@ -7,12 +7,12 @@
 
 #include <string>
 
-#include "IPanel.hpp"
+#include "IProjectPanel.hpp"
 
 namespace echomap
 {
 
-class MenuPanel final : public IPanel
+class MenuPanel final : public IProjectPanel
 {
 public:
     void draw() noexcept override;

@@ -16,6 +16,15 @@
 namespace echomap
 {
 
+PartialProject::PartialProject(
+        const std::string_view project_name
+) :
+    Project(project_name)
+{
+}
+
+PartialProject::~PartialProject() = default;
+
 void PartialProject::indicate_unloaded_signal(
         std::unique_ptr<SignalFactory>&& factory
 )

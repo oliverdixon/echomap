@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <string>
 
-#include "../IPanel.hpp"
+#include "IWebPanel.hpp"
 
 namespace echomap
 {
@@ -31,12 +31,12 @@ concept SignalFactoryRange =
  * This is most useful in browser (WebAssembly VFS) contexts where the application cannot interrogate the file system
  * directly.
  */
-class MapSourcesModal final : public IPanel
+class MapSourcesModal final : public IWebPanel
 {
 public:
     explicit MapSourcesModal(
             EchoMap* app,
-            const Project* project
+            const PartialProject* project
     );
 
     void draw() noexcept override;
@@ -53,7 +53,7 @@ public:
      *
      * @param new_project Ignored.
      */
-    void change_active_project(const Project* new_project) override;
+    void change_active_project(const PartialProject* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 
@@ -73,7 +73,7 @@ private:
 
     std::string panel_name;
     EchoMap* app;
-    const Project* project;
+    const PartialProject* project;
     bool should_open = true;
 };
 

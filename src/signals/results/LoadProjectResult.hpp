@@ -10,10 +10,10 @@
 
 #include <memory>
 
+#include "../../objects/ProjectSelectorFwd.hpp"
+
 namespace echomap
 {
-
-class Project;
 
 /**
  * Denotes a loaded Project completed by a LoadProjectTask job.
@@ -21,7 +21,7 @@ class Project;
 class LoadProjectResult
 {
 public:
-    explicit LoadProjectResult(std::unique_ptr<Project> loaded_project);
+    explicit LoadProjectResult(std::unique_ptr<ProjectT> loaded_project);
     ~LoadProjectResult() noexcept;
 
     LoadProjectResult(const LoadProjectResult&) = delete;
@@ -30,11 +30,11 @@ public:
     LoadProjectResult(LoadProjectResult&&) noexcept;
     LoadProjectResult& operator=(LoadProjectResult&&) noexcept;
 
-    [[nodiscard]] std::unique_ptr<Project> take_project() && noexcept;
-    [[nodiscard]] const Project * observe_project() const noexcept;
+    [[nodiscard]] std::unique_ptr<ProjectT> take_project() && noexcept;
+    [[nodiscard]] const ProjectT * observe_project() const noexcept;
 
 private:
-    std::unique_ptr<Project> loaded_project;
+    std::unique_ptr<ProjectT> loaded_project;
 };
 
 } // namespace echomap

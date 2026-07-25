@@ -18,7 +18,7 @@
 #include "errors/ConfigurationError.hpp"
 #include "errors/IgnoredWarning.hpp"
 #include "notifications/AllNotifications.hpp"
-#include "objects/Project.hpp"
+#include "objects/ProjectSelector.hpp"
 #include "objects/Sensor.hpp"
 #include "objects/Signal.hpp"
 #include "panels/ChannelMappingPanel.hpp"
@@ -27,10 +27,8 @@
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalDFTPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
-#include "panels/web/MapSourcesModal.hpp"
 #include "platform/SurfaceFactory.hpp"
 #include "signals/tasks/LoadProjectTask.hpp"
-#include "signals/tasks/LoadSignalFileTask.hpp"
 #include "utility/Logger.hpp"
 
 namespace echomap
@@ -551,16 +549,6 @@ void EchoMap::handle_notification(
 }
 
 void EchoMap::handle_notification(
-        const CancelProjectLoadNotification& notification
-)
-{
-    notification.verify_project(unloaded_project.get());
-
-    active_modal.reset();
-    unloaded_project.reset();
-}
-
-void EchoMap::handle_notification(
         const ClearErrorNotification& notification
 )
 {
@@ -584,26 +572,14 @@ void EchoMap::handle_result(
         LoadSignalFileResult&& result
 )
 {
-    Project* target = nullptr;
-    if (project != nullptr && result.get_project_id() == project->get_id())
-        target = project.get();
-    else if (unloaded_project != nullptr && result.get_project_id() == unloaded_project->get_id())
-        target = unloaded_project.get();
-
-    if (target == nullptr) {
+    if (project == nullptr || result.get_project_id() != project->get_id())
         LOG_F_WARN(
                 "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
                 result.get_project_id()
         );
-
-        return;
-    }
-
-    for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
-        target->add_signal(std::move(signal));
-
-    if (target == unloaded_project.get())
-        change_active_project(std::move(unloaded_project));
+    else
+        for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
+            project->add_signal(std::move(signal));
 }
 
 void EchoMap::change_active_project(

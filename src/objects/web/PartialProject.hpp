@@ -38,6 +38,10 @@ class PartialProject : public Project
             unloaded_signals;
 
 public:
+    explicit PartialProject(std::string_view project_name = {});
+
+    ~PartialProject() override;
+
     /**
      * Provide the factory for an unloaded Signal.
      *

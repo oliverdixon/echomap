@@ -103,11 +103,12 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/signals/results/WorkerResult.hpp
         src/utility/Colour.hpp
         src/utility/Position.hpp
-        src/notifications/CancelProjectLoadNotification.cpp
-        src/notifications/CancelProjectLoadNotification.hpp
         src/notifications/AllNotifications.hpp
         src/notifications/AllNotificationsFwd.hpp
         src/notifications/ClearErrorNotification.hpp
+        src/panels/IProjectPanel.hpp
+        src/objects/ProjectSelectorFwd.hpp
+        src/objects/ProjectSelector.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
@@ -126,6 +127,9 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/web/EmscriptenExtra.hpp
             src/objects/web/PartialProject.cpp
             src/objects/web/PartialProject.hpp
+            src/notifications/web/CancelProjectLoadNotification.cpp
+            src/notifications/web/CancelProjectLoadNotification.hpp
+            src/panels/web/IWebPanel.hpp
     )
 endif ()
 

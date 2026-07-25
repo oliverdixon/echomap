@@ -15,7 +15,9 @@
 
 #include "../errors/IgnoredWarning.hpp"
 #include "../notifications/AllNotifications.hpp"
-#include "../objects/Project.hpp"
+#include "../objects/Signal.hpp"
+#include "../objects/web/PartialProject.hpp"
+#include "../panels/IProjectPanel.hpp"
 #include "../panels/web/MapSourcesModal.hpp"
 #include "../signals/tasks/LoadSignalFileTask.hpp"
 #include "../utility/Logger.hpp"
@@ -36,7 +38,8 @@ void EchoMapWeb::visit_notification(
 
             variant_helpers::Overloaded{
                 make_common_notification_visitors(),
-                [this](CompleteProjectLoadNotification& n) { handle_notification(n); },
+                [this](const CancelProjectLoadNotification& n) { handle_notification(n); },
+                [this](const CompleteProjectLoadNotification& n) { handle_notification(n); },
                 [this](RegisterVFSMappingNotification& n) { handle_notification(n); },
             },
 
@@ -62,6 +65,49 @@ void EchoMapWeb::handle_result(
         unloaded_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));
+}
+
+void EchoMapWeb::handle_result(
+        LoadSignalFileResult&& result
+)
+{
+    Project* target = nullptr;
+
+    // Determine whether the result relates to a Signal bound to the active Project or the unloaded Project.
+
+    if (project != nullptr && result.get_project_id() == project->get_id())
+        target = project.get();
+    else if (unloaded_project != nullptr && result.get_project_id() == unloaded_project->get_id())
+        target = unloaded_project.get();
+
+    if (target == nullptr) {
+        LOG_F_WARN(
+                "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
+                result.get_project_id()
+        );
+
+        return;
+    }
+
+    // Add the signals to the target Project.
+
+    for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
+        target->add_signal(std::move(signal));
+
+    // If it was an unloaded Project, and all signals are now loaded, it can become the active Project.
+
+    if (target == unloaded_project.get() && unloaded_project->observe_unloaded_signals().empty())
+        change_active_project(std::move(unloaded_project));
+}
+
+void EchoMapWeb::handle_notification(
+        const CancelProjectLoadNotification& notification
+)
+{
+    notification.verify_project(unloaded_project.get());
+
+    active_modal.reset();
+    unloaded_project.reset();
 }
 
 void EchoMapWeb::handle_notification(
@@ -119,6 +165,10 @@ void EchoMapWeb::run_event_loop()
 {
     emscripten_set_main_loop_arg(&EchoMapWeb::render_shim, this, 0, true);
 }
+
+EchoMapWeb::EchoMapWeb() = default;
+
+EchoMapWeb::~EchoMapWeb() = default;
 
 } // namespace echomap
 

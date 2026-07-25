@@ -24,7 +24,7 @@
 namespace echomap
 {
 
-class IPanel;
+class IProjectPanel;
 class Project;
 
 /**
@@ -99,7 +99,6 @@ protected:
             [this](const ModifySensorColourNotification& n) { handle_notification(n); },
             [this](const ModifySensorPositionNotification& n) { handle_notification(n); },
             [this](const ProjectSelectionCompleteNotification& n) { handle_notification(n); },
-            [this](const CancelProjectLoadNotification& n) { handle_notification(n); },
             [this](const ClearErrorNotification& n) { handle_notification(n); },
         };
         // clang-format on
@@ -219,11 +218,10 @@ protected:
     void handle_notification(const ModifySensorColourNotification& notification) const;
     void handle_notification(const ModifySensorPositionNotification& notification) const;
     void handle_notification(const ProjectSelectionCompleteNotification& notification);
-    void handle_notification(const CancelProjectLoadNotification& notification);
     void handle_notification(const ClearErrorNotification& notification);
 
     virtual void handle_result(LoadProjectResult&& result);
-    void handle_result(LoadSignalFileResult&& result);
+    virtual void handle_result(LoadSignalFileResult&& result);
 
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
@@ -241,12 +239,11 @@ protected:
     WorkerResultDespatcher despatcher; /**< Despatcher to manage Worker result channels. */
     std::vector<sigc::scoped_connection> connections; /**< RAII lifetime manager for signal connections. */
 
-    std::vector<std::unique_ptr<IPanel>> panels;      /**< Individual display components. */
-    std::optional<ErrorModal> error_modal;            /**< Persistent panel to indicate errors over all other panels. */
+    std::vector<std::unique_ptr<IProjectPanel>> panels; /**< Individual display components. */
+    std::optional<ErrorModal> error_modal;       /**< Persistent panel to indicate errors over all other panels. */
     std::vector<Notification> notification_queue;
-    std::unique_ptr<Project> project;          /**< Owning container for the active Project. */
-    std::unique_ptr<Project> unloaded_project; /**< Owning container for the unloaded Project. */
-    std::unique_ptr<IPanel> active_modal;      /**< The current active non-ErrorModal modal panel. */
+    std::unique_ptr<Project> project;            /**< Owning container for the active Project. */
+    std::unique_ptr<IPanel> active_modal; /**< The current active non-ErrorModal modal panel. */
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

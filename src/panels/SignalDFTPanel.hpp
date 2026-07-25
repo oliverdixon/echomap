@@ -14,9 +14,9 @@
 
 #include <string>
 
-#include "IPanel.hpp"
 #include "../objects/IDAllocator.hpp"
 #include "../objects/factories/WindowFunctions.hpp"
+#include "IProjectPanel.hpp"
 
 namespace echomap
 {
@@ -31,7 +31,7 @@ class Worker;
 /**
  * Provides an IPanel to display and interact with previews of Signal frequency spectra (i.e., Signal DFTs).
  */
-class SignalDFTPanel final : public IPanel
+class SignalDFTPanel final : public IProjectPanel
 {
 public:
     /**
