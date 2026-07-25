@@ -32,7 +32,7 @@ FilesystemCombo::FilesystemCombo(
     if (error_code || cwd.empty() || !std::filesystem::is_directory(cwd))
         throw std::runtime_error("Could not get the current working directory. Is the filesystem readable?");
 
-    update_root(cwd);
+    update_current_state(cwd);
 }
 
 bool FilesystemCombo::operator()(
@@ -120,7 +120,7 @@ FilesystemCombo::EntryCache::EntryCache(
     std::ranges::sort(entries);
 }
 
-void FilesystemCombo::update_root(
+void FilesystemCombo::update_current_state(
         const std::filesystem::path& path
 )
 {
@@ -129,6 +129,8 @@ void FilesystemCombo::update_root(
 
     std::memcpy(current_root.data(), path_string.data(), length);
     current_root[length] = '\0';
+
+    current_target = get_browse_target();
 }
 
 bool FilesystemCombo::draw_combo_body(
@@ -136,39 +138,44 @@ bool FilesystemCombo::draw_combo_body(
 )
 {
     ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
+    const std::string old_root = current_root.data();
     const bool enter_pressed =
             ImGui::InputText("##path", current_root.data(), current_root.size(), ImGuiInputTextFlags_EnterReturnsTrue);
-    const BrowseTarget target = get_browse_target();
 
     bool changed = false;
 
+    if (old_root != current_root.data())
+        // If the browse target has changed, update the cached member variable.
+        current_target = get_browse_target();
+
     if (enter_pressed) {
-        accept_path(selected_path, target.typed_path.empty() ? target.directory : target.typed_path);
+        // If the user has explicitly pressed 'enter', accept whatever is selected at this time.
+        accept_path(
+                selected_path,
+                current_target.target_path.empty() ? current_target.parent_directory : current_target.target_path
+        );
+
         changed = true;
         ImGui::CloseCurrentPopup();
     }
 
     ImGui::Separator();
 
-    if (!std::filesystem::is_directory(target.directory)) {
+    if (!std::filesystem::is_directory(current_target.parent_directory))
         ImGui::TextDisabled("Not a readable directory.");
-        return changed;
+    else {
+        draw_parent_entry(current_target.parent_directory);
+        if (!cache || cache->directory != current_target.parent_directory)
+            cache.emplace(current_target.parent_directory);
+
+        changed |= draw_child_entries(current_target.filter, selected_path);
     }
 
-    draw_parent_entry(target.directory);
-
-    if (!cache || cache->directory != target.directory)
-        // If we haven't already cached the children of this directory, do it now.
-        cache.emplace(target.directory);
-
-    draw_cached_entries(target.filter, selected_path);
     return changed;
 }
 
 FilesystemCombo::BrowseTarget FilesystemCombo::get_browse_target() const
 {
-    // TODO this isn't good to call in the render loop...
-
     std::error_code error_code;
     const std::string typed_string = current_root.data();
     auto const typed_path = typed_string.empty() ? std::filesystem::path{} : std::filesystem::path{typed_string};
@@ -185,7 +192,7 @@ FilesystemCombo::BrowseTarget FilesystemCombo::get_browse_target() const
     error_code.clear();
 
     if (std::filesystem::is_directory(lookup_path, error_code))
-        return {.typed_path = lookup_path, .directory = lookup_path, .filter = {}};
+        return {.target_path = lookup_path, .parent_directory = lookup_path, .filter = {}};
 
     std::filesystem::path directory = lookup_path.parent_path();
 
@@ -197,7 +204,7 @@ FilesystemCombo::BrowseTarget FilesystemCombo::get_browse_target() const
             directory = ".";
     }
 
-    return {.typed_path = lookup_path, .directory = directory, .filter = lookup_path.filename().string()};
+    return {.target_path = lookup_path, .parent_directory = directory, .filter = lookup_path.filename().string()};
 }
 
 void FilesystemCombo::draw_parent_entry(
@@ -210,10 +217,10 @@ void FilesystemCombo::draw_parent_entry(
         return;
 
     if (ImGui::Selectable("../", false, ImGuiSelectableFlags_NoAutoClosePopups))
-        update_root(parent);
+        update_current_state(parent);
 }
 
-bool FilesystemCombo::draw_cached_entries(
+bool FilesystemCombo::draw_child_entries(
         const std::string_view filter,
         std::filesystem::path& selected_path
 )
@@ -228,14 +235,13 @@ bool FilesystemCombo::draw_cached_entries(
         has_visible_entries = true;
 
         if (entry.draw()) {
-            if (entry.is_directory) {
-                update_root(entry.path);
-            } else {
+            if (entry.is_directory)
+                update_current_state(entry.path);
+            else
                 selected_path = entry.path;
-                update_root(entry.path.parent_path());
-                changed = true;
-                ImGui::CloseCurrentPopup();
-            }
+            update_current_state(entry.path.parent_path());
+            changed = true;
+            ImGui::CloseCurrentPopup();
         }
     }
 
@@ -253,11 +259,11 @@ void FilesystemCombo::accept_path(
     selected_path = path;
 
     if (std::filesystem::is_directory(path))
-        update_root(path);
+        update_current_state(path);
     else if (path.has_parent_path())
-        update_root(path.parent_path());
+        update_current_state(path.parent_path());
     else
-        update_root("."); // TODO ??
+        update_current_state(".");
 }
 
 } // namespace echomap

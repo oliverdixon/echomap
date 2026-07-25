@@ -119,11 +119,14 @@ private:
         ImGuiSelectableFlags flags; /**< Dear ImGui flags for rendering the Selectable. */
     };
 
+    /**
+     * A root target selected by the user to focus on.
+     */
     struct BrowseTarget
     {
-        std::filesystem::path typed_path;
-        std::filesystem::path directory;
-        std::string filter;
+        std::filesystem::path target_path;      /**< The selected path. */
+        std::filesystem::path parent_directory; /**< The parent directory of the target path. */
+        std::string filter;                     /**< Cached string of the target path filename. */
     };
 
     /**
@@ -154,11 +157,12 @@ private:
     /**
      * Copies and formats the given path into the fixed-size current directory state member variable.
      *
-     * The current directory array is always NULL-terminated following this operation.
+     * The current directory array is always NULL-terminated following this operation. The current BrowseTarget is also
+     * updated to the given path.
      *
      * @param path The path to the new root directory.
      */
-    void update_root(const std::filesystem::path& path);
+    void update_current_state(const std::filesystem::path& path);
 
     bool draw_combo_body(std::filesystem::path& selected_path);
 
@@ -166,7 +170,7 @@ private:
 
     void draw_parent_entry(const std::filesystem::path& directory);
 
-    bool draw_cached_entries(
+    bool draw_child_entries(
             std::string_view filter,
             std::filesystem::path& selected_path
     );
@@ -176,9 +180,10 @@ private:
             const std::filesystem::path& path
     );
 
-    std::array<char, max_path_length> current_root{};
-    std::optional<EntryCache> cache; /**< Cache of entries. */
-    EchoMap* app;                    /**< Pointer to the owning application instance. */
+    std::array<char, max_path_length> current_root{}; /**< The current raw string entered by the user. */
+    BrowseTarget current_target;                      /**< The current target specified in the filter window. */
+    std::optional<EntryCache> cache;                  /**< Cache of entries visible in the combo box. */
+    EchoMap* app;                                     /**< Pointer to the owning application instance. */
 };
 
 } // namespace echomap
