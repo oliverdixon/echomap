@@ -1,31 +1,30 @@
-//
-// Created by owd on 07/07/2026.
-//
+/**
+ * @file
+ *
+ * JSONDeserialiser specification
+ *
+ * @author Oliver Dixon
+ * @date 2026-07-25
+ */
 
 #ifndef ECHOMAP_JSONDESERIALISER_HPP
 #define ECHOMAP_JSONDESERIALISER_HPP
 
-#include <filesystem>
-
-#include <simdjson.h>
-
-#include "IDeserialiser.hpp"
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+#include "web/JSONPartialDeserialiser.hpp"
+#else
+#include "native/JSONFullDeserialiser.hpp"
+#endif
 
 namespace echomap
 {
 
-class JSONDeserialiser : public IDeserialiser
-{
-public:
-    std::unique_ptr<Project> deserialise_project(
-            const std::filesystem::path& path,
-            Worker* worker
-    ) override;
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+using JSONDeserialiser = JSONPartialDeserialiser;
+#else
+using JSONDeserialiser = JSONFullDeserialiser;
+#endif // __EMSCRIPTEN__
 
-private:
-    simdjson::ondemand::parser parser;
-};
-
-} // namespace echomap
+}
 
 #endif // ECHOMAP_JSONDESERIALISER_HPP

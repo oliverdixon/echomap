@@ -41,9 +41,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/persistence/JSONSerialiser.cpp
         src/objects/persistence/JSONSerialiser.hpp
         src/objects/persistence/ISerialiser.hpp
-        src/objects/persistence/IDeserialiser.hpp
-        src/objects/persistence/JSONDeserialiser.cpp
-        src/objects/persistence/JSONDeserialiser.hpp
         src/panels/SignalWaveformPanel.cpp
         src/panels/SignalWaveformPanel.hpp
         src/panels/SensorGeometryPanel.cpp
@@ -109,6 +106,9 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/panels/IProjectPanel.hpp
         src/objects/ProjectSelectorFwd.hpp
         src/objects/ProjectSelector.hpp
+        src/objects/persistence/JSONDeserialiserHelpers.cpp
+        src/objects/persistence/JSONDeserialiserHelpers.hpp
+        src/objects/persistence/JSONDeserialiser.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
@@ -130,6 +130,8 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/notifications/web/CancelProjectLoadNotification.cpp
             src/notifications/web/CancelProjectLoadNotification.hpp
             src/panels/web/IWebPanel.hpp
+            src/objects/persistence/web/JSONPartialDeserialiser.cpp
+            src/objects/persistence/web/JSONPartialDeserialiser.hpp
     )
 endif ()
 
@@ -145,6 +147,8 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/panels/native/FileChooser.hpp
             src/panels/native/FilesystemCombo.cpp
             src/panels/native/FilesystemCombo.hpp
+            src/objects/persistence/native/JSONFullDeserialiser.cpp
+            src/objects/persistence/native/JSONFullDeserialiser.hpp
     )
 endif ()
 

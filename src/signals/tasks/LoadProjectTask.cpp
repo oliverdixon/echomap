@@ -8,7 +8,7 @@
 #include "LoadProjectTask.hpp"
 
 #include "../results/LoadProjectResult.hpp"
-#include "../../objects/Project.hpp"
+#include "../../objects/ProjectSelector.hpp"
 
 namespace echomap
 {
