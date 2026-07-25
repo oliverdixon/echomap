@@ -24,7 +24,9 @@ class Project;
 class Signal;
 
 /**
- * @todo Document
+ * Provides a set of static helpers for parsing Project fields with SIMDJSON.
+ *
+ * @todo Document member functions and sequence points in the simdjson namespace.
  */
 class JSONDeserialiserHelpers
 {

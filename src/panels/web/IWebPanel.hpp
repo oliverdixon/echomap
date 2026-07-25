@@ -20,7 +20,7 @@ namespace echomap
 class PartialProject;
 
 /**
- * @todo Document
+ * An IPanel which can receive updates to the application-wide unloaded PartialProject.
  */
 class IWebPanel : public IPanel
 {

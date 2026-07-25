@@ -21,7 +21,12 @@ namespace echomap
 {
 
 /**
- * @todo Document
+ * A Project with semantics for expressing an incomplete set of owned Signal objects.
+ *
+ * In addition to the regular Project, the PartialProject detains a number of SignalFactory objects that are reserved
+ * to construct Signal instances once their external sources become available. This is useful in WebAssembly
+ * environments to model mappings between the Signal path specified in the Project metadata, and a mapping to the Wasm
+ * VFS path.
  */
 class PartialProject : public Project
 {

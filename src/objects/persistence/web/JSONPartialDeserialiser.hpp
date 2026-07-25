@@ -23,7 +23,9 @@ class PartialProject;
 class Worker;
 
 /**
- * @todo Document
+ * JSON parser for PartialProject objects.
+ *
+ * To parse full Project instances, see JSONFullDeserialiser.
  */
 class JSONPartialDeserialiser
 {

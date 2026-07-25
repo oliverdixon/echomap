@@ -18,7 +18,7 @@ namespace echomap
 class Project;
 
 /**
- * @todo Document
+ * An IPanel which can receive updates to the application-wide active Project.
  */
 class IProjectPanel : public IPanel
 {

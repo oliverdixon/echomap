@@ -1,6 +1,11 @@
-//
-// Created by owd on 07/07/2026.
-//
+/**
+ * @file
+ *
+ * JSONFullDeserialiser specification
+ *
+ * @author Oliver Dixon
+ * @date 2026-07-27
+ */
 
 #ifndef ECHOMAP_JSONFULLDESERIALISER_HPP
 #define ECHOMAP_JSONFULLDESERIALISER_HPP
@@ -18,7 +23,9 @@ class Project;
 class Worker;
 
 /**
- * @todo Document.
+ * JSON parser for Project objects.
+ *
+ * To parse PartialProject instances, see JSONPartialDeserialiser.
  */
 class JSONFullDeserialiser
 {
