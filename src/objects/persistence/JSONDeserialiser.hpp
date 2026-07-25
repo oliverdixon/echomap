@@ -20,9 +20,19 @@ namespace echomap
 {
 
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
+/**
+ * Provides a JSONDeserialiser for the web, where PartialProject objects are required.
+ */
 using JSONDeserialiser = JSONPartialDeserialiser;
+
 #else
+
+/**
+ * Provides a JSONDeserialiser for native platforms, where Project objects are constructed in full.
+ */
 using JSONDeserialiser = JSONFullDeserialiser;
+
 #endif // __EMSCRIPTEN__
 
 }

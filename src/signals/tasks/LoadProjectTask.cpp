@@ -8,7 +8,12 @@
 #include "LoadProjectTask.hpp"
 
 #include "../results/LoadProjectResult.hpp"
-#include "../../objects/ProjectSelector.hpp"
+
+#ifdef __EMSCRIPTEN__
+#include "../../objects/web/PartialProject.hpp"
+#else
+#include "../../objects/Project.hpp"
+#endif // __EMSCRIPTEN__
 
 namespace echomap
 {

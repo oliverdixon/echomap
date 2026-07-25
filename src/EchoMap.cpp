@@ -18,7 +18,7 @@
 #include "errors/ConfigurationError.hpp"
 #include "errors/IgnoredWarning.hpp"
 #include "notifications/AllNotifications.hpp"
-#include "objects/ProjectSelector.hpp"
+#include "objects/Project.hpp"
 #include "objects/Sensor.hpp"
 #include "objects/Signal.hpp"
 #include "panels/ChannelMappingPanel.hpp"
@@ -30,6 +30,10 @@
 #include "platform/SurfaceFactory.hpp"
 #include "signals/tasks/LoadProjectTask.hpp"
 #include "utility/Logger.hpp"
+
+#ifdef __EMSCRIPTEN__
+#include "objects/web/PartialProject.hpp"
+#endif
 
 namespace echomap
 {

@@ -10,10 +10,14 @@
 
 #include <memory>
 
-#include "../../objects/ProjectSelectorFwd.hpp"
-
 namespace echomap
 {
+
+#ifdef __EMSCRIPTEN__
+class PartialProject;
+#else
+class Project;
+#endif // __EMSCRIPTEN__
 
 /**
  * Denotes a loaded Project completed by a LoadProjectTask job.
@@ -21,6 +25,12 @@ namespace echomap
 class LoadProjectResult
 {
 public:
+#ifdef __EMSCRIPTEN__
+    using ProjectT = PartialProject;
+#else
+    using ProjectT = Project;
+#endif // __EMSCRIPTEN__
+
     explicit LoadProjectResult(std::unique_ptr<ProjectT> loaded_project);
     ~LoadProjectResult() noexcept;
 

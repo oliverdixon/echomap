@@ -7,7 +7,11 @@
 
 #include "LoadProjectResult.hpp"
 
-#include "../../objects/ProjectSelector.hpp"
+#include "../../objects/Project.hpp"
+
+#ifdef __EMSCRIPTEN__
+#include "../../objects/web/PartialProject.hpp"
+#endif
 
 namespace echomap
 {
@@ -25,12 +29,12 @@ LoadProjectResult::LoadProjectResult(LoadProjectResult&&) noexcept = default;
 
 LoadProjectResult& LoadProjectResult::operator=(LoadProjectResult&&) noexcept = default;
 
-std::unique_ptr<ProjectT> LoadProjectResult::take_project() && noexcept
+std::unique_ptr<LoadProjectResult::ProjectT> LoadProjectResult::take_project() && noexcept
 {
     return std::move(loaded_project);
 }
 
-const ProjectT * LoadProjectResult::observe_project() const noexcept
+const LoadProjectResult::ProjectT * LoadProjectResult::observe_project() const noexcept
 {
     return loaded_project.get();
 }

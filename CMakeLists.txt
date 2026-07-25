@@ -104,8 +104,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/notifications/AllNotificationsFwd.hpp
         src/notifications/ClearErrorNotification.hpp
         src/panels/IProjectPanel.hpp
-        src/objects/ProjectSelectorFwd.hpp
-        src/objects/ProjectSelector.hpp
         src/objects/persistence/JSONDeserialiserHelpers.cpp
         src/objects/persistence/JSONDeserialiserHelpers.hpp
         src/objects/persistence/JSONDeserialiser.hpp

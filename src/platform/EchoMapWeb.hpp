@@ -17,6 +17,8 @@
 namespace echomap
 {
 
+class PartialProject;
+
 /**
  * EchoMap application implementation for WebAssembly/Emscripten platforms.
  */
