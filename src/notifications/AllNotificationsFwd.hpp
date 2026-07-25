@@ -19,7 +19,6 @@ struct AddChannelMappingNotification;
 struct ModifySensorColourNotification;
 struct ModifySensorPositionNotification;
 struct ProjectSelectionCompleteNotification;
-struct CancelProjectLoadNotification;
 struct ClearErrorNotification;
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
@@ -34,6 +33,7 @@ struct RaiseFileChooserNotification;
 
 // Web-only notifications.
 
+struct CancelProjectLoadNotification;
 struct CompleteProjectLoadNotification;
 struct RegisterVFSMappingNotification;
 
@@ -72,7 +72,6 @@ using Notification = std::variant<
         ModifySensorColourNotification,
         ModifySensorPositionNotification,
         ProjectSelectionCompleteNotification,
-        CancelProjectLoadNotification,
         ClearErrorNotification
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         // Native-only notifications.
@@ -83,7 +82,8 @@ using Notification = std::variant<
         // Web-only notifications.
         ,
         RegisterVFSMappingNotification,
-        CompleteProjectLoadNotification
+        CompleteProjectLoadNotification,
+        CancelProjectLoadNotification
 #endif // __EMSCRIPTEN__
         >;
 
@@ -121,11 +121,6 @@ template <> constexpr std::string_view NotificationNames::get<AddChannelMappingN
     return "Add Channel Mapping Notification";
 }
 
-template <> constexpr std::string_view NotificationNames::get<CancelProjectLoadNotification>()
-{
-    return "Cancel Project Load Notification";
-}
-
 template <> constexpr std::string_view NotificationNames::get<ModifySensorColourNotification>()
 {
     return "Modify Sensor Colour Notification";
@@ -160,6 +155,11 @@ template <> constexpr std::string_view NotificationNames::get<RaiseFileChooserNo
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Names of web-only notifications.
+
+template <> constexpr std::string_view NotificationNames::get<CancelProjectLoadNotification>()
+{
+    return "Cancel Project Load Notification";
+}
 
 template <> constexpr std::string_view NotificationNames::get<CompleteProjectLoadNotification>()
 {

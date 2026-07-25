@@ -17,7 +17,7 @@
 namespace echomap
 {
 
-class Project;
+class PartialProject;
 
 /**
  * A notification indicating that a pending Project is ready to be loaded.
@@ -42,7 +42,7 @@ struct CompleteProjectLoadNotification
      * @param context The context to which the notification will apply.
      * @throws IgnoredWarning The notification does not apply to the given context and should be ignored.
      */
-    void verify_project(const Project* context) const;
+    void verify_project(const PartialProject* context) const;
 
     id_type project_id; /**< The ID of the Project to be loaded. */
 };

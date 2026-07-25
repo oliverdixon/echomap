@@ -10,12 +10,12 @@
 #ifndef ECHOMAP_CANCELPROJECTLOADNOTIFICATION_HPP
 #define ECHOMAP_CANCELPROJECTLOADNOTIFICATION_HPP
 
-#include "../objects/IDAllocator.hpp"
+#include "../../objects/IDAllocator.hpp"
 
 namespace echomap
 {
 
-class Project;
+class PartialProject;
 
 /**
  * A notification indicating that a pending Project load should be cancelled.
@@ -37,7 +37,7 @@ struct CancelProjectLoadNotification
      * @param context The context to which the notification will apply.
      * @throws IgnoredWarning The notification does not apply to the given context and should be ignored.
      */
-    void verify_project(const Project* context) const;
+    void verify_project(const PartialProject* context) const;
 
     id_type project_id; /**< The ID of the partially loaded Project to cancel. */
 };

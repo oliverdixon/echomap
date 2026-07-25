@@ -9,8 +9,8 @@
 
 #include "CancelProjectLoadNotification.hpp"
 
-#include "../errors/IgnoredWarning.hpp"
-#include "../objects/Project.hpp"
+#include "../../errors/IgnoredWarning.hpp"
+#include "../../objects/web/PartialProject.hpp"
 
 namespace echomap
 {
@@ -23,7 +23,7 @@ CancelProjectLoadNotification::CancelProjectLoadNotification(
 }
 
 void CancelProjectLoadNotification::verify_project(
-        const Project* const context
+        const PartialProject* const context
 ) const
 {
     if (context == nullptr)

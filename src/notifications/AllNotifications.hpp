@@ -12,7 +12,6 @@
 
 #include "AddChannelMappingNotification.hpp"
 #include "AllNotificationsFwd.hpp"
-#include "CancelProjectLoadNotification.hpp"
 #include "ClearErrorNotification.hpp"
 #include "ModifySensorColourNotification.hpp"
 #include "ModifySensorPositionNotification.hpp"
@@ -30,6 +29,7 @@
 
 // Web-only notifications.
 
+#include "web/CancelProjectLoadNotification.hpp"
 #include "web/CompleteProjectLoadNotification.hpp"
 #include "web/RegisterVFSMappingNotification.hpp"
 
