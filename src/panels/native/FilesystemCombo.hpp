@@ -168,7 +168,7 @@ private:
 
     [[nodiscard]] BrowseTarget get_browse_target() const;
 
-    void draw_parent_entry(const std::filesystem::path& directory);
+    bool draw_parent_entry(const std::filesystem::path& directory);
 
     bool draw_child_entries(
             std::string_view filter,

@@ -164,7 +164,7 @@ bool FilesystemCombo::draw_combo_body(
     if (!std::filesystem::is_directory(current_target.parent_directory))
         ImGui::TextDisabled("Not a readable directory.");
     else {
-        draw_parent_entry(current_target.parent_directory);
+        changed |= draw_parent_entry(current_target.parent_directory);
         if (!cache || cache->directory != current_target.parent_directory)
             cache.emplace(current_target.parent_directory);
 
@@ -207,17 +207,21 @@ FilesystemCombo::BrowseTarget FilesystemCombo::get_browse_target() const
     return {.target_path = lookup_path, .parent_directory = directory, .filter = lookup_path.filename().string()};
 }
 
-void FilesystemCombo::draw_parent_entry(
+bool FilesystemCombo::draw_parent_entry(
         const std::filesystem::path& directory
 )
 {
     const std::filesystem::path parent = directory.parent_path();
 
     if (parent.empty() || parent == directory)
-        return;
+        return false;
 
-    if (ImGui::Selectable("../", false, ImGuiSelectableFlags_NoAutoClosePopups))
+    if (ImGui::Selectable("../", false, ImGuiSelectableFlags_NoAutoClosePopups)) {
         update_current_state(parent);
+        return true;
+    }
+
+    return false;
 }
 
 bool FilesystemCombo::draw_child_entries(
@@ -225,6 +229,8 @@ bool FilesystemCombo::draw_child_entries(
         std::filesystem::path& selected_path
 )
 {
+    assert(cache.has_value());
+
     bool has_visible_entries = false;
     bool changed = false;
 
@@ -234,15 +240,21 @@ bool FilesystemCombo::draw_child_entries(
 
         has_visible_entries = true;
 
-        if (entry.draw()) {
-            if (entry.is_directory)
-                update_current_state(entry.path);
-            else
-                selected_path = entry.path;
-            update_current_state(entry.path.parent_path());
-            changed = true;
-            ImGui::CloseCurrentPopup();
+        if (!entry.draw())
+            continue;
+
+        if (entry.is_directory) {
+            update_current_state(entry.path);
+            return false;
         }
+
+        selected_path = entry.path;
+        update_current_state(entry.path.parent_path());
+
+        changed = true;
+        ImGui::CloseCurrentPopup();
+
+        return changed;
     }
 
     if (!has_visible_entries)
@@ -256,11 +268,14 @@ void FilesystemCombo::accept_path(
         const std::filesystem::path& path
 )
 {
+    if (std::filesystem::is_directory(path)) {
+        update_current_state(path);
+        return;
+    }
+
     selected_path = path;
 
-    if (std::filesystem::is_directory(path))
-        update_current_state(path);
-    else if (path.has_parent_path())
+    if (path.has_parent_path())
         update_current_state(path.parent_path());
     else
         update_current_state(".");
