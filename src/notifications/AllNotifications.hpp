@@ -14,17 +14,24 @@
 #include "AllNotificationsFwd.hpp"
 #include "CancelProjectLoadNotification.hpp"
 #include "ClearErrorNotification.hpp"
-#include "CompleteProjectLoadNotification.hpp"
 #include "ModifySensorColourNotification.hpp"
 #include "ModifySensorPositionNotification.hpp"
 #include "ProjectSelectionCompleteNotification.hpp"
-#include "RegisterVFSMappingNotification.hpp"
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Native-only notifications.
 
 #include "native/RaiseFileChooserNotification.hpp"
+
+#endif // __EMSCRIPTEN__
+
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
+// Web-only notifications.
+
+#include "web/CompleteProjectLoadNotification.hpp"
+#include "web/RegisterVFSMappingNotification.hpp"
 
 #endif // __EMSCRIPTEN__
 

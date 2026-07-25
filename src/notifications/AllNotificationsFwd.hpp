@@ -19,8 +19,6 @@ struct AddChannelMappingNotification;
 struct ModifySensorColourNotification;
 struct ModifySensorPositionNotification;
 struct ProjectSelectionCompleteNotification;
-struct CompleteProjectLoadNotification;
-struct RegisterVFSMappingNotification;
 struct CancelProjectLoadNotification;
 struct ClearErrorNotification;
 
@@ -29,6 +27,15 @@ struct ClearErrorNotification;
 // Native-only notifications.
 
 struct RaiseFileChooserNotification;
+
+#endif // __EMSCRIPTEN__
+
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
+// Web-only notifications.
+
+struct CompleteProjectLoadNotification;
+struct RegisterVFSMappingNotification;
 
 #endif // __EMSCRIPTEN__
 
@@ -65,14 +72,18 @@ using Notification = std::variant<
         ModifySensorColourNotification,
         ModifySensorPositionNotification,
         ProjectSelectionCompleteNotification,
-        CompleteProjectLoadNotification,
-        RegisterVFSMappingNotification,
         CancelProjectLoadNotification,
         ClearErrorNotification
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         // Native-only notifications.
         ,
         RaiseFileChooserNotification
+#endif // __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+        // Web-only notifications.
+        ,
+        RegisterVFSMappingNotification,
+        CompleteProjectLoadNotification
 #endif // __EMSCRIPTEN__
         >;
 
@@ -115,11 +126,6 @@ template <> constexpr std::string_view NotificationNames::get<CancelProjectLoadN
     return "Cancel Project Load Notification";
 }
 
-template <> constexpr std::string_view NotificationNames::get<CompleteProjectLoadNotification>()
-{
-    return "Complete Project Load Notification";
-}
-
 template <> constexpr std::string_view NotificationNames::get<ModifySensorColourNotification>()
 {
     return "Modify Sensor Colour Notification";
@@ -135,11 +141,6 @@ template <> constexpr std::string_view NotificationNames::get<ProjectSelectionCo
     return "Project Selected Notification";
 }
 
-template <> constexpr std::string_view NotificationNames::get<RegisterVFSMappingNotification>()
-{
-    return "Register VFS Mapping Notification";
-}
-
 template <> constexpr std::string_view NotificationNames::get<ClearErrorNotification>()
 {
     return "Clear Error State Notification";
@@ -152,6 +153,22 @@ template <> constexpr std::string_view NotificationNames::get<ClearErrorNotifica
 template <> constexpr std::string_view NotificationNames::get<RaiseFileChooserNotification>()
 {
     return "Raise File Chooser Notification";
+}
+
+#endif // __EMSCRIPTEN__
+
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
+// Names of web-only notifications.
+
+template <> constexpr std::string_view NotificationNames::get<CompleteProjectLoadNotification>()
+{
+    return "Complete Project Load Notification";
+}
+
+template <> constexpr std::string_view NotificationNames::get<RegisterVFSMappingNotification>()
+{
+    return "Register VFS Mapping Notification";
 }
 
 #endif // __EMSCRIPTEN__

@@ -22,12 +22,12 @@
 #include "objects/Sensor.hpp"
 #include "objects/Signal.hpp"
 #include "panels/ChannelMappingPanel.hpp"
-#include "panels/MapSourcesModal.hpp"
 #include "panels/MenuPanel.hpp"
 #include "panels/ProjectPanel.hpp"
 #include "panels/SensorGeometryPanel.hpp"
 #include "panels/SignalDFTPanel.hpp"
 #include "panels/SignalWaveformPanel.hpp"
+#include "panels/web/MapSourcesModal.hpp"
 #include "platform/SurfaceFactory.hpp"
 #include "signals/tasks/LoadProjectTask.hpp"
 #include "signals/tasks/LoadSignalFileTask.hpp"
@@ -551,49 +551,6 @@ void EchoMap::handle_notification(
 }
 
 void EchoMap::handle_notification(
-        const CompleteProjectLoadNotification& notification
-)
-{
-    notification.verify_project(unloaded_project.get());
-
-    // For each group, create a worker notification to load the corresponding file.
-
-    for (auto&& [vfs_path, factories] : unloaded_project->take_unloaded_factories()) {
-
-        if (!vfs_path.has_value())
-            throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
-
-        // Once these notifications return, if everything is loaded correctly, we'll change the active project.
-        worker.submit(
-                std::make_unique<LoadSignalFileTask>(unloaded_project->get_id(), *vfs_path, std::move(factories))
-        );
-    }
-
-    active_modal.reset();
-}
-
-void EchoMap::handle_notification(
-        RegisterVFSMappingNotification& notification
-) const
-{
-    notification.verify_project(unloaded_project.get());
-
-    try {
-        unloaded_project->add_vfs_mapping_for_unavailable_signal(
-                notification.external,
-                std::move(notification.internal)
-        );
-    } catch (const std::runtime_error&) {
-        throw IgnoredWarning(
-                std::format(
-                        "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
-                        notification.external.c_str()
-                )
-        );
-    }
-}
-
-void EchoMap::handle_notification(
         const CancelProjectLoadNotification& notification
 )
 {
@@ -620,14 +577,7 @@ void EchoMap::handle_result(
         return;
     }
 
-    auto&& new_project = std::move(result).take_project();
-
-    if (!new_project->observe_unloaded_signals().empty()) {
-        // Raise the modal to query for the sources.
-        active_modal = std::make_unique<MapSourcesModal>(this, new_project.get());
-        unloaded_project = std::move(new_project);
-    } else
-        change_active_project(std::move(new_project));
+    change_active_project(std::move(std::move(result).take_project()));
 }
 
 void EchoMap::handle_result(

@@ -11,7 +11,7 @@
 
 #include <fftw3.h>
 
-#if __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
 #include "../../web/EmscriptenExtra.hpp"
 #else
 #include <cmath>

@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <string>
 
-#include "IPanel.hpp"
+#include "../IPanel.hpp"
 
 namespace echomap
 {

@@ -10,7 +10,9 @@
 #ifndef ECHOMAP_COMPLETEPROJECTLOADNOTIFICATION_HPP
 #define ECHOMAP_COMPLETEPROJECTLOADNOTIFICATION_HPP
 
-#include "../objects/IDAllocator.hpp"
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
+#include "../../objects/IDAllocator.hpp"
 
 namespace echomap
 {
@@ -46,5 +48,7 @@ struct CompleteProjectLoadNotification
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_COMPLETEPROJECTLOADNOTIFICATION_HPP

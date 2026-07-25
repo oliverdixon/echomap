@@ -7,12 +7,13 @@
  * @date 2026-07-17
  */
 
-#include "../EchoMap.hpp"
-#include "../actions/ActionController.hpp"
-#include "../notifications/AllNotifications.hpp"
-#include "../objects/Project.hpp"
-#include "../objects/factories/SignalFactory.hpp"
 #include "MapSourcesModal.hpp"
+
+#include "../../EchoMap.hpp"
+#include "../../actions/ActionController.hpp"
+#include "../../notifications/AllNotifications.hpp"
+#include "../../objects/Project.hpp"
+#include "../../objects/factories/SignalFactory.hpp"
 
 namespace echomap
 {

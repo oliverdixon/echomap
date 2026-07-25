@@ -7,10 +7,12 @@
  * @date 2026-07-20
  */
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "CompleteProjectLoadNotification.hpp"
 
-#include "../errors/IgnoredWarning.hpp"
-#include "../objects/Project.hpp"
+#include "../../errors/IgnoredWarning.hpp"
+#include "../../objects/Project.hpp"
 
 namespace echomap
 {
@@ -40,3 +42,5 @@ void CompleteProjectLoadNotification::verify_project(
 }
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__

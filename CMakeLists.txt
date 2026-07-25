@@ -86,13 +86,10 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/factories/WindowFunctions.hpp
         src/objects/factories/WindowFunctions.cpp
         src/utility/VariantHelpers.hpp
-        src/web/EmscriptenExtra.hpp
         src/signals/tasks/LoadSignalFileTask.cpp
         src/signals/tasks/LoadSignalFileTask.hpp
         src/signals/results/LoadSignalFileResult.cpp
         src/signals/results/LoadSignalFileResult.hpp
-        src/panels/MapSourcesModal.cpp
-        src/panels/MapSourcesModal.hpp
         src/actions/ActionController.hpp
         src/actions/ActionControllerBase.hpp
         src/StaticInstanceController.cpp
@@ -100,10 +97,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/errors/IgnoredWarning.cpp
         src/errors/IgnoredWarning.hpp
         src/notifications/ProjectSelectionCompleteNotification.hpp
-        src/notifications/CompleteProjectLoadNotification.hpp
-        src/notifications/RegisterVFSMappingNotification.hpp
-        src/notifications/RegisterVFSMappingNotification.cpp
-        src/notifications/CompleteProjectLoadNotification.cpp
         src/notifications/AddChannelMappingNotification.cpp
         src/notifications/ModifySensorPositionNotification.cpp
         src/notifications/ModifySensorColourNotification.cpp
@@ -124,6 +117,15 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/actions/JSActionController.hpp
             src/platform/EchoMapWeb.cpp
             src/platform/EchoMapWeb.hpp
+            src/notifications/web/RegisterVFSMappingNotification.hpp
+            src/notifications/web/RegisterVFSMappingNotification.cpp
+            src/panels/web/MapSourcesModal.cpp
+            src/panels/web/MapSourcesModal.hpp
+            src/notifications/web/CompleteProjectLoadNotification.hpp
+            src/notifications/web/CompleteProjectLoadNotification.cpp
+            src/web/EmscriptenExtra.hpp
+            src/objects/web/PartialProject.cpp
+            src/objects/web/PartialProject.hpp
     )
 endif ()
 
