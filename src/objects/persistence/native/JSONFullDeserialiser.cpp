@@ -22,7 +22,7 @@ echomap::Worker* parent_worker = nullptr;
 
 auto get_signals(
         simdjson::ondemand::object& root,
-        const echomap::Project& project,
+        echomap::Project& project,
         std::unordered_map<
                 std::string_view,
                 echomap::id_type>& loaded
@@ -34,7 +34,8 @@ auto get_signals(
         return error;
 
     /*
-     * Step 2.  Group the factories by the source filenames of the signals they're constructing.
+     * Step 2.  Process the signals. Embedded signals (no external source) can be added to the Project immediately.
+     * Externally sourced signals are prepared in the slots map, from which LoadSignalFileTasks can be scheduled.
      *
      * The key of the map is the source filename, and the value is a bijective correspondence between the channel in the
      * wave file and the factory designated to load the channel at the index.
@@ -50,10 +51,7 @@ auto get_signals(
             throw std::runtime_error(std::format("Project contains duplicate signal {}.", signal.get_name()));
 
         if (signal.observe_source().has_value()) {
-            /*
-             * If the Signal has a Source, it comes from the filesystem. Register the Signal as a destination for its
-             * source file for its channel number.
-             */
+            // File-system source: prepare its factory for LoadSignalFileTask.
             auto& slot_vector = slots[signal.observe_source()->path.c_str()];
             const auto channel_num = signal.observe_source()->channel;
 
@@ -72,7 +70,9 @@ auto get_signals(
                 );
 
             slot_vector[channel_num - 1] = std::move(factory);
-        }
+        } else
+            // Embedded source: add it to the Project.
+            project.add_signal(factory->take_signal());
     }
 
     /*
@@ -108,11 +108,15 @@ namespace simdjson
 
 template <typename simdjson_value>
 auto tag_invoke(
-        deserialize_tag /*unused*/,
+        const deserialize_tag tag,
         simdjson_value& value,
         echomap::Project& project
 )
 {
+    // NOLINTBEGIN(*-assignment-in-if-condition)
+
+    std::ignore = tag;
+
     ondemand::object root;
     auto error = echomap::JSONDeserialiserHelpers::get_root(root, value);
     if (error)
@@ -137,6 +141,8 @@ auto tag_invoke(
         return error;
 
     return SUCCESS;
+
+    // NOLINTEND(*-assignment-in-if-condition)
 }
 
 }

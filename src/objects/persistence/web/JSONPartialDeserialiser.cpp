@@ -35,14 +35,22 @@ auto get_signals(
         return error;
 
     /*
-     * Step 2. The factories can't be used yet, since we need to establish VFS mappings. In this case, we declare them
-     * to the project to use later on, once the VFS mappings are done.
+     * Step 2.  Process the signals. If they are embedded (no external source), they can be added to the Project
+     * immediately. If they are external, we provide them to the PartialProject as unloaded signals, awaiting VFS
+     * mappings.
      */
     for (auto factory : factories | std::views::as_rvalue) {
-        if (const auto& signal = factory->observe_signal(); !loaded.emplace(signal.get_name(), signal.get_id()).second)
+        const auto& signal = factory->observe_signal();
+
+        if (!loaded.emplace(signal.get_name(), signal.get_id()).second)
             throw std::runtime_error(std::format("Project contains duplicate signal {}.", signal.get_name()));
 
-        project.indicate_unloaded_signal(std::move(factory));
+        if (signal.observe_source().has_value())
+            // File-system source: indicate to the PartialProject that the unloaded signal exists.
+            project.indicate_unloaded_signal(std::move(factory));
+        else
+            // Embedded source: add it to the Project.
+            project.add_signal(factory->take_signal());
     }
 
     return simdjson::SUCCESS;
@@ -55,11 +63,15 @@ namespace simdjson
 
 template <typename simdjson_value>
 auto tag_invoke(
-        deserialize_tag /*unused*/,
+        const deserialize_tag tag,
         simdjson_value& value,
         echomap::PartialProject& partial_project
 )
 {
+    // NOLINTBEGIN(*-assignment-in-if-condition)
+
+    std::ignore = tag;
+
     ondemand::object root;
     auto error = echomap::JSONDeserialiserHelpers::get_root(root, value);
     if (error)
@@ -84,6 +96,8 @@ auto tag_invoke(
         return error;
 
     return SUCCESS;
+
+    // NOLINTEND(*-assignment-in-if-condition)
 }
 
 } // namespace simdjson
