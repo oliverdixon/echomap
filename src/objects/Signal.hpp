@@ -65,6 +65,22 @@ public:
         bool dirty = false;         /**< Does the Signal contain additional samples? */
         bool is_loaded = false;     /**< Has the Signal loaded all samples from the filesystem? */
 
+        /**
+         * Determines ordering on Source.
+         *
+         * The ordering of the Source is determined by lexicographically comparing the path followed by the channel
+         * number. This enforces a natural ordering for lists of Source objects:
+         *  -# FileA.wav, channel 1
+         *  -# FileA.wav, channel 2
+         *  -# FileB.wav, channel 1
+         *  -# FileC.wav, channel 1
+         *  -# FileC.wav, channel 2,
+         * etc.
+         *
+         * @param other The Source to compare.
+         *
+         * @return Is the current Source less than the given Source?
+         */
         [[nodiscard]] bool operator<(const Source& other) const;
     };
 

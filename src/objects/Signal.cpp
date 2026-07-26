@@ -29,10 +29,7 @@ bool Signal::Source::operator<(
         const Source& other
 ) const
 {
-    if (channel < other.channel)
-        return true;
-
-    return path < other.path;
+    return std::tie(path, channel) < std::tie(other.path, other.channel);
 }
 
 std::uint64_t Signal::get_sample_count() const noexcept
@@ -185,7 +182,7 @@ void Signal::emplace_sample_from_source(
     const Sample& sample
 )
 {
-    return emplace_sample_from_source(sample.time, sample.amplitude);
+    emplace_sample_from_source(sample.time, sample.amplitude);
 }
 
 void Signal::reserve_samples(
