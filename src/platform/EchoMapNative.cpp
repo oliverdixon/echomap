@@ -36,7 +36,7 @@ void EchoMapNative::run_event_loop()
 }
 
 void EchoMapNative::visit_notification(
-        Notification& notification
+        Notification notification
 )
 {
     std::visit(

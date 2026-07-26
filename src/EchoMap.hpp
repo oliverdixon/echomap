@@ -112,7 +112,7 @@ protected:
      *
      * @param notification The notification to visit.
      */
-    virtual void visit_notification(Notification& notification) = 0;
+    virtual void visit_notification(Notification notification) = 0;
 
     /**
      * Perform a render cycle on the configured Surface and Device.
@@ -237,13 +237,13 @@ protected:
 
     Worker worker;                     /**< Multi-threaded worker for scheduling heavy computation tasks. */
     WorkerResultDespatcher despatcher; /**< Despatcher to manage Worker result channels. */
-    std::vector<sigc::scoped_connection> connections; /**< RAII lifetime manager for signal connections. */
+    std::vector<sigc::scoped_connection> connections;   /**< RAII lifetime manager for signal connections. */
 
     std::vector<std::unique_ptr<IProjectPanel>> panels; /**< Individual display components. */
     std::optional<ErrorModal> error_modal;       /**< Persistent panel to indicate errors over all other panels. */
-    std::vector<Notification> notification_queue;
+    std::deque<Notification> notification_queue; /**< FIFO queue for Notification objects. */
     std::unique_ptr<Project> project;            /**< Owning container for the active Project. */
-    std::unique_ptr<IPanel> active_modal; /**< The current active non-ErrorModal modal panel. */
+    std::unique_ptr<IPanel> active_modal;        /**< The current active non-ErrorModal modal panel. */
 
     ImGuiID dockspace_id;
     bool dockspace_configured = false;

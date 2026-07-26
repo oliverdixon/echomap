@@ -30,7 +30,7 @@ namespace echomap
 {
 
 void EchoMapWeb::visit_notification(
-        Notification& notification
+        Notification notification
 )
 {
     std::visit(

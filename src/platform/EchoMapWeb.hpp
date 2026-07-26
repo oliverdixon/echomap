@@ -31,7 +31,7 @@ public:
     ~EchoMapWeb() override;
 
 protected:
-    void visit_notification(Notification& notification) override;
+    void visit_notification(Notification notification) override;
 
     void handle_result(LoadProjectResult&& result) override;
     void handle_result(LoadSignalFileResult&& result) override;

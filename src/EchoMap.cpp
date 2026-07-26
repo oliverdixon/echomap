@@ -470,22 +470,22 @@ bool EchoMap::handle_window_resize() noexcept
 void EchoMap::process_notifications()
 {
     while (!notification_queue.empty()) {
-        auto& notification = notification_queue.back();
+        auto notification = std::move(notification_queue.front());
+        notification_queue.pop_front();
+
         const auto type_name = NotificationNames::indexed_names[notification.index()];
         auto* const hint = static_cast<void*>(&notification);
 
         LOG_F_DEBUG("Consuming {} with hint {}.", type_name, hint);
 
         try {
-            visit_notification(notification);
+            visit_notification(std::move(notification));
         } catch (const IgnoredWarning& warning) {
             LOG_F_WARN("{} with hint {} was dropped: {}", type_name, hint, warning.what());
         } catch (const std::exception& exception) {
             raise_error(exception.what());
             LOG_F_ERROR("{} with hint {} was responsible for error: {}", type_name, hint, exception.what());
         }
-
-        notification_queue.pop_back();
     }
 }
 
