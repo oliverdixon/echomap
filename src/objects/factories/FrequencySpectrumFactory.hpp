@@ -36,6 +36,7 @@ public:
      *
      * @return An owning container of the created FrequencySpectrum.
      *
+     * @throws std::runtime_error The requested transform size was larger than the number of samples in the Signal.
      * @throws std::runtime_error The given Signal was not uniformly sampled; hence, a DFT is not applicable.
      * @throws std::runtime_error FFTW failed to initialise.
      */

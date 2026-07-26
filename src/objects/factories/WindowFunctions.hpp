@@ -15,6 +15,8 @@
 #include <ranges>
 #include <string_view>
 
+#include "../../utility/VariantHelpers.hpp"
+
 namespace echomap
 {
 
@@ -306,6 +308,8 @@ public:
             return WindowFunctions::get_window_name<T>();
         }
     };
+
+    static const std::array<std::string_view, std::variant_size_v<AllFunctions>> indexed_names;
 };
 
 template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFunctions::Constant>()
@@ -342,6 +346,9 @@ template <> constexpr std::string_view WindowFunctions::get_window_name<WindowFu
 {
     return "Welch";
 }
+
+constexpr std::array<std::string_view, std::variant_size_v<WindowFunctions::AllFunctions>>
+        WindowFunctions::indexed_names = variant_helpers::variant_name_array<AllFunctions, NameGetter>;
 
 } // namespace echomap
 

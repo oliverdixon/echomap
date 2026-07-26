@@ -55,7 +55,7 @@ bool SignalFactory::operator<(
 
     // Safe to deference; attempt to compare by channel and then path.
     const auto& us = *target->observe_source(); // NOLINT(*-identifier-length)
-    const auto& them = *target->observe_source();
+    const auto& them = *other.target->observe_source();
 
     return us < them;
 }

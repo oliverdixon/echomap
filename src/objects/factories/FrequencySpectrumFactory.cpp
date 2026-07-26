@@ -30,13 +30,23 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
         const std::size_t transform_size
 )
 {
+    if (transform_size > signal.get_sample_count())
+        throw std::runtime_error(
+                std::format(
+                        "DFT transform size of {} exceeds {} sample count of {}.",
+                        transform_size,
+                        signal.get_name(),
+                        signal.get_sample_count()
+                )
+        );
+
     if (!signal.is_uniformly_sampled())
         throw std::runtime_error(std::format("Attempted to transform variably sampled {}.", signal.get_name()));
 
     const auto display_name = std::format(
             "{} ({} DFT @ {})",
             signal.get_name(),
-            WindowFunctions::get_window_name<WindowFunctions::Constant>(),
+            WindowFunctions::indexed_names[window_function.index()],
             transform_size
     );
 

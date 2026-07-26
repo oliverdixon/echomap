@@ -21,16 +21,6 @@
 #include "../utility/Logger.hpp"
 #include "../utility/VariantHelpers.hpp"
 
-namespace
-{
-
-using namespace echomap;
-
-constexpr auto window_function_names =
-        variant_helpers::variant_name_array<WindowFunctions::AllFunctions, WindowFunctions::NameGetter>;
-
-} // namespace
-
 namespace echomap
 {
 
@@ -115,7 +105,7 @@ void SignalDFTPanel::handle_completed_dft(
     }
 
     const CacheKey key{
-        .source_id = result.get_source_id(),
+            .source_id = result.get_source_id(),
             .window_function = spectrum->observe_preprocessor(),
             .transform_size = result.get_transform_size(),
     };
@@ -198,12 +188,12 @@ void SignalDFTPanel::draw_configuration_window_function() noexcept
          */
 
         // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
-        ImGui::BeginCombo("##DFTOptionsWindowFunction", window_function_names[selected_idx].data())) {
-        for (std::size_t item_idx = 0; item_idx < window_function_names.size(); ++item_idx) {
+        ImGui::BeginCombo("##DFTOptionsWindowFunction", WindowFunctions::indexed_names[selected_idx].data())) {
+        for (std::size_t item_idx = 0; item_idx < WindowFunctions::indexed_names.size(); ++item_idx) {
             const auto is_selected = item_idx == selected_idx;
 
             // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
-            if (ImGui::Selectable(window_function_names[item_idx].data(), is_selected) && selected_idx != item_idx) {
+            if (ImGui::Selectable(WindowFunctions::indexed_names[item_idx].data(), is_selected) && selected_idx != item_idx) {
                 selected_idx = item_idx;
 
                 try {
@@ -288,11 +278,40 @@ void SignalDFTPanel::draw_preview_section() noexcept
     if (ImPlot::BeginAlignedPlots("##DFTAlignedGroup")) {
         ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 
-        for (const auto& signal :
-             active_project->share_signals() | std::views::filter([](const std::shared_ptr<Signal>& candidate) {
-                 return candidate->is_uniformly_sampled();
-             }))
-            draw_preview_of_signal(signal);
+        std::vector<const Signal*> excluded_variable;
+        std::vector<const Signal*> excluded_size;
+
+        for (const auto& signal : active_project->share_signals()) {
+            bool excluded = false;
+            if (!signal->is_uniformly_sampled()) {
+                excluded_variable.emplace_back(signal.get());
+                excluded = true;
+            }
+
+            if (std::uint64_t{1} << default_size_log > signal->get_sample_count()) {
+                excluded_size.emplace_back(signal.get());
+                excluded = true;
+            }
+
+            if (!excluded)
+                draw_preview_of_signal(signal);
+        }
+
+        if (!excluded_variable.empty()) {
+            ImGui::SeparatorText("Excluded due to variable sampling");
+            for (const auto* const signal : excluded_variable) {
+                ImGui::Bullet();
+                ImGui::TextUnformatted(signal->get_imgui_name());
+            }
+        }
+
+        if (!excluded_size.empty()) {
+            ImGui::SeparatorText("Excluded due to insufficient size");
+            for (const auto* const signal : excluded_size) {
+                ImGui::Bullet();
+                ImGui::TextUnformatted(signal->get_imgui_name());
+            }
+        }
 
         ImPlot::EndAlignedPlots();
         ImPlot::PopStyleColor();
@@ -342,14 +361,12 @@ void SignalDFTPanel::draw_preview_of_signal(
                 "Loading DFT of %s with the %s window function...",
                 name,
                 // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
-                window_function_names[selected_window.index()].data()
+                WindowFunctions::indexed_names[selected_window.index()].data()
         );
 }
 
 void SignalDFTPanel::reset_available_transform_sizes()
 {
-    // TODO: what if we have signals, but they all have less than 128 samples?
-
     available_sizes.clear();
     available_sizes.push_back(std::to_string(std::size_t{1} << default_size_log));
     selected_size_log = default_size_log;
@@ -422,8 +439,7 @@ void SignalDFTPanel::update_available_sizes(
 
     // Once we know the correct maximum transform size, bound the selection to the maximum available.
     if (selected_size_log >= available_sizes.size() + default_size_log) {
-        selected_size_log =
-                static_cast<unsigned int>(available_sizes.size() + default_size_log - 1);
+        selected_size_log = static_cast<unsigned int>(available_sizes.size() + default_size_log - 1);
     }
 }
 
