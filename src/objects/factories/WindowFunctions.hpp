@@ -10,7 +10,6 @@
 #ifndef ECHOMAP_WINDOWFUNCTIONS_HPP
 #define ECHOMAP_WINDOWFUNCTIONS_HPP
 
-#include <algorithm>
 #include <cstddef>
 #include <ranges>
 #include <string_view>
@@ -20,12 +19,6 @@
 namespace echomap
 {
 
-template <class T>
-concept WindowFunction =
-        std::default_initializable<std::remove_cvref_t<T>> && requires(std::size_t index, std::size_t size) {
-            { std::remove_cvref_t<T>{}(index, size) } -> std::convertible_to<float>;
-        };
-
 /**
  * Aggregation of callable DSP window functions.
  *
@@ -34,29 +27,6 @@ concept WindowFunction =
 class WindowFunctions
 {
 public:
-    template <
-            class WindowT,
-            class BuffersT,
-            class InputT>
-    static float apply_window(
-            BuffersT& buffers,
-            const InputT& input
-    )
-    {
-        using Window = std::remove_cvref_t<WindowT>;
-        static_assert(WindowFunction<Window>, "WindowT does not satisfy WindowFunction.");
-
-        float scale_divisor = 0.0f;
-
-        for (std::size_t index = 0; index < buffers.input_size; ++index) {
-            const float window_value = Window{}(index, buffers.input_size);
-            scale_divisor += window_value;
-            buffers.input[index] = input[index] * window_value;
-        }
-
-        return scale_divisor;
-    }
-
     /**
      * The Constant invocable window function.
      */
@@ -289,9 +259,14 @@ public:
     /**
      * Retrieve a human-readable name for the templated window function.
      *
+     * @tparam WindowFunctionT The WindowFunction class to name.
      * @return A NULL-terminated static non-owning view of the name.
      */
-    template <WindowFunction> static constexpr std::string_view get_window_name()
+    template <typename WindowFunctionT>
+        requires variant_helpers::VariantAlternative<
+                WindowFunctionT,
+                AllFunctions>
+    static constexpr std::string_view get_window_name()
     {
         // ReSharper disable once CppStaticAssertFailure
         static_assert(false, "Missing window function name.");

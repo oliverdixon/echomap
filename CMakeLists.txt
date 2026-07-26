@@ -74,8 +74,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/notifications/AddChannelMappingNotification.hpp
         src/notifications/ModifySensorPositionNotification.hpp
         src/notifications/ModifySensorColourNotification.hpp
-        src/objects/factories/FFTWBuffers.cpp
-        src/objects/factories/FFTWBuffers.hpp
         src/async/tasks/ITask.cpp
         src/async/WorkerResultDespatcher.cpp
         src/async/WorkerResultDespatcher.hpp
@@ -107,6 +105,8 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/persistence/JSONDeserialiserHelpers.cpp
         src/objects/persistence/JSONDeserialiserHelpers.hpp
         src/objects/persistence/JSONDeserialiser.hpp
+        src/utility/FFTWRealToComplex1D.cpp
+        src/utility/FFTWRealToComplex1D.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

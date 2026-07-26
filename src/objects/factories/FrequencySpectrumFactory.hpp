@@ -48,23 +48,6 @@ public:
 
 private:
     /**
-     * Copies and prepare the input amplitude time-series for FFT with the given window function preference.
-     *
-     * @param buffers Initialised FFTWBuffers for the input.
-     * @param window_function Selector for the window function to use.
-     * @param input The amplitude series.
-     *
-     * @return The scaling divisor constant used for computing the magnitude.
-     *
-     * @pre The size of the given input range is at least the transform size specified by the FFTWBuffers object.
-     */
-    static float prepare_input(
-            const FFTWBuffers& buffers,
-            WindowFunctions::AllFunctions window_function,
-            std::span<const Signal::Sample::AmplitudeT> input
-    );
-
-    /**
      * Convert an amplitude to a dBfs (decibels relative to full-scale) quantity.
      *
      * @param amplitude The linear amplitude.

@@ -56,8 +56,8 @@ private:
     WorkerResult execute_work() override;
 
     std::shared_ptr<Signal> signal;
-    const WindowFunctions::AllFunctions window_function;
-    const std::size_t transform_size;
+    WindowFunctions::AllFunctions window_function;
+    std::size_t transform_size;
 };
 
 } // namespace echomap
