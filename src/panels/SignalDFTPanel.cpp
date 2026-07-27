@@ -193,8 +193,6 @@ void SignalDFTPanel::draw_configuration_window_function() noexcept
             ImGui::BeginCombo("##DFTOptionsWindowFunction", WindowFunctions::indexed_names[selected_idx].data());
     // NOLINTEND(*-suspicious-stringview-data-usage)
 
-    static bool was_combo_open = false;
-
     if (is_combo_open) {
         for (std::size_t item_idx = 0; item_idx < WindowFunctions::indexed_names.size(); ++item_idx) {
             const auto is_selected = item_idx == selected_idx;
@@ -221,11 +219,11 @@ void SignalDFTPanel::draw_configuration_window_function() noexcept
 
         ImGui::EndCombo();
 
-        if (!was_combo_open)
+        if (!was_window_function_combo_open)
             app->force_frames();
     }
 
-    was_combo_open = is_combo_open;
+    was_window_function_combo_open = is_combo_open;
 }
 
 void SignalDFTPanel::draw_configuration_transform_size() noexcept
@@ -238,8 +236,6 @@ void SignalDFTPanel::draw_configuration_transform_size() noexcept
             "##DFTOptionsTransformSize",
             available_sizes[selected_size_log - default_size_log].c_str()
     );
-
-    static bool was_combo_open = false;
 
     if (is_combo_open) {
         for (unsigned int item_idx = 0; item_idx < available_sizes.size(); ++item_idx) {
@@ -259,11 +255,11 @@ void SignalDFTPanel::draw_configuration_transform_size() noexcept
 
         ImGui::EndCombo();
 
-        if (!was_combo_open)
+        if (!was_transform_size_combo_open)
             app->force_frames();
     }
 
-    was_combo_open = is_combo_open;
+    was_transform_size_combo_open = is_combo_open;
 }
 
 void SignalDFTPanel::draw_configuration_scale_type() noexcept

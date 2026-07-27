@@ -180,6 +180,7 @@ private:
             const std::filesystem::path& path
     );
 
+    bool was_combo_open = false;                      /**< Was the combo box open on the previous render cycle? */
     std::array<char, max_path_length> current_root{}; /**< The current raw string entered by the user. */
     BrowseTarget current_target;                      /**< The current target specified in the filter window. */
     std::optional<EntryCache> cache;                  /**< Cache of entries visible in the combo box. */

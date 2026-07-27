@@ -80,9 +80,6 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
 
-        static bool was_signal_combo_open = false;
-        static bool was_sensor_combo_open = false;
-
         // Prompt for the associated signal.
         ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
         const auto is_signal_combo_open = ImGui::BeginCombo(

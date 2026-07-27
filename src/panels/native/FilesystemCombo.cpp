@@ -45,7 +45,6 @@ bool FilesystemCombo::operator()(
 
     const std::string preview = selected_path.empty() ? std::string{current_root.data()} : selected_path.string();
     const auto is_combo_open = ImGui::BeginCombo("##FilesystemCombo", preview.c_str(), ImGuiComboFlags_HeightLarge);
-    static bool was_combo_open = false;
 
     if (is_combo_open) {
         if (ImGui::IsWindowAppearing()) {

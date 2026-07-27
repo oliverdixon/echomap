@@ -168,7 +168,8 @@ private:
     std::vector<std::string> available_sizes;           /**< Strings of all available transform sizes. */
     unsigned int selected_size_log = default_size_log;  /**< Base-2 log of selected transform size. */
 
-
+    bool was_transform_size_combo_open = false;  /**< Was the Transform Size combo box open on the previous cycle? */
+    bool was_window_function_combo_open = false; /**< Was the Window Function combo box open on the previous cycle? */
     WindowFunctions::AllFunctions selected_window = WindowFunctions::Constant{};
 
     std::vector<sigc::scoped_connection> connections;

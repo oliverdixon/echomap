@@ -59,6 +59,9 @@ private:
     EchoMap* app;
     const Project* active_project = nullptr;
     std::vector<sigc::scoped_connection> connections;
+
+    bool was_signal_combo_open = false; /**< Was the Associated Signal combo box open on the previous render cycle? */
+    bool was_sensor_combo_open = false; /**< Was the Associated Sensor combo box open on the previous render cycle? */
 };
 
 } // namespace echomap
