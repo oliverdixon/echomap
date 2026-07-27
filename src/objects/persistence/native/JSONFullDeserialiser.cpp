@@ -70,11 +70,9 @@ auto get_signals(
                 );
 
             slot_vector[channel_num - 1] = std::move(factory);
-        } else {
+        } else
             // Embedded source: add it to the Project.
-            auto& stolen = *std::move(factory);
-            project.add_signal(std::move(stolen).take_signal());
-        }
+            project.add_signal(std::move(*factory).take_signal());
     }
 
     /*

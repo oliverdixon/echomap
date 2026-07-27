@@ -2,16 +2,11 @@
 
 ## Short Term
 
-1. Generalise the VFS mappings to work for native platforms as well, in case the paths have changed.
+1. Split EchoMap into app shell, project controller, and render host.
 
-2. Harden the project/signal loading! Doxygen where necessary, remove incorrect exception specifications, and verify
-   dereferencing behaviour.
+2. Move ImGui/ImPlot types out of the domain model.
 
-3. Resolve TODOs in code.
-
-4. Add project loader dialog as a native action.
-
-5. Add a wave file loader as a native action.
+3. Replace global/static platform callbacks with injected services.
 
 ## Medium/Long Term
 
@@ -36,3 +31,5 @@
   * Used by Audacity (`aup3`) for similar data.
   * There is a well-regarded C++ library: https://github.com/fnc12/sqlite_orm (also on vcpkg)
   * Suited for binary blobs and relational structure.
+
+* Give the worker a richer job model.

@@ -50,7 +50,7 @@ auto get_signals(
             project.indicate_unloaded_signal(std::move(factory));
         else
             // Embedded source: add it to the Project.
-            project.add_signal(factory->take_signal());
+            project.add_signal(std::move(*factory).take_signal());
     }
 
     return simdjson::SUCCESS;

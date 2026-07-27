@@ -43,11 +43,11 @@ public:
      * The Signal objects are constructed by this function, with default names, in the order of the channels in the wave
      * file. That is, the first Signal will represent the first channel in the file, etc.
      *
-     * @param file_path The location of the WAV on the local file system.
+     * @param wav_path The location of the WAV on the local file system.
      * @throws ConfigurationError The WAV file could not be loaded.
      * @returns Series of owned Signal objects, one for each channel.
      */
-    [[nodiscard]] static std::vector<std::unique_ptr<Signal>> load_wave_file(const char* file_path);
+    [[nodiscard]] static std::vector<std::unique_ptr<Signal>> load_wave_file(const std::filesystem::path& wav_path);
 
     /**
      * Loads a WAV file from the file system.
@@ -55,7 +55,7 @@ public:
      * The Signal objects are not directly constructed by this function. As many constructed SignalFactory objects as
      * there are channels in the wave file must be provided through the SignalFactory spanning range.
      *
-     * @param file_path The location of the WAV on the local file system.
+     * @param wav_path The location of the WAV on the local file system.
      * @param channel_factories Destination factories of the Signal channels. In particular, a list of pointers to
      *  SignalFactory, each of which is constructing the Signal to receive the channel at the corresponding index. For
      *  each entry at index <code>idx</code>:
@@ -66,10 +66,12 @@ public:
      *  </ul>
      *
      * @throws ConfigurationError The WAV file could not be loaded.
+     * @throws std::runtime_error Project references more WAV channels than the source file contains.
+     *
      * @pre There are sufficient SignalFactory objects in the destination range to store channels in the wave file.
      */
     static void load_wave_file(
-            const char* file_path,
+            const std::filesystem::path& wav_path,
             // ReSharper disable once CppConstParameterInDeclaration - Superfluous const required for Doxygen matching.
             const std::span<SignalFactory* const> channel_factories // NOLINT(*-avoid-const-params-in-decls)
     );
@@ -88,7 +90,7 @@ public:
             std::string_view name = {}
     );
 
-    [[nodiscard]] std::unique_ptr<Signal> take_signal() &&;
+    [[nodiscard]] std::unique_ptr<Signal> take_signal() && noexcept;
     [[nodiscard]] const Signal& observe_signal() const noexcept;
 
     void emplace_sample(Signal::Sample::AmplitudeT amplitude) const;
@@ -119,7 +121,7 @@ private:
      */
     struct DrWavHandle
     {
-        DrWavHandle() = default;
+        explicit DrWavHandle(const std::filesystem::path& wav_path);
         ~DrWavHandle() noexcept;
 
         DrWavHandle(const DrWavHandle&) = delete;
@@ -176,8 +178,6 @@ private:
 
     /**
      * The Signal being built by the factory.
-     *
-     * @invariant The target container always contains a valid Signal object, such that dereferencing is safe.
      */
     std::unique_ptr<Signal> target;
 };

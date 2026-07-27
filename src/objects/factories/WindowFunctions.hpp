@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <ranges>
 #include <string_view>
+#include <array>
 
 #include "../../utility/VariantHelpers.hpp"
 

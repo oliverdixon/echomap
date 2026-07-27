@@ -11,8 +11,6 @@
 
 #include "FileChooser.hpp"
 
-#include "../../utility/Logger.hpp"
-
 namespace echomap
 {
 
@@ -39,8 +37,8 @@ void FileChooser::draw() noexcept
     if (ImGui::BeginPopupModal(get_imgui_name(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
         ImGui::PushID(get_imgui_name());
 
-        if (file_combo(chosen_path))
-            LOG_F_DEBUG("Changed: {}", chosen_path.c_str());
+        // Draw the file combo box.
+        file_combo(chosen_path);
 
         ImGui::Spacing();
         ImGui::Separator();

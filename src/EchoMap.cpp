@@ -595,10 +595,10 @@ void EchoMap::change_active_project(
     else
         LOG_F_DEBUG("Changing active project to {}.", new_project->get_name());
 
-    for (const auto& panel : panels)
-        panel->change_active_project(new_project.get());
-
     project = std::move(new_project);
+
+    for (const auto& panel : panels)
+        panel->change_active_project(project.get());
 }
 
 void EchoMap::notify(
@@ -619,11 +619,11 @@ void EchoMap::notify(
     );
 }
 
-void EchoMap::increment_forced_frames(
+void EchoMap::force_frames(
         const unsigned int count
 ) noexcept
 {
-    forced_frames += count;
+    forced_frames = std::max(forced_frames, count);
 }
 
 } // namespace echomap

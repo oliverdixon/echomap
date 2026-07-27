@@ -61,14 +61,12 @@ bool SignalFactory::operator<(
 }
 
 std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
-        const char* const file_path
+        const std::filesystem::path& wav_path
 )
 {
-    DrWavHandle drwav_info;
-    if (drwav_init_file(&drwav_info.instance, file_path, nullptr) == 0u)
-        throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
+    DrWavHandle drwav_info(wav_path);
 
-    const auto typed_path = std::filesystem::path(file_path);
+    const auto typed_path = std::filesystem::path(wav_path);
     std::vector<std::unique_ptr<Signal>> signals;
     signals.resize(drwav_info.instance.channels);
 
@@ -89,21 +87,18 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
             }
     );
 
-    load_wave_file_into_channels(drwav_info.instance, file_path, signal_ptrs);
-
+    load_wave_file_into_channels(drwav_info.instance, wav_path.string(), signal_ptrs);
     return signals;
 }
 
 void SignalFactory::load_wave_file(
-        const char* const file_path,
+        const std::filesystem::path& wav_path,
         const std::span<SignalFactory* const> channel_factories
 )
 {
-    DrWavHandle drwav_info;
-    if (drwav_init_file(&drwav_info.instance, file_path, nullptr) == 0u)
-        throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
-
-    assert(drwav_info.instance.channels >= channel_factories.size());
+    DrWavHandle drwav_info(wav_path);
+    if (channel_factories.size() > drwav_info.instance.channels)
+        throw std::runtime_error("Project references more WAV channels than the source file contains.");
 
     /*
      * For convenience of callers, this function takes a span of factories responsible for constructing the signals for
@@ -121,7 +116,7 @@ void SignalFactory::load_wave_file(
         ++channel_idx;
     }
 
-    load_wave_file_into_channels(drwav_info.instance, file_path, channels);
+    load_wave_file_into_channels(drwav_info.instance, wav_path.string(), channels);
 }
 
 std::unique_ptr<Signal> SignalFactory::downsample(
@@ -152,11 +147,9 @@ std::unique_ptr<Signal> SignalFactory::downsample(
     return downsampled;
 }
 
-std::unique_ptr<Signal> SignalFactory::take_signal() &&
+std::unique_ptr<Signal> SignalFactory::take_signal() && noexcept
 {
-    auto signal = std::move(target);
-    target = std::unique_ptr<Signal>(new Signal());
-    return signal;
+    return std::move(target);
 }
 
 const Signal& SignalFactory::observe_signal() const noexcept
@@ -237,6 +230,14 @@ void SignalFactory::set_source(
     target->set_source(path, channel);
 }
 
+SignalFactory::DrWavHandle::DrWavHandle(
+        const std::filesystem::path& wav_path
+)
+{
+    if (drwav_init_file(&instance, wav_path.c_str(), nullptr) == 0u)
+        throw ConfigurationError("Cannot open WAV file at " + wav_path.string());
+}
+
 SignalFactory::DrWavHandle::~DrWavHandle() noexcept
 {
     drwav_uninit(&instance);
@@ -270,7 +271,7 @@ void SignalFactory::load_wave_file_into_channels(
         const auto frame_count = std::min(remaining_frames, chunk_frame_count);
         if (drwav_read_pcm_frames_f32(&drwav_info, frame_count, interleaved.data()) != frame_count)
             // We couldn't read the expected number of frames. drwav_init_file must've provided the wrong count.
-            throw ConfigurationError("Cannot read WAV file at " + std::string(file_path) + ". Is it corrupted?");
+            throw ConfigurationError(std::format("Cannot read entire WAV file at {}. Is it corrupted?", file_path));
 
         for (drwav_uint64 frame_idx = 0; frame_idx < frame_count; ++frame_idx)
             for (drwav_uint16 channel_idx = 0; channel_idx < drwav_info.channels; ++channel_idx) {
@@ -286,9 +287,11 @@ void SignalFactory::load_wave_file_into_channels(
     }
 
     if (remaining_frames != 0)
-        throw ConfigurationError("Cannot read entire WAV file at " + std::string(file_path) + ". Is it corrupted?");
+        throw ConfigurationError(std::format("Cannot read entire WAV file at {}. Is it corrupted?", file_path));
 
-    for (auto* const channel : signal_ptrs | std::views::filter([](auto ptr) { return ptr; })) {
+    for (auto* const channel : signal_ptrs | std::views::filter([](auto ptr) {
+                                   return ptr;
+                               })) {
         // Assert that any signal being constructed by these means should have an extant FS source.
         assert(channel->fs_source.has_value());
         channel->fs_source->is_loaded = true;

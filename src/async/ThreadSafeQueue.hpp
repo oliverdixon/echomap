@@ -38,8 +38,11 @@ public:
             ValueT value
     )
     {
-        std::scoped_lock lock(mutex);
-        queue.push_back(std::move(value));
+        {
+            std::scoped_lock lock(mutex);
+            queue.push_back(std::move(value));
+        }
+
         cv.notify_one();
     }
 

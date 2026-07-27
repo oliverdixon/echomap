@@ -51,16 +51,13 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
     if (transform_size == 0)
         return std::unique_ptr<FrequencySpectrum>(new FrequencySpectrum(window_function, display_name));
 
-    if (signal.amplitudes().size() < transform_size)
-        throw std::invalid_argument("Transform size exceeds signal length.");
-
     const auto samples = signal.amplitudes().first(transform_size);
 
     FFTRealComplex fft(transform_size);
 
     const auto fft_result = std::visit(
             variant_helpers::Overloaded{
-                    [&fft, samples](WindowFunctions::Constant&) {
+                    [&fft, samples](const WindowFunctions::Constant&) {
                         return fft.execute(samples);
                     },
                     [&fft, samples](auto window) {

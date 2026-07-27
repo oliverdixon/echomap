@@ -131,7 +131,7 @@ void SignalDFTPanel::handle_completed_dft(
         if (had_no_visible_spectrum)
             reset_viewport_bounds();
 
-        app->increment_forced_frames();
+        app->force_frames();
     }
 }
 
@@ -180,20 +180,28 @@ void SignalDFTPanel::draw_configuration_window_function() noexcept
 
     ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
 
-    if (auto selected_idx = selected_window.index();
-        /*
-         * Disabled string_view::data warnings: we know that the views were constructed from string literals, hence
-         * NULL-terminated. Dear ImGui provides no API for specifying the lengths of the expected data, so we can rely
-         * on the termination here.
-         */
+    auto selected_idx = selected_window.index();
 
-        // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
-        ImGui::BeginCombo("##DFTOptionsWindowFunction", WindowFunctions::indexed_names[selected_idx].data())) {
+    /*
+     * Disabled string_view::data warnings: we know that the views were constructed from string literals, hence
+     * NULL-terminated. Dear ImGui provides no API for specifying the lengths of the expected data, so we can rely
+     * on the termination here.
+     */
+
+    // NOLINTBEGIN(*-suspicious-stringview-data-usage)
+    const auto is_combo_open =
+            ImGui::BeginCombo("##DFTOptionsWindowFunction", WindowFunctions::indexed_names[selected_idx].data());
+    // NOLINTEND(*-suspicious-stringview-data-usage)
+
+    static bool was_combo_open = false;
+
+    if (is_combo_open) {
         for (std::size_t item_idx = 0; item_idx < WindowFunctions::indexed_names.size(); ++item_idx) {
             const auto is_selected = item_idx == selected_idx;
 
             // NOLINTNEXTLINE(*-suspicious-stringview-data-usage)
-            if (ImGui::Selectable(WindowFunctions::indexed_names[item_idx].data(), is_selected) && selected_idx != item_idx) {
+            if (ImGui::Selectable(WindowFunctions::indexed_names[item_idx].data(), is_selected) &&
+                selected_idx != item_idx) {
                 selected_idx = item_idx;
 
                 try {
@@ -212,8 +220,12 @@ void SignalDFTPanel::draw_configuration_window_function() noexcept
         }
 
         ImGui::EndCombo();
-        app->increment_forced_frames();
+
+        if (!was_combo_open)
+            app->force_frames();
     }
+
+    was_combo_open = is_combo_open;
 }
 
 void SignalDFTPanel::draw_configuration_transform_size() noexcept
@@ -222,8 +234,14 @@ void SignalDFTPanel::draw_configuration_transform_size() noexcept
     ImGui::TableNextColumn();
 
     ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
+    const auto is_combo_open = ImGui::BeginCombo(
+            "##DFTOptionsTransformSize",
+            available_sizes[selected_size_log - default_size_log].c_str()
+    );
 
-    if (ImGui::BeginCombo("##DFTOptionsTransformSize", available_sizes[selected_size_log - default_size_log].c_str())) {
+    static bool was_combo_open = false;
+
+    if (is_combo_open) {
         for (unsigned int item_idx = 0; item_idx < available_sizes.size(); ++item_idx) {
             const auto is_selected = item_idx == selected_size_log - default_size_log;
             if (ImGui::Selectable(available_sizes[item_idx].c_str(), is_selected) &&
@@ -240,8 +258,12 @@ void SignalDFTPanel::draw_configuration_transform_size() noexcept
         }
 
         ImGui::EndCombo();
-        app->increment_forced_frames();
+
+        if (!was_combo_open)
+            app->force_frames();
     }
+
+    was_combo_open = is_combo_open;
 }
 
 void SignalDFTPanel::draw_configuration_scale_type() noexcept
@@ -267,7 +289,7 @@ void SignalDFTPanel::draw_configuration_preview_actions() noexcept
         spectra_cache.clear();
         update_spectrum_bounds();
         reset_viewport_bounds();
-        app->increment_forced_frames();
+        app->force_frames();
     }
 }
 
@@ -288,7 +310,7 @@ void SignalDFTPanel::draw_preview_section() noexcept
                 excluded = true;
             }
 
-            if (std::uint64_t{1} << default_size_log > signal->get_sample_count()) {
+            if (std::uint64_t{1} << selected_size_log > signal->get_sample_count()) {
                 excluded_size.emplace_back(signal.get());
                 excluded = true;
             }

@@ -71,9 +71,9 @@ IncludeCategories:
 SpaceBeforeParens: ControlStatements
 SpaceAfterCStyleCast: false
 SpacesInParentheses: false
-SpacesInAngles: false
+SpacesInAngles: "false"
 SpaceBeforeCpp11BracedList: false
-Cpp11BracedListStyle: true
+Cpp11BracedListStyle: "true"
 
 AlignConsecutiveAssignments: None
 AlignConsecutiveDeclarations: None

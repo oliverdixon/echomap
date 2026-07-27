@@ -23,6 +23,8 @@ namespace echomap
 class Project;
 class Signal;
 
+// NOLINTBEGIN(*-assignment-in-if-condition)
+
 /**
  * Provides a set of static helpers for parsing Project fields with SIMDJSON.
  *
@@ -217,6 +219,8 @@ static error_code tag_invoke(
 
     return SUCCESS;
 }
+
+// NOLINTEND(*-assignment-in-if-condition)
 
 } // namespace simdjson
 

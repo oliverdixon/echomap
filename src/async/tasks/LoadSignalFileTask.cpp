@@ -40,15 +40,13 @@ WorkerResult LoadSignalFileTask::execute_work()
         factory_refs.emplace_back(factory_owner.get());
 
     // Load each channel into the correct factories.
-    SignalFactory::load_wave_file(path.c_str(), factory_refs);
+    SignalFactory::load_wave_file(path, factory_refs);
 
     // Retrieve the loaded signals.
     std::vector<std::unique_ptr<Signal>> loaded_signals;
     for (auto&& factory_owner : factories)
-        if (factory_owner != nullptr) {
-            auto& stolen = *std::move(factory_owner);
-            loaded_signals.emplace_back(std::move(stolen).take_signal());
-        }
+        if (factory_owner != nullptr)
+            loaded_signals.emplace_back(std::move(*factory_owner).take_signal());
 
     // Now we own the loaded signals, pass them onto the result.
     return LoadSignalFileResult(project_id, std::move(loaded_signals));

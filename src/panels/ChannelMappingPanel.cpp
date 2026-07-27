@@ -80,15 +80,18 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
 
-        bool need_to_force = false;
+        static bool was_signal_combo_open = false;
+        static bool was_sensor_combo_open = false;
 
         // Prompt for the associated signal.
         ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-        if (ImGui::BeginCombo(
-                    "##NewAssociationSignal",
-                    new_entry_cache.signal == nullptr ? "Select signal..." : new_entry_cache.signal->get_imgui_name(),
-                    0
-            )) {
+        const auto is_signal_combo_open = ImGui::BeginCombo(
+                "##NewAssociationSignal",
+                new_entry_cache.signal == nullptr ? "Select signal..." : new_entry_cache.signal->get_imgui_name(),
+                0
+        );
+
+        if (is_signal_combo_open) {
             for (const auto& signal : active_project->observe_signals()) {
                 const bool is_selected = new_entry_cache.signal == nullptr ? false : signal == *new_entry_cache.signal;
 
@@ -102,18 +105,19 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
             }
 
             ImGui::EndCombo();
-            need_to_force = true;
         }
 
         ImGui::TableNextColumn();
 
         // Prompt for the associated sensor.
         ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-        if (ImGui::BeginCombo(
-                    "##NewAssociationSensor",
-                    new_entry_cache.sensor == nullptr ? "Select sensor..." : new_entry_cache.sensor->get_imgui_name(),
-                    0
-            )) {
+        const auto is_sensor_combo_open = ImGui::BeginCombo(
+                "##NewAssociationSensor",
+                new_entry_cache.sensor == nullptr ? "Select sensor..." : new_entry_cache.sensor->get_imgui_name(),
+                0
+        );
+
+        if (is_sensor_combo_open) {
             for (const auto& sensor : active_project->observe_sensors()) {
                 const bool is_selected = new_entry_cache.sensor == nullptr ? false : sensor == *new_entry_cache.sensor;
 
@@ -125,13 +129,15 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
             }
 
             ImGui::EndCombo();
-            need_to_force = true;
         }
 
         ImGui::EndTable();
 
-        if (need_to_force)
-            app->increment_forced_frames();
+        if ((is_signal_combo_open && !was_signal_combo_open) || (is_sensor_combo_open && !was_sensor_combo_open))
+            app->force_frames();
+
+        was_signal_combo_open = is_signal_combo_open;
+        was_sensor_combo_open = is_sensor_combo_open;
     }
 }
 

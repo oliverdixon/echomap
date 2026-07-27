@@ -44,8 +44,10 @@ bool FilesystemCombo::operator()(
     ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
 
     const std::string preview = selected_path.empty() ? std::string{current_root.data()} : selected_path.string();
+    const auto is_combo_open = ImGui::BeginCombo("##FilesystemCombo", preview.c_str(), ImGuiComboFlags_HeightLarge);
+    static bool was_combo_open = false;
 
-    if (ImGui::BeginCombo("##FilesystemCombo", preview.c_str(), ImGuiComboFlags_HeightLarge)) {
+    if (is_combo_open) {
         if (ImGui::IsWindowAppearing()) {
             ImGui::SetKeyboardFocusHere();
             invalidate_cache();
@@ -54,8 +56,12 @@ bool FilesystemCombo::operator()(
         changed = draw_combo_body(selected_path);
 
         ImGui::EndCombo();
-        app->increment_forced_frames();
+
+        if (!was_combo_open)
+            app->force_frames();
     }
+
+    was_combo_open = is_combo_open;
 
     return changed;
 }

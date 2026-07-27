@@ -73,12 +73,12 @@ public:
      * Indicate to the renderer that the following frames should always be rendered, regardless of whether there are any
      * new events to process.
      *
-     * The forced frame count stacks (as in a source) until the renderer drains it to zero (as in a sink). By default,
-     * we force four frames since most Dear ImGui components can fully render a four-frame cycle.
+     * The forced frame count does not accumulate; callers may request forced frames independently. By default, we force
+     * four frames since most Dear ImGui components can fully render a four-frame cycle.
      *
      * @param count The number of frames to force.
      */
-    void increment_forced_frames(unsigned int count = 4) noexcept;
+    void force_frames(unsigned int count = 4) noexcept;
 
     EchoMap(const EchoMap&) = delete;
     EchoMap& operator=(const EchoMap&) = delete;

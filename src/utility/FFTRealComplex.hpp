@@ -54,12 +54,8 @@ public:
      * Prepare an FFT plan for a sized real-valued input vector.
      *
      * @param requested_transform_size Size of the real-valued input vector.
-     * @param requested_flags Flags for the FFTW planner; these may be overwritten by the implementation.
      */
-    explicit FFTRealComplex(
-            std::size_t requested_transform_size,
-            unsigned int requested_flags = FFTW_ESTIMATE
-    );
+    explicit FFTRealComplex(std::size_t requested_transform_size);
 
     /**
      * Destruct internal FFTW state.
@@ -75,8 +71,8 @@ public:
     /**
      * Compute the DFT on a set of real-valued samples.
      *
-     * This overload does not preprocess the input with a window function, hence Result::scale_divisor will be zero.
-     * Since the input vector is immutable, requested planner flags are ignored and @c FFTW_ESTIMATE is used.
+     * This overload does not preprocess the input with a window function, hence Result::scale_divisor will equal the
+     * transform size.
      *
      * @param samples The transform input.
      * @return The Result describing the DFT complex coefficients and the accumulated window function.
@@ -116,7 +112,7 @@ public:
         }
 
         return {
-                .coefficients = execute_from_mutable_input(projected.data(), requested_flags),
+                .coefficients = execute_from_mutable_input(projected.data()),
                 .scale_divisor = scale_divisor,
         };
     }
@@ -150,7 +146,6 @@ private:
      * The output is written to @ref output, to which an observing view is returned.
      *
      * @param input Transform input location.
-     * @param planner_flags Flags for the FFTW planner.
      *
      * @return An observing view of the DFT coefficients.
      *
@@ -158,23 +153,16 @@ private:
      * @throws std::logic_error The output buffer was not prepared, probably due to FFTRealComplex being moved.
      * @throws std::invalid_argument The given input was null.
      */
-    [[nodiscard]] std::span<const fftwf_complex> execute_from_mutable_input(
-            float* input,
-            unsigned int planner_flags
-    );
+    [[nodiscard]] std::span<const fftwf_complex> execute_from_mutable_input(float* input);
 
     /**
      * Ensure that the @ref plan is ready for executing the transform.
      *
      * @param input Transform input location.
-     * @param planner_flags Flags for the FFTW planner.
      *
      * @throws std::runtime_error The FFTW plan did not already exist and could not be created.
      */
-    void prepare_plan(
-            float* input,
-            unsigned int planner_flags
-    );
+    void prepare_plan(float* input);
 
     /**
      * Clear any existing FFTW plan and associated metadata.
@@ -190,14 +178,11 @@ private:
     int fftw_transform_size = 0;                  /**< @ref transform_size typed for the FFTW C API. */
     std::size_t output_size = 0;                  /**< Number of complexes in @ref output following DFT. */
 
-    unsigned int requested_flags = FFTW_ESTIMATE; /**< FFTW planner flags requested by the user. */
-
     float* projected_input = nullptr; /**< Input vector for transform following map under a window function. */
     fftwf_complex* output = nullptr;  /**< Destination for DFT complex coefficients. */
 
     fftwf_plan plan = nullptr;        /**< Prepared FFTW plan. */
     float* planned_input = nullptr;   /**< Input vector for which the @ref plan was prepared. */
-    unsigned int planned_flags = 0;   /**< FFTW planner flags being used by @ref plan. */
 };
 
 } // namespace echomap
