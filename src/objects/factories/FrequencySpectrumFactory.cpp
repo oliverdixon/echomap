@@ -15,9 +15,9 @@
 #include <cmath>
 #endif
 
+#include "../../utility/FFTRealComplex.hpp"
 #include "../FrequencySpectrum.hpp"
 #include "../Signal.hpp"
-#include "../../utility/FFTWRealToComplex1D.hpp"
 
 namespace echomap
 {
@@ -56,15 +56,15 @@ std::unique_ptr<FrequencySpectrum> FrequencySpectrumFactory::create_frequency_sp
 
     const auto samples = signal.amplitudes().first(transform_size);
 
-    FFTWRealToComplex1D fft(transform_size);
+    FFTRealComplex fft(transform_size);
 
     const auto fft_result = std::visit(
             variant_helpers::Overloaded{
                     [&fft, samples](WindowFunctions::Constant&) {
                         return fft.execute(samples);
                     },
-                    [&fft, samples](auto& window) {
-                        return fft.execute(samples, window);
+                    [&fft, samples](auto window) {
+                        return fft.execute(samples, std::move(window));
                     },
             },
             window_function

@@ -1,13 +1,13 @@
 /**
  * @file
  *
- * FFTWRealToComplex1D implementation
+ * FFTWRealComplex implementation
  *
  * @author Oliver Dixon
  * @date 2026-07-26
  */
 
-#include "FFTWRealToComplex1D.hpp"
+#include "FFTRealComplex.hpp"
 
 #include <limits>
 #include <stdexcept>
@@ -16,12 +16,12 @@
 namespace echomap
 {
 
-FFTWRealToComplex1D::FFTWRealToComplex1D(
+FFTRealComplex::FFTRealComplex(
         const std::size_t requested_transform_size,
-        const unsigned int requested_projected_planner_flags
+        const unsigned int requested_flags
 ) :
     transform_size(requested_transform_size),
-    projected_planner_flags(requested_projected_planner_flags)
+    requested_flags(requested_flags)
 {
     if (transform_size == 0)
         throw std::invalid_argument("FFTW transform size must be non-zero.");
@@ -38,13 +38,13 @@ FFTWRealToComplex1D::FFTWRealToComplex1D(
         throw std::runtime_error("Failed to allocate FFTW output buffer.");
 }
 
-FFTWRealToComplex1D::~FFTWRealToComplex1D() noexcept
+FFTRealComplex::~FFTRealComplex() noexcept
 {
     reset();
 }
 
-FFTWRealToComplex1D::FFTWRealToComplex1D(
-        FFTWRealToComplex1D&& other
+FFTRealComplex::FFTRealComplex(
+        FFTRealComplex&& other
 ) noexcept :
     transform_size(
             std::exchange(
@@ -64,9 +64,9 @@ FFTWRealToComplex1D::FFTWRealToComplex1D(
                     0
             )
     ),
-    projected_planner_flags(
+    requested_flags(
             std::exchange(
-                    other.projected_planner_flags,
+                    other.requested_flags,
                     FFTW_ESTIMATE
             )
     ),
@@ -99,8 +99,8 @@ FFTWRealToComplex1D::FFTWRealToComplex1D(
 {
 }
 
-FFTWRealToComplex1D& FFTWRealToComplex1D::operator=(
-        FFTWRealToComplex1D&& other
+FFTRealComplex& FFTRealComplex::operator=(
+        FFTRealComplex&& other
 ) noexcept
 {
     if (this == &other)
@@ -111,7 +111,7 @@ FFTWRealToComplex1D& FFTWRealToComplex1D::operator=(
     transform_size = std::exchange(other.transform_size, 0);
     fftw_transform_size = std::exchange(other.fftw_transform_size, 0);
     output_size = std::exchange(other.output_size, 0);
-    projected_planner_flags = std::exchange(other.projected_planner_flags, FFTW_ESTIMATE);
+    requested_flags = std::exchange(other.requested_flags, FFTW_ESTIMATE);
 
     projected_input = std::exchange(other.projected_input, nullptr);
     output = std::exchange(other.output, nullptr);
@@ -123,7 +123,7 @@ FFTWRealToComplex1D& FFTWRealToComplex1D::operator=(
     return *this;
 }
 
-FFTWRealToComplex1D::Result FFTWRealToComplex1D::execute(
+FFTRealComplex::Result FFTRealComplex::execute(
         const std::span<const float> samples
 )
 {
@@ -132,8 +132,8 @@ FFTWRealToComplex1D::Result FFTWRealToComplex1D::execute(
     /*
      * FFTW's r2c API takes float*, even for an out-of-place transform.
      *
-     * The direct no-projection path deliberately creates its plan using
-     * FFTW_ESTIMATE so that planning does not modify the caller-provided input.
+     * The direct no-projection path deliberately creates its plan using FFTW_ESTIMATE so that planning does not modify
+     * the caller-provided input.
      */
     auto* const input = const_cast<float*>(samples.data()); // NOLINT(*-pro-type-const-cast)
 
@@ -143,7 +143,7 @@ FFTWRealToComplex1D::Result FFTWRealToComplex1D::execute(
     };
 }
 
-void FFTWRealToComplex1D::validate_input_size(
+void FFTRealComplex::validate_input_size(
         const std::span<const float> samples
 ) const
 {
@@ -151,7 +151,7 @@ void FFTWRealToComplex1D::validate_input_size(
         throw std::invalid_argument("Input size does not match FFTW transform size.");
 }
 
-std::span<float> FFTWRealToComplex1D::projected_input_buffer()
+std::span<float> FFTRealComplex::prepare_projection_buffer()
 {
     if (output == nullptr)
         throw std::logic_error("Cannot execute a moved-from FFTW transform.");
@@ -166,7 +166,7 @@ std::span<float> FFTWRealToComplex1D::projected_input_buffer()
     return {projected_input, transform_size};
 }
 
-std::span<const fftwf_complex> FFTWRealToComplex1D::execute_from_mutable_input(
+std::span<const fftwf_complex> FFTRealComplex::execute_from_mutable_input(
         float* const input,
         const unsigned int planner_flags
 )
@@ -177,14 +177,14 @@ std::span<const fftwf_complex> FFTWRealToComplex1D::execute_from_mutable_input(
     if (input == nullptr)
         throw std::invalid_argument("FFTW input pointer must not be null.");
 
-    ensure_plan(input, planner_flags);
+    prepare_plan(input, planner_flags);
 
     fftwf_execute_dft_r2c(plan, input, output);
 
     return {output, output_size};
 }
 
-void FFTWRealToComplex1D::ensure_plan(
+void FFTRealComplex::prepare_plan(
         float* const input,
         const unsigned int planner_flags
 )
@@ -203,7 +203,7 @@ void FFTWRealToComplex1D::ensure_plan(
     planned_flags = planner_flags;
 }
 
-void FFTWRealToComplex1D::destroy_plan() noexcept
+void FFTRealComplex::destroy_plan() noexcept
 {
     if (plan != nullptr)
         fftwf_destroy_plan(plan);
@@ -213,7 +213,7 @@ void FFTWRealToComplex1D::destroy_plan() noexcept
     planned_flags = 0;
 }
 
-void FFTWRealToComplex1D::reset() noexcept
+void FFTRealComplex::reset() noexcept
 {
     destroy_plan();
 
@@ -226,7 +226,7 @@ void FFTWRealToComplex1D::reset() noexcept
     transform_size = 0;
     fftw_transform_size = 0;
     output_size = 0;
-    projected_planner_flags = FFTW_ESTIMATE;
+    requested_flags = FFTW_ESTIMATE;
 
     output = nullptr;
     projected_input = nullptr;
