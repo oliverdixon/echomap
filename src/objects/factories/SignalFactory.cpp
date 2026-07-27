@@ -64,13 +64,13 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
         const char* const file_path
 )
 {
-    drwav drwav_info;
-    if (drwav_init_file(&drwav_info, file_path, nullptr) == 0u)
+    DrWavHandle drwav_info;
+    if (drwav_init_file(&drwav_info.instance, file_path, nullptr) == 0u)
         throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
 
     const auto typed_path = std::filesystem::path(file_path);
     std::vector<std::unique_ptr<Signal>> signals;
-    signals.resize(drwav_info.channels);
+    signals.resize(drwav_info.instance.channels);
 
     std::size_t channel_num = 1;
     for (auto& channel : signals) {
@@ -79,24 +79,18 @@ std::vector<std::unique_ptr<Signal>> SignalFactory::load_wave_file(
         ++channel_num;
     }
 
-    try {
-        std::vector<Signal*> signal_ptrs;
-        signal_ptrs.reserve(signals.size());
-        std::ranges::transform(
-                signals,
-                std::back_inserter(signal_ptrs),
-                [](const std::unique_ptr<Signal>& signal) -> Signal* {
-                    return signal.get();
-                }
-        );
+    std::vector<Signal*> signal_ptrs;
+    signal_ptrs.reserve(signals.size());
+    std::ranges::transform(
+            signals,
+            std::back_inserter(signal_ptrs),
+            [](const std::unique_ptr<Signal>& signal) -> Signal* {
+                return signal.get();
+            }
+    );
 
-        load_wave_file_into_channels(drwav_info, file_path, signal_ptrs);
-    } catch (const std::runtime_error&) {
-        drwav_uninit(&drwav_info);
-        throw;
-    }
+    load_wave_file_into_channels(drwav_info.instance, file_path, signal_ptrs);
 
-    drwav_uninit(&drwav_info);
     return signals;
 }
 
@@ -105,36 +99,29 @@ void SignalFactory::load_wave_file(
         const std::span<SignalFactory* const> channel_factories
 )
 {
-    drwav drwav_info;
-    if (drwav_init_file(&drwav_info, file_path, nullptr) == 0u)
+    DrWavHandle drwav_info;
+    if (drwav_init_file(&drwav_info.instance, file_path, nullptr) == 0u)
         throw ConfigurationError("Cannot open WAV file at " + std::string(file_path));
 
-    assert(drwav_info.channels >= channel_factories.size());
+    assert(drwav_info.instance.channels >= channel_factories.size());
 
-    try {
-        /*
-         * For convenience of callers, this function takes a span of factories responsible for constructing the signals
-         * for each of the channel slots, rather than the signals themselves. But for portability and simplicity, our
-         * internal functions need the signals directly. Hence, we cheaply construct a span-compliant collection of the
-         * mutating signal pointers, accessible to us as private member variables.
-         */
-        std::vector<Signal*> channels;
-        channels.resize(drwav_info.channels, nullptr);
+    /*
+     * For convenience of callers, this function takes a span of factories responsible for constructing the signals for
+     * each of the channel slots, rather than the signals themselves. But for portability and simplicity, our internal
+     * functions need the signals directly. Hence, we cheaply construct a span-compliant collection of the mutating
+     * signal pointers, accessible to us as private member variables.
+     */
+    std::vector<Signal*> channels;
+    channels.resize(drwav_info.instance.channels, nullptr);
 
-        std::size_t channel_idx = 0;
-        for (const auto* const factory : channel_factories) {
-            if (factory != nullptr && factory->target != nullptr)
-                channels[channel_idx] = factory->target.get();
-            ++channel_idx;
-        }
-
-        load_wave_file_into_channels(drwav_info, file_path, channels);
-    } catch (const std::runtime_error&) {
-        drwav_uninit(&drwav_info);
-        throw;
+    std::size_t channel_idx = 0;
+    for (const auto* const factory : channel_factories) {
+        if (factory != nullptr && factory->target != nullptr)
+            channels[channel_idx] = factory->target.get();
+        ++channel_idx;
     }
 
-    drwav_uninit(&drwav_info);
+    load_wave_file_into_channels(drwav_info.instance, file_path, channels);
 }
 
 std::unique_ptr<Signal> SignalFactory::downsample(
@@ -165,10 +152,10 @@ std::unique_ptr<Signal> SignalFactory::downsample(
     return downsampled;
 }
 
-std::unique_ptr<Signal> SignalFactory::take_signal() noexcept
+std::unique_ptr<Signal> SignalFactory::take_signal() &&
 {
     auto signal = std::move(target);
-    target = std::unique_ptr<Signal>(new Signal()); // NOLINT(*-unhandled-exception-at-new)
+    target = std::unique_ptr<Signal>(new Signal());
     return signal;
 }
 
@@ -248,6 +235,11 @@ void SignalFactory::set_source(
 ) const
 {
     target->set_source(path, channel);
+}
+
+SignalFactory::DrWavHandle::~DrWavHandle() noexcept
+{
+    drwav_uninit(&instance);
 }
 
 void SignalFactory::load_wave_file_into_channels(

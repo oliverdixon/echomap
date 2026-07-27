@@ -88,7 +88,7 @@ public:
             std::string_view name = {}
     );
 
-    [[nodiscard]] std::unique_ptr<Signal> take_signal() noexcept;
+    [[nodiscard]] std::unique_ptr<Signal> take_signal() &&;
     [[nodiscard]] const Signal& observe_signal() const noexcept;
 
     void emplace_sample(Signal::Sample::AmplitudeT amplitude) const;
@@ -114,6 +114,23 @@ public:
     ) const;
 
 private:
+    /**
+     * A paranoid RAII wrapper for the C @c drwav struct.
+     */
+    struct DrWavHandle
+    {
+        DrWavHandle() = default;
+        ~DrWavHandle() noexcept;
+
+        DrWavHandle(const DrWavHandle&) = delete;
+        DrWavHandle& operator=(const DrWavHandle&) = delete;
+
+        DrWavHandle(DrWavHandle&& other) = delete;
+        DrWavHandle& operator=(DrWavHandle&& other) = delete;
+
+        drwav instance{};
+    };
+
     /**
      * Loads the time-series sampled data into the given Signal objects.
      *
