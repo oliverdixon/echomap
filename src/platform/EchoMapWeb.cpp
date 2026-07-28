@@ -52,7 +52,7 @@ void EchoMapWeb::handle_result(
         LoadProjectResult&& result
 )
 {
-    if (active_modal != nullptr) {
+    if (panel_host.is_modal_shown()) {
         LOG_WARN("Ignoring request to change active Project since there is an active modal.");
         return;
     }
@@ -61,7 +61,9 @@ void EchoMapWeb::handle_result(
 
     if (!new_project->observe_unloaded_signals().empty()) {
         // Raise the modal to query for the sources.
+#if 0 // TODO
         active_modal = std::make_unique<MapSourcesModal>(this, new_project.get());
+#endif
         unloaded_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));
@@ -106,7 +108,7 @@ void EchoMapWeb::handle_notification(
 {
     notification.verify_project(unloaded_project.get());
 
-    active_modal.reset();
+    panel_host.reset_active_modal();
     unloaded_project.reset();
 }
 
@@ -129,7 +131,7 @@ void EchoMapWeb::handle_notification(
         );
     }
 
-    active_modal.reset();
+    panel_host.reset_active_modal();
 }
 
 void EchoMapWeb::handle_notification(
@@ -158,7 +160,9 @@ void EchoMapWeb::render_shim(
 )
 {
     auto* instance = static_cast<EchoMapWeb*>(echomap_instance);
-    instance->render();
+
+    instance->tick();
+    instance->render_host.render(instance->panel_host);
 }
 
 void EchoMapWeb::run_event_loop()

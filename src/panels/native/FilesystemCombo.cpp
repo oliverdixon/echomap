@@ -22,9 +22,11 @@ namespace echomap
 {
 
 FilesystemCombo::FilesystemCombo(
-        EchoMap* const app
+        EchoMap* const app,
+        IRenderInvalidator& invalidator
 ) :
-    app(app)
+    app(app),
+    invalidator(invalidator)
 {
     std::error_code error_code;
     const auto cwd = std::filesystem::current_path(error_code);
@@ -57,7 +59,7 @@ bool FilesystemCombo::operator()(
         ImGui::EndCombo();
 
         if (!was_combo_open)
-            app->force_frames();
+            invalidator.force_frames();
     }
 
     was_combo_open = is_combo_open;

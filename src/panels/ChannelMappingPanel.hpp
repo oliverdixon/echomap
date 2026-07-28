@@ -12,6 +12,7 @@
 namespace echomap
 {
 
+class IRenderInvalidator;
 class Signal;
 class Sensor;
 class EchoMap;
@@ -27,10 +28,12 @@ public:
      * Create a new ChannelMappingPanel to describe and configure Signal-Sensor mappings.
      *
      * @param app The parent application instance.
+     * @param invalidator TODO
      * @param initial_project An optional initial Project for the IPanel to display.
      */
     explicit ChannelMappingPanel(
             EchoMap* app,
+            IRenderInvalidator& invalidator,
             const Project* initial_project = nullptr
     );
 
@@ -56,6 +59,7 @@ private:
 
     EchoMap* app;
     const Project* active_project = nullptr;
+    IRenderInvalidator& invalidator;
 
     bool was_signal_combo_open = false; /**< Was the Associated Signal combo box open on the previous render cycle? */
     bool was_sensor_combo_open = false; /**< Was the Associated Sensor combo box open on the previous render cycle? */

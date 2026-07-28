@@ -15,11 +15,13 @@ namespace echomap
 
 ChannelMappingPanel::ChannelMappingPanel(
         EchoMap* app,
+        IRenderInvalidator& invalidator,
         const Project* const initial_project
 ) :
     panel_name(std::string("Channel Mapping") + get_imgui_stable_name()),
     app(app),
-    active_project(initial_project)
+    active_project(initial_project),
+    invalidator(invalidator)
 {
 }
 
@@ -131,7 +133,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         ImGui::EndTable();
 
         if ((is_signal_combo_open && !was_signal_combo_open) || (is_sensor_combo_open && !was_sensor_combo_open))
-            app->force_frames();
+            invalidator.force_frames();
 
         was_signal_combo_open = is_signal_combo_open;
         was_sensor_combo_open = is_sensor_combo_open;

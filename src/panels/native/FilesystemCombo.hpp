@@ -23,6 +23,7 @@
 namespace echomap
 {
 
+class IRenderInvalidator;
 class EchoMap;
 
 /**
@@ -37,9 +38,14 @@ public:
      * The initial location is the current working directory.
      *
      * @param app The owning application instance.
+     * @param invalidator TODO
+     *
      * @throws std::runtime_error The CWD could not be interrogated.
      */
-    explicit FilesystemCombo(EchoMap* app);
+    explicit FilesystemCombo(
+            EchoMap* app,
+            IRenderInvalidator& invalidator
+    );
 
     /**
      * Draws the FilesystemCombo control.
@@ -185,6 +191,7 @@ private:
     BrowseTarget current_target;                      /**< The current target specified in the filter window. */
     std::optional<EntryCache> cache;                  /**< Cache of entries visible in the combo box. */
     EchoMap* app;                                     /**< Pointer to the owning application instance. */
+    IRenderInvalidator& invalidator;
 };
 
 } // namespace echomap

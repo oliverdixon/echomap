@@ -20,18 +20,14 @@ namespace echomap
 
 void EchoMapNative::run_event_loop()
 {
-    render();
-    instance.ProcessEvents();
+    tick();
+    render_host.render(panel_host);
+    render_host.process_instance_events();
 
-    while (glfwWindowShouldClose(window) == 0) {
-        if (forced_frames > 0) {
-            glfwPollEvents();
-            --forced_frames;
-        } else
-            glfwWaitEvents();
-
-        render();
-        instance.ProcessEvents();
+    while (render_host.wait_for_frame_trigger()) {
+        tick();
+        render_host.render(panel_host);
+        render_host.process_instance_events();
     }
 }
 
@@ -56,16 +52,18 @@ void EchoMapNative::handle_notification(
         RaiseFileChooserNotification& notification
 )
 {
-    if (active_modal != nullptr) {
+    if (panel_host.is_modal_shown()) {
         LOG_WARN("Ignoring request to raise file chooser since there is an active modal.");
         return;
     }
 
+#if 0 // TODO
     active_modal = std::make_unique<FileChooser>(
             this,
             std::move(notification.success_callback),
             std::move(notification.cancelled_callback)
     );
+#endif
 }
 
 } // namespace echomap

@@ -37,6 +37,9 @@ public:
      * @param count The number of frames to force.
      */
     virtual void force_frames(unsigned int count = 4) noexcept = 0;
+
+protected:
+    IRenderInvalidator() = default;
 };
 
 } // namespace echomap
