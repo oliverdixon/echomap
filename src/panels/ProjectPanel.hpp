@@ -5,8 +5,6 @@
 #ifndef ECHOMAP_PROJECTPANEL_HPP
 #define ECHOMAP_PROJECTPANEL_HPP
 
-#include <sigc++/scoped_connection.h>
-
 #include <string>
 
 #include "IProjectPanel.hpp"
@@ -36,9 +34,7 @@ public:
 
 private:
     std::string panel_name;
-
     const Project* active_project = nullptr;
-    std::vector<sigc::scoped_connection> connections;
 };
 
 } // namespace echomap

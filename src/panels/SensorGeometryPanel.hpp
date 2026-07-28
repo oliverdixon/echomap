@@ -9,7 +9,6 @@
 #define ECHOMAP_SENSORGEOMETRYPANEL_HPP
 
 #include <implot3d.h>
-#include <sigc++/scoped_connection.h>
 
 #include <string>
 
@@ -72,7 +71,6 @@ private:
     ImPlot3DSpec plotting_spec_3d;
     const Project* active_project = nullptr;
     EchoMap* app;
-    std::vector<sigc::scoped_connection> connections;
 };
 
 } // namespace echomap
