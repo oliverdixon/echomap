@@ -2,11 +2,13 @@
 
 ## Short Term
 
-1. Split EchoMap into app shell, project controller, and render host.
+1. Move ImGui/ImPlot types out of the domain model.
 
-2. Move ImGui/ImPlot types out of the domain model.
+2. Introduce injected platform service interfaces.
 
-3. Replace global/static platform callbacks with injected services.
+3. Extract ProjectController from EchoMap.
+
+4. Extract RenderHost and AppShell once the seams exist.
 
 ## Medium/Long Term
 
