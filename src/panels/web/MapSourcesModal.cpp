@@ -105,8 +105,8 @@ void MapSourcesModal::draw_preamble() const noexcept
     ImGui::TextWrapped(
                 "%s contains references to externally sourced signals. Browser security requires that each externally "
                 "sourced file is uploaded separately.",
-                project->get_imgui_name()
-        );
+                project->get_c_str_name()
+    );
 
     ImGui::Spacing();
     ImGui::Separator();
@@ -184,9 +184,9 @@ bool MapSourcesModal::draw_table_entry(
         ImGui::TableSetColumnIndex(2);
 
         const auto& signal = signal_factory->observe_signal();
-        ImGui::PushID(signal.get_imgui_name());
+        ImGui::PushID(signal.get_c_str_name());
 
-        ImGui::TextUnformatted(signal.get_imgui_name());
+        ImGui::TextUnformatted(signal.get_c_str_name());
         ImGui::TableNextColumn();
         const auto formatted_channel_num = std::to_string(signal.observe_source()->channel);
         ImGui::TextUnformatted(formatted_channel_num.c_str());

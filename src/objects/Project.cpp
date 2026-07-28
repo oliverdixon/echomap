@@ -84,17 +84,6 @@ std::size_t Project::get_sensors_count() const noexcept
     return sensors.size();
 }
 
-ImPlot3DPoint Project::get_sensor_point(
-        const int idx,
-        const void* const project_instance
-) noexcept
-{
-    const auto* const project_ptr = static_cast<const Project*>(project_instance);
-    const auto [x, y, z] = project_ptr->sensors.values()[idx]->position;
-
-    return { x, y, z };
-}
-
 Sensor& Project::get_mutable_sensor(
         const id_type sensor_id
 )

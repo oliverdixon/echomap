@@ -132,7 +132,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
 
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::TextUnformatted(sensor.get_imgui_name());
+            ImGui::TextUnformatted(sensor.get_c_str_name());
 
             Position new_position = sensor.position;
             bool position_changed = false;
@@ -173,7 +173,7 @@ void SensorGeometryPanel::draw_geometry_plot() const noexcept
         ImPlot3D::SetupAxes("X", "Y", "Z");
         ImPlot3D::PlotScatterG(
                 "",
-                Project::get_sensor_point,
+                get_sensor_point,
                 active_project,
                 static_cast<int>(active_project->get_sensors_count()),
                 plotting_spec_3d
@@ -183,6 +183,26 @@ void SensorGeometryPanel::draw_geometry_plot() const noexcept
     }
 
     ImPlot3D::PopStyleColor();
+}
+
+ImPlot3DPoint SensorGeometryPanel::get_sensor_point(
+        const int idx,
+        const void* const project_instance
+) noexcept
+{
+    const auto* const project_ptr = static_cast<const Project*>(project_instance);
+
+    const auto sensor_view = project_ptr->observe_sensors();
+    assert(idx < sensor_view.size());
+
+    /*
+     * Performance note: observe_sensors returns a transform_view, which models random_access_range, and in turn
+     * provides us with a random_access_iterator. These can be subscripted in constant time, so there is no real
+     * performance penalty to using the externally accessible view instead of indexing the Project flat_map member
+     * variable in a hot loop.
+     */
+    const auto [x, y, z] = sensor_view[idx].position;
+    return {x, y, z};
 }
 
 } // namespace echomap

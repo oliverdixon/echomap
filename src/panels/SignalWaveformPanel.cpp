@@ -62,8 +62,8 @@ void SignalWaveformPanel::draw() noexcept
                 drawn_any = true;
 
                 if (const auto* const downsampled = get_downsampled_signal(signal); downsampled == nullptr)
-                    ImGui::Text("Loading downsampled variant of %s...", signal->get_imgui_name());
-                else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
+                    ImGui::Text("Loading downsampled variant of %s...", signal->get_c_str_name());
+                else if (ImPlot::BeginPlot(downsampled->get_c_str_name())) {
 
                     ImPlot::SetupAxes("Time (seconds)", "Amplitude");
                     ImPlot::SetupAxisLinks(ImAxis_X1, &bounding_box.X.Min, &bounding_box.X.Max);

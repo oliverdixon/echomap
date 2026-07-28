@@ -319,7 +319,7 @@ void SignalDFTPanel::draw_preview_section() noexcept
             ImGui::SeparatorText("Excluded due to variable sampling");
             for (const auto* const signal : excluded_variable) {
                 ImGui::Bullet();
-                ImGui::TextUnformatted(signal->get_imgui_name());
+                ImGui::TextUnformatted(signal->get_c_str_name());
             }
         }
 
@@ -327,7 +327,7 @@ void SignalDFTPanel::draw_preview_section() noexcept
             ImGui::SeparatorText("Excluded due to insufficient size");
             for (const auto* const signal : excluded_size) {
                 ImGui::Bullet();
-                ImGui::TextUnformatted(signal->get_imgui_name());
+                ImGui::TextUnformatted(signal->get_c_str_name());
             }
         }
 
@@ -340,13 +340,13 @@ void SignalDFTPanel::draw_preview_of_signal(
         std::shared_ptr<Signal> signal
 ) noexcept
 {
-    const auto* const name = signal->get_imgui_name();
+    const auto* const name = signal->get_c_str_name();
     if (const auto* const spectrum =
                 get_spectra(std::move(signal), selected_window, std::size_t{1} << selected_size_log);
         spectrum != nullptr) {
 
         // Case 1: we got a spectrum immediately.
-        if (ImPlot::BeginPlot(spectrum->get_imgui_name())) {
+        if (ImPlot::BeginPlot(spectrum->get_c_str_name())) {
             ImPlot::SetupAxes("Frequency (Hz)", "Magnitude (dBfs)");
             ImPlot::SetupAxisScale(ImAxis_X1, use_log_scale ? ImPlotScale_Log10 : ImPlotScale_Linear);
             ImPlot::SetupAxisLinks(ImAxis_X1, &viewport_bounds.X.Min, &viewport_bounds.X.Max);

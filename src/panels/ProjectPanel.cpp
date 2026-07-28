@@ -29,14 +29,14 @@ void ProjectPanel::draw() noexcept
         if (active_project == nullptr)
             ImGui::SeparatorText("No active project.");
         else {
-            ImGui::SeparatorText(active_project->get_imgui_name());
+            ImGui::SeparatorText(active_project->get_c_str_name());
             if (ImGui::CollapsingHeader("Signals", default_flags))
                 for (const auto& signal : active_project->observe_signals())
-                    ImGui::TextUnformatted(signal.get_imgui_name());
+                    ImGui::TextUnformatted(signal.get_c_str_name());
 
             if (ImGui::CollapsingHeader("Sensors", default_flags))
                 for (const auto& sensor : active_project->observe_sensors())
-                    ImGui::TextUnformatted(sensor.get_imgui_name());
+                    ImGui::TextUnformatted(sensor.get_c_str_name());
 
             if (ImGui::CollapsingHeader("Results", default_flags)) {
                 // TODO...

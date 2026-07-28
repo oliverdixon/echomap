@@ -52,6 +52,20 @@ private:
     void draw_geometry_summary() noexcept;
     void draw_geometry_plot() const noexcept;
 
+    /**
+     * Callback helper to get the ImPlot3DPoint representation of the stored Sensor at a fixed index.
+     *
+     * @param idx The zero-based index of the stored Sensor to query.
+     * @param project_instance An observing pointer to the Project instance which stores the Sensor to query.
+     * @return The position of the Sensor stored by the Project at the index.
+     *
+     * @pre The index must be less than the number of stored Sensor objects in the Project.
+     */
+    [[nodiscard]] static ImPlot3DPoint get_sensor_point(
+            int idx,
+            const void* project_instance
+    ) noexcept;
+
     std::string panel_name;
 
     std::vector<ImU32> sensor_colours;

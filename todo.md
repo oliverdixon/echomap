@@ -2,13 +2,11 @@
 
 ## Short Term
 
-1. Move ImGui/ImPlot types out of the domain model.
+1. Introduce injected platform service interfaces.
 
-2. Introduce injected platform service interfaces.
+2. Extract ProjectController from EchoMap.
 
-3. Extract ProjectController from EchoMap.
-
-4. Extract RenderHost and AppShell once the seams exist.
+3. Extract RenderHost and AppShell once the seams exist.
 
 ## Medium/Long Term
 

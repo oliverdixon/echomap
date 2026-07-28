@@ -84,7 +84,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
         const auto is_signal_combo_open = ImGui::BeginCombo(
                 "##NewAssociationSignal",
-                new_entry_cache.signal == nullptr ? "Select signal..." : new_entry_cache.signal->get_imgui_name(),
+                new_entry_cache.signal == nullptr ? "Select signal..." : new_entry_cache.signal->get_c_str_name(),
                 0
         );
 
@@ -93,7 +93,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
                 const bool is_selected = new_entry_cache.signal == nullptr ? false : signal == *new_entry_cache.signal;
 
                 // Checks if something has changed (thus current value needs updating).
-                if (ImGui::Selectable(signal.get_imgui_name(), is_selected))
+                if (ImGui::Selectable(signal.get_c_str_name(), is_selected))
                     new_entry_cache.signal = &signal;
 
                 // Checks if the current item is selected.
@@ -110,7 +110,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
         const auto is_sensor_combo_open = ImGui::BeginCombo(
                 "##NewAssociationSensor",
-                new_entry_cache.sensor == nullptr ? "Select sensor..." : new_entry_cache.sensor->get_imgui_name(),
+                new_entry_cache.sensor == nullptr ? "Select sensor..." : new_entry_cache.sensor->get_c_str_name(),
                 0
         );
 
@@ -118,7 +118,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
             for (const auto& sensor : active_project->observe_sensors()) {
                 const bool is_selected = new_entry_cache.sensor == nullptr ? false : sensor == *new_entry_cache.sensor;
 
-                if (ImGui::Selectable(sensor.get_imgui_name(), is_selected))
+                if (ImGui::Selectable(sensor.get_c_str_name(), is_selected))
                     new_entry_cache.sensor = &sensor;
 
                 if (is_selected)
@@ -150,10 +150,10 @@ void ChannelMappingPanel::draw_existing_channel_mapping() const noexcept
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::TextUnformatted(signal.get_imgui_name());
+            ImGui::TextUnformatted(signal.get_c_str_name());
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
-            ImGui::TextUnformatted(sensor.get_imgui_name());
+            ImGui::TextUnformatted(sensor.get_c_str_name());
         }
 
         ImGui::EndTable();
