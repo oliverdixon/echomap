@@ -17,6 +17,7 @@
 #include "async/WorkerResultDespatcher.hpp"
 #include "notifications/AllNotificationsFwd.hpp"
 #include "panels/ErrorModal.hpp"
+#include "services/IRenderInvalidator.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
@@ -31,7 +32,7 @@ class Project;
  * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating
  * initialisation, game loop, interaction, and clean-up.
  */
-class EchoMap
+class EchoMap : public IRenderInvalidator
 {
 public:
     /**
@@ -56,7 +57,7 @@ public:
     /**
      * Clean up all persistent state registered by the application instance.
      */
-    virtual ~EchoMap() noexcept;
+    ~EchoMap() noexcept override;
 
     void change_active_project(std::unique_ptr<Project> new_project) noexcept;
 
@@ -69,16 +70,7 @@ public:
      */
     void notify(const Notification& notification);
 
-    /**
-     * Indicate to the renderer that the following frames should always be rendered, regardless of whether there are any
-     * new events to process.
-     *
-     * The forced frame count does not accumulate; callers may request forced frames independently. By default, we force
-     * four frames since most Dear ImGui components can fully render a four-frame cycle.
-     *
-     * @param count The number of frames to force.
-     */
-    void force_frames(unsigned int count = 4) noexcept;
+    void force_frames(unsigned int count = 4) noexcept override;
 
     EchoMap(const EchoMap&) = delete;
     EchoMap& operator=(const EchoMap&) = delete;

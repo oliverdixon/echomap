@@ -25,8 +25,8 @@ class Signal;
 class FrequencySpectrum;
 class WorkerResultDespatcher;
 class DFTResult;
-class EchoMap;
 class Worker;
+class IRenderInvalidator;
 
 /**
  * Provides an IPanel to display and interact with previews of Signal frequency spectra (i.e., Signal DFTs).
@@ -41,13 +41,13 @@ public:
      *
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
-     * @param app The parent application instance.
+     * @param invalidation_service The service to invalidate render cycles.
      * @param initial_project An optional initial Project for the IPanel to display.
      */
     explicit SignalDFTPanel(
             Worker* parent_worker,
             WorkerResultDespatcher& despatcher,
-            EchoMap* app,
+            IRenderInvalidator* invalidation_service,
             const Project* initial_project = nullptr
     );
 
@@ -118,7 +118,7 @@ private:
     ImPlotSpec plotting_spec_2d;
     Worker* parent_worker;
     const Project* active_project = nullptr;
-    EchoMap* app;
+    IRenderInvalidator* invalidation_service;
 
     /**
      * A three-way key into the FrequencySpectrum cache.

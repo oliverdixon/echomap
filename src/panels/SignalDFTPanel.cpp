@@ -9,15 +9,18 @@
 
 #include "SignalDFTPanel.hpp"
 
+#include <sigc++/functors/mem_fun.h>
+
 #include <bit>
 
-#include "../EchoMap.hpp"
 #include "../async/Worker.hpp"
+#include "../async/WorkerResultDespatcher.hpp"
 #include "../async/results/DFTResult.hpp"
 #include "../async/tasks/DFTTask.hpp"
 #include "../objects/FrequencySpectrum.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Signal.hpp"
+#include "../services/IRenderInvalidator.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/VariantHelpers.hpp"
 
@@ -27,13 +30,13 @@ namespace echomap
 SignalDFTPanel::SignalDFTPanel(
         Worker* parent_worker,
         WorkerResultDespatcher& despatcher,
-        EchoMap* app,
+        IRenderInvalidator* const invalidation_service,
         const Project* const initial_project
 ) :
     panel_name(std::string("Signal DFT Panel") + get_imgui_stable_name()),
     parent_worker(parent_worker),
     active_project(initial_project),
-    app(app)
+    invalidation_service(invalidation_service)
 {
     connections.emplace_back(despatcher.dft_finished_channel.nominate_consumer(
             sigc::mem_fun(*this, &SignalDFTPanel::handle_completed_dft)
@@ -131,7 +134,7 @@ void SignalDFTPanel::handle_completed_dft(
         if (had_no_visible_spectrum)
             reset_viewport_bounds();
 
-        app->force_frames();
+        invalidation_service->force_frames();
     }
 }
 
@@ -220,7 +223,7 @@ void SignalDFTPanel::draw_configuration_window_function() noexcept
         ImGui::EndCombo();
 
         if (!was_window_function_combo_open)
-            app->force_frames();
+            invalidation_service->force_frames();
     }
 
     was_window_function_combo_open = is_combo_open;
@@ -256,7 +259,7 @@ void SignalDFTPanel::draw_configuration_transform_size() noexcept
         ImGui::EndCombo();
 
         if (!was_transform_size_combo_open)
-            app->force_frames();
+            invalidation_service->force_frames();
     }
 
     was_transform_size_combo_open = is_combo_open;
@@ -285,7 +288,7 @@ void SignalDFTPanel::draw_configuration_preview_actions() noexcept
         spectra_cache.clear();
         update_spectrum_bounds();
         reset_viewport_bounds();
-        app->force_frames();
+        invalidation_service->force_frames();
     }
 }
 

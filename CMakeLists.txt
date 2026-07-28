@@ -107,6 +107,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/persistence/JSONDeserialiser.hpp
         src/utility/FFTRealComplex.cpp
         src/utility/FFTRealComplex.hpp
+        src/services/IRenderInvalidator.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
