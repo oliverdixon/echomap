@@ -108,10 +108,10 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/utility/FFTRealComplex.cpp
         src/utility/FFTRealComplex.hpp
         src/services/IRenderInvalidator.hpp
-        src/RenderHost.cpp
-        src/RenderHost.hpp
-        src/PanelHost.cpp
-        src/PanelHost.hpp
+        src/services/RenderHost.cpp
+        src/services/RenderHost.hpp
+        src/services/PanelHost.cpp
+        src/services/PanelHost.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

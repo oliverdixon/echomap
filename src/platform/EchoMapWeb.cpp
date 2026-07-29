@@ -18,7 +18,6 @@
 #include "../notifications/AllNotifications.hpp"
 #include "../objects/Signal.hpp"
 #include "../objects/web/PartialProject.hpp"
-#include "../panels/IProjectPanel.hpp"
 #include "../panels/web/MapSourcesModal.hpp"
 #include "../utility/Logger.hpp"
 

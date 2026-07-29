@@ -11,14 +11,14 @@
 
 #include <imgui_internal.h>
 
-#include "panels/ChannelMappingPanel.hpp"
-#include "panels/ErrorModal.hpp"
-#include "panels/IProjectPanel.hpp"
-#include "panels/MenuPanel.hpp"
-#include "panels/ProjectPanel.hpp"
-#include "panels/SensorGeometryPanel.hpp"
-#include "panels/SignalDFTPanel.hpp"
-#include "panels/SignalWaveformPanel.hpp"
+#include "../panels/ChannelMappingPanel.hpp"
+#include "../panels/ErrorModal.hpp"
+#include "../panels/IProjectPanel.hpp"
+#include "../panels/MenuPanel.hpp"
+#include "../panels/ProjectPanel.hpp"
+#include "../panels/SensorGeometryPanel.hpp"
+#include "../panels/SignalDFTPanel.hpp"
+#include "../panels/SignalWaveformPanel.hpp"
 
 namespace echomap
 {

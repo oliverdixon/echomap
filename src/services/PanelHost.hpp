@@ -40,6 +40,11 @@ public:
 
     ~PanelHost() noexcept;
 
+    PanelHost(const PanelHost&) = delete;
+    PanelHost& operator=(const PanelHost&) = delete;
+    PanelHost(PanelHost&&) = delete;
+    PanelHost& operator=(PanelHost&&) = delete;
+
     void draw_all() const;
     void reset_active_modal() noexcept;
     static void configure_default_dockspace(ImGuiID dockspace_id);

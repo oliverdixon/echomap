@@ -14,7 +14,7 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
-#include "services/IRenderInvalidator.hpp"
+#include "IRenderInvalidator.hpp"
 
 namespace echomap
 {
@@ -28,13 +28,12 @@ class RenderHost : public IRenderInvalidator
 public:
     RenderHost();
 
-    RenderHost(const RenderHost& other) = delete;
-    RenderHost& operator=(const RenderHost& other) = delete;
-
-    RenderHost(RenderHost&& other) noexcept = delete;
-    RenderHost& operator=(RenderHost&& other) noexcept = delete;
-
     ~RenderHost() noexcept override;
+
+    RenderHost(const RenderHost&) = delete;
+    RenderHost& operator=(const RenderHost&) = delete;
+    RenderHost(RenderHost&&) noexcept = delete;
+    RenderHost& operator=(RenderHost&&) noexcept = delete;
 
     void force_frames(unsigned int count) noexcept override;
 

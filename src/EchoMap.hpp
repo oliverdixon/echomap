@@ -10,11 +10,11 @@
 
 #include <sigc++/scoped_connection.h>
 
-#include "PanelHost.hpp"
-#include "RenderHost.hpp"
 #include "async/Worker.hpp"
 #include "async/WorkerResultDespatcher.hpp"
 #include "notifications/AllNotificationsFwd.hpp"
+#include "services/PanelHost.hpp"
+#include "services/RenderHost.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.

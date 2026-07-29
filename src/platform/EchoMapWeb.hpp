@@ -28,7 +28,7 @@ public:
     void run_event_loop() override;
 
     EchoMapWeb();
-    ~EchoMapWeb() override;
+    ~EchoMapWeb();
 
 protected:
     void visit_notification(Notification notification) override;
