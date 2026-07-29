@@ -9,22 +9,40 @@
 
 #include "ProjectControllerBase.hpp"
 
+#include "../async/results/LoadSignalFileResult.hpp"
 #include "../notifications/AddChannelMappingNotification.hpp"
 #include "../notifications/ModifySensorColourNotification.hpp"
 #include "../notifications/ModifySensorPositionNotification.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
+#include "../objects/Signal.hpp"
+#include "../utility/Logger.hpp"
+#include "PanelHost.hpp"
 
 namespace echomap
 {
 
-ProjectControllerBase::ProjectControllerBase() = default;
+ProjectControllerBase::ProjectControllerBase(
+        PanelHost& panel_host
+) :
+    panel_host(panel_host)
+{
+}
 
 ProjectControllerBase::~ProjectControllerBase() = default;
 
-ProjectControllerBase::ProjectControllerBase(ProjectControllerBase&&) noexcept = default;
+void ProjectControllerBase::change_active_project(
+        std::unique_ptr<Project> new_project
+)
+{
+    if (new_project == nullptr)
+        LOG_DEBUG("Clearing the active project.");
+    else
+        LOG_F_DEBUG("Changing active project to {}.", new_project->get_name());
 
-ProjectControllerBase& ProjectControllerBase::operator=(ProjectControllerBase&&) noexcept = default;
+    project = std::move(new_project);
+    panel_host.change_active_project(project.get());
+}
 
 void ProjectControllerBase::handle_notification(
         const AddChannelMappingNotification& notification
@@ -48,6 +66,20 @@ void ProjectControllerBase::handle_notification(
 {
     notification.verify_project(project.get());
     project->get_mutable_sensor(notification.sensor_id).set_position(notification.position);
+}
+
+void ProjectControllerBase::handle_result(
+        LoadSignalFileResult&& result
+)
+{
+    if (project == nullptr || result.get_project_id() != project->get_id())
+        LOG_F_WARN(
+                "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
+                result.get_project_id()
+        );
+    else
+        for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
+            project->add_signal(std::move(signal));
 }
 
 } // namespace echomap

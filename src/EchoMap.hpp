@@ -16,7 +16,12 @@
 #include "services/INotificationSink.hpp"
 #include "services/PanelHost.hpp"
 #include "services/RenderHost.hpp"
-#include "services/IProjectController.hpp"
+
+#ifdef __EMSCRIPTEN__
+#include "services/web/PartialProjectController.hpp"
+#else
+#include "services/native/FullProjectController.hpp"
+#endif
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
@@ -54,8 +59,6 @@ public:
      */
     virtual void run_event_loop() = 0;
 
-    void change_active_project(std::unique_ptr<Project> new_project) noexcept;
-
     /**
      * Submit a new Notification to the application queue.
      *
@@ -82,9 +85,9 @@ protected:
     {
         // clang-format off
         return variant_helpers::Overloaded{
-            [this](const AddChannelMappingNotification& n) { project_controller->handle_notification(n); },
-            [this](const ModifySensorColourNotification& n) { project_controller->handle_notification(n); },
-            [this](const ModifySensorPositionNotification& n) { project_controller->handle_notification(n); },
+            [this](const AddChannelMappingNotification& n) { project_controller.handle_notification(n); },
+            [this](const ModifySensorColourNotification& n) { project_controller.handle_notification(n); },
+            [this](const ModifySensorPositionNotification& n) { project_controller.handle_notification(n); },
             [this](const ProjectSelectionCompleteNotification& n) { handle_notification(n); },
             [this](const ClearErrorNotification& n) { handle_notification(n); },
         };
@@ -122,9 +125,6 @@ protected:
     void handle_notification(const ProjectSelectionCompleteNotification& notification);
     void handle_notification(const ClearErrorNotification& notification);
 
-    virtual void handle_result(LoadProjectResult&& result);
-    virtual void handle_result(LoadSignalFileResult&& result);
-
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
     Worker worker;                     /**< Multi-threaded worker for scheduling heavy computation tasks. */
@@ -134,10 +134,14 @@ protected:
     std::deque<Notification> notification_queue; /**< FIFO queue for Notification objects. */
     std::unique_ptr<Project> project;            /**< Owning container for the active Project. */
 
-    std::unique_ptr<IProjectController> project_controller; // TODO doesn't need to be polymorphic.
-
     RenderHost render_host;
     PanelHost panel_host;
+
+#ifdef __EMSCRIPTEN__
+    PartialProjectController project_controller;
+#else
+    FullProjectController project_controller;
+#endif
 
     // NOLINTEND(*-non-private-member-variables-in-classes)
 };

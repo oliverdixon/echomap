@@ -139,6 +139,8 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/panels/web/IWebPanel.hpp
             src/objects/persistence/web/JSONPartialDeserialiser.cpp
             src/objects/persistence/web/JSONPartialDeserialiser.hpp
+            src/services/web/PartialProjectController.cpp
+            src/services/web/PartialProjectController.hpp
     )
 endif ()
 
@@ -156,6 +158,8 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/panels/native/FilesystemCombo.hpp
             src/objects/persistence/native/JSONFullDeserialiser.cpp
             src/objects/persistence/native/JSONFullDeserialiser.hpp
+            src/services/native/FullProjectController.cpp
+            src/services/native/FullProjectController.hpp
     )
 endif ()
 

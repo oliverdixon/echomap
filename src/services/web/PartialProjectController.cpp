@@ -1,0 +1,148 @@
+/**
+ * @file
+ *
+ * PartialProjectController implementation
+ *
+ * @author Oliver Dixon
+ * @date 2026-07-29
+ */
+
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
+#include "PartialProjectController.hpp"
+
+#include "../../async/Worker.hpp"
+#include "../../async/results/LoadProjectResult.hpp"
+#include "../../async/results/LoadSignalFileResult.hpp"
+#include "../../async/tasks/LoadSignalFileTask.hpp"
+#include "../../errors/IgnoredWarning.hpp"
+#include "../../notifications/web/CancelProjectLoadNotification.hpp"
+#include "../../notifications/web/CompleteProjectLoadNotification.hpp"
+#include "../../notifications/web/RegisterVFSMappingNotification.hpp"
+#include "../../objects/web/PartialProject.hpp"
+#include "../../panels/web/MapSourcesModal.hpp"
+#include "../../utility/Logger.hpp"
+#include "../PanelHost.hpp"
+
+namespace echomap
+{
+
+PartialProjectController::PartialProjectController(
+        PanelHost& panel_host,
+        INotificationSink& notification_sink,
+        Worker& worker
+) :
+    ProjectControllerBase(panel_host),
+    worker(worker),
+    notification_sink(notification_sink)
+{
+}
+
+PartialProjectController::~PartialProjectController() = default;
+
+void PartialProjectController::handle_notification(
+        const CancelProjectLoadNotification& notification
+)
+{
+    notification.verify_project(partial_project.get());
+
+    panel_host.reset_active_modal();
+    partial_project.reset();
+}
+
+void PartialProjectController::handle_notification(
+        const CompleteProjectLoadNotification& notification
+) const
+{
+    notification.verify_project(partial_project.get());
+
+    // For each group, create a worker notification to load the corresponding file.
+
+    for (auto&& [vfs_path, factories] : partial_project->take_unloaded_factories()) {
+
+        if (!vfs_path.has_value())
+            throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
+
+        // Once these notifications return, if everything is loaded correctly, we'll change the active project.
+        worker.submit(std::make_unique<LoadSignalFileTask>(partial_project->get_id(), *vfs_path, std::move(factories)));
+    }
+
+    panel_host.reset_active_modal();
+}
+
+void PartialProjectController::handle_notification(
+        RegisterVFSMappingNotification& notification
+) const
+{
+    notification.verify_project(partial_project.get());
+
+    try {
+        partial_project->add_vfs_mapping_for_unavailable_signal(
+                notification.external,
+                std::move(notification.internal)
+        );
+    } catch (const std::runtime_error&) {
+        throw IgnoredWarning(
+                std::format(
+                        "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
+                        notification.external.c_str()
+                )
+        );
+    }
+}
+
+void PartialProjectController::handle_result(
+        LoadProjectResult&& result
+)
+{
+    if (panel_host.is_modal_shown()) {
+        LOG_WARN("Ignoring request to change active Project since there is an active modal.");
+        return;
+    }
+
+    auto&& new_project = std::move(result).take_project();
+
+    if (!new_project->observe_unloaded_signals().empty()) {
+        // Raise the modal to query for the sources.
+        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(notification_sink, new_project.get()));
+        partial_project = std::move(new_project);
+    } else
+        change_active_project(std::move(new_project));
+}
+
+void PartialProjectController::handle_result(
+        LoadSignalFileResult&& result
+)
+{
+    Project* target = nullptr;
+
+    // Determine whether the result relates to a Signal bound to the active Project or the unloaded Project.
+
+    if (project != nullptr && result.get_project_id() == project->get_id())
+        target = project.get();
+    else if (partial_project != nullptr && result.get_project_id() == partial_project->get_id())
+        target = partial_project.get();
+
+    if (target == nullptr) {
+        LOG_F_WARN(
+                "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
+                result.get_project_id()
+        );
+
+        return;
+    }
+
+    // Add the signals to the target Project.
+
+    for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
+        target->add_signal(std::move(signal));
+
+    // If it was an unloaded Project, and all signals are now loaded, it can become the active Project.
+
+    if (target == partial_project.get() && partial_project->observe_unloaded_signals().empty())
+        change_active_project(std::move(partial_project));
+}
+
+} // namespace echomap
+
+#endif // __EMSCRIPTEN__

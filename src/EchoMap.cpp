@@ -7,27 +7,21 @@
 
 #include "EchoMap.hpp"
 
-#include <imgui_impl_glfw.h>
 #include <sigc++/adaptors/bind.h>
 
 #include "async/tasks/LoadProjectTask.hpp"
 #include "errors/IgnoredWarning.hpp"
 #include "notifications/AllNotifications.hpp"
 #include "objects/Project.hpp"
-#include "objects/Sensor.hpp"
 #include "objects/Signal.hpp"
 #include "utility/Logger.hpp"
-
-#ifdef __EMSCRIPTEN__
-#include "objects/web/PartialProject.hpp"
-#endif
 
 namespace echomap
 {
 
 EchoMap::EchoMap() :
     worker{[] {
-#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+#ifndef __EMSCRIPTEN__
         glfwPostEmptyEvent();
 #endif
     }},
@@ -35,12 +29,39 @@ EchoMap::EchoMap() :
             worker,
             despatcher,
             render_host
+    ),
+#ifdef __EMSCRIPTEN__
+    project_controller(
+            panel_host,
+            *this,
+            worker
     )
+#else
+    project_controller(panel_host)
+#endif
 {
     setup_subscriptions();
 }
 
 EchoMap::~EchoMap() noexcept = default;
+
+void EchoMap::notify(
+        Notification&& notification
+)
+{
+    notification_queue.emplace_back(std::move(notification));
+
+    /*
+     * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess
+     * effort to quickly discriminate o notification without adding bloat to their structures.
+     */
+    LOG_F_DEBUG(
+            "Scheduling {} with hint {} at position {}.",
+            NotificationNames::indexed_names[notification_queue.back().index()],
+            static_cast<void*>(&notification_queue.back()),
+            notification_queue.size() - 1
+    );
+}
 
 void EchoMap::tick()
 {
@@ -52,14 +73,20 @@ void EchoMap::setup_subscriptions()
 {
     // NOLINTBEGIN(*-redundant-casting) - False positive; casts are required for libsigcpp to resolve overloads.
 
-    connections.emplace_back(
-            despatcher.load_project_finished_channel.nominate_consumer(
-            sigc::mem_fun(*this, static_cast<void (EchoMap::*)(LoadProjectResult&&)>(&EchoMap::handle_result))
+    connections.emplace_back(despatcher.load_project_finished_channel.nominate_consumer(
+            sigc::mem_fun(
+                    project_controller,
+                    static_cast<void (IProjectController::*)(LoadProjectResult&&)>(&IProjectController::handle_result)
+            )
     ));
 
-    connections.emplace_back(
-            despatcher.load_signal_file_channel.nominate_consumer(
-            sigc::mem_fun(*this, static_cast<void (EchoMap::*)(LoadSignalFileResult&&)>(&EchoMap::handle_result))
+    connections.emplace_back(despatcher.load_signal_file_channel.nominate_consumer(
+            sigc::mem_fun(
+                    project_controller,
+                    static_cast<void (IProjectController::*)(LoadSignalFileResult&&)>(
+                            &IProjectController::handle_result
+                    )
+            )
     ));
 
     // NOLINTEND(*-redundant-casting)
@@ -118,63 +145,6 @@ void EchoMap::handle_notification(
 {
     std::ignore = notification;
     panel_host.clear_error();
-}
-
-void EchoMap::handle_result(
-        LoadProjectResult&& result
-)
-{
-    if (panel_host.is_modal_shown()) {
-        LOG_WARN("Ignoring request to change active Project since there is an active modal.");
-        return;
-    }
-
-    change_active_project(std::move(std::move(result).take_project()));
-}
-
-void EchoMap::handle_result(
-        LoadSignalFileResult&& result
-)
-{
-    if (project == nullptr || result.get_project_id() != project->get_id())
-        LOG_F_WARN(
-                "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
-                result.get_project_id()
-        );
-    else
-        for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
-            project->add_signal(std::move(signal));
-}
-
-void EchoMap::change_active_project(
-        std::unique_ptr<Project> new_project
-) noexcept
-{
-    if (new_project == nullptr)
-        LOG_DEBUG("Clearing the active project.");
-    else
-        LOG_F_DEBUG("Changing active project to {}.", new_project->get_name());
-
-    project = std::move(new_project);
-    panel_host.change_active_project(project.get());
-}
-
-void EchoMap::notify(
-        Notification&& notification
-)
-{
-    notification_queue.emplace_back(std::move(notification));
-
-    /*
-     * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess
-     * effort to quickly discriminate o notification without adding bloat to their structures.
-     */
-    LOG_F_DEBUG(
-            "Scheduling {} with hint {} at position {}.",
-            NotificationNames::indexed_names[notification_queue.back().index()],
-            static_cast<void*>(&notification_queue.back()),
-            notification_queue.size() - 1
-    );
 }
 
 } // namespace echomap
