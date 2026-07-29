@@ -76,18 +76,14 @@ void EchoMap::setup_subscriptions()
     connections.emplace_back(despatcher.load_project_finished_channel.nominate_consumer(
             sigc::mem_fun(
                     project_controller,
-                    static_cast<void (ProjectControllerBase::*)(LoadProjectResult&&)>(
-                            &ProjectControllerBase::handle_result
-                    )
+                    static_cast<void (ProjectController::*)(LoadProjectResult&&)>(&ProjectController::handle_result)
             )
     ));
 
     connections.emplace_back(despatcher.load_signal_file_channel.nominate_consumer(
             sigc::mem_fun(
                     project_controller,
-                    static_cast<void (ProjectControllerBase::*)(LoadSignalFileResult&&)>(
-                            &ProjectControllerBase::handle_result
-                    )
+                    static_cast<void (ProjectController::*)(LoadSignalFileResult&&)>(&ProjectController::handle_result)
             )
     ));
 

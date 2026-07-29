@@ -115,6 +115,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/INotificationSink.hpp
         src/services/ProjectControllerBase.cpp
         src/services/ProjectControllerBase.hpp
+        src/services/ProjectController.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

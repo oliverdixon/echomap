@@ -16,12 +16,7 @@
 #include "services/INotificationSink.hpp"
 #include "services/PanelHost.hpp"
 #include "services/RenderHost.hpp"
-
-#ifdef __EMSCRIPTEN__
-#include "services/web/PartialProjectController.hpp"
-#else
-#include "services/native/FullProjectController.hpp"
-#endif
+#include "services/ProjectController.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
@@ -136,12 +131,7 @@ protected:
 
     RenderHost render_host;
     PanelHost panel_host;
-
-#ifdef __EMSCRIPTEN__
-    PartialProjectController project_controller;
-#else
-    FullProjectController project_controller;
-#endif
+    ProjectController project_controller;
 
     // NOLINTEND(*-non-private-member-variables-in-classes)
 };

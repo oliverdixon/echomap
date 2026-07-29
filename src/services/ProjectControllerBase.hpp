@@ -27,14 +27,13 @@ class LoadProjectResult;
 /**
  * Base implementation for controllers requiring direct access to a Project, implementing the base set of Notification
  * and WorkerResult handlers.
- *
- * @todo Should be CRTP.
  */
+template<class Derived>
 class ProjectControllerBase
 {
 public:
     explicit ProjectControllerBase(PanelHost& panel_host);
-    virtual ~ProjectControllerBase();
+    ~ProjectControllerBase() noexcept;
 
     ProjectControllerBase(const ProjectControllerBase&) = delete;
     ProjectControllerBase& operator=(const ProjectControllerBase&) = delete;
@@ -48,12 +47,16 @@ public:
     void handle_notification(const ModifySensorColourNotification& notification) const;
     void handle_notification(const ModifySensorPositionNotification& notification) const;
 
-    virtual void handle_result(LoadProjectResult&& result) = 0;
-    virtual void handle_result(LoadSignalFileResult&& result);
+    void handle_result(LoadProjectResult&& result);
+    void handle_result(LoadSignalFileResult&& result);
 
 protected:
+    // NOLINTBEGIN(*-non-private-member-variables-in-classes)
+
     PanelHost& panel_host;
-    std::unique_ptr<Project> project; // NOLINT(*-non-private-member-variables-in-classes)
+    std::unique_ptr<Project> project;
+
+    // NOLINTEND(*-non-private-member-variables-in-classes)
 };
 
 } // namespace echomap

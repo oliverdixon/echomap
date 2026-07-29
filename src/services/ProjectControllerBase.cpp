@@ -15,23 +15,30 @@
 #include "../notifications/ModifySensorPositionNotification.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
-#include "../objects/Signal.hpp"
 #include "../utility/Logger.hpp"
 #include "PanelHost.hpp"
+
+#ifdef __EMSCRIPTEN__
+#include "web/PartialProjectController.hpp"
+#else
+#include "native/FullProjectController.hpp"
+#endif // __EMSCRIPTEN__
 
 namespace echomap
 {
 
-ProjectControllerBase::ProjectControllerBase(
+template <class Derived>
+ProjectControllerBase<Derived>::ProjectControllerBase(
         PanelHost& panel_host
 ) :
     panel_host(panel_host)
 {
 }
 
-ProjectControllerBase::~ProjectControllerBase() = default;
+template <class Derived> ProjectControllerBase<Derived>::~ProjectControllerBase() noexcept = default;
 
-void ProjectControllerBase::change_active_project(
+template <class Derived>
+void ProjectControllerBase<Derived>::change_active_project(
         std::unique_ptr<Project> new_project
 )
 {
@@ -44,7 +51,8 @@ void ProjectControllerBase::change_active_project(
     panel_host.change_active_project(project.get());
 }
 
-void ProjectControllerBase::handle_notification(
+template <class Derived>
+void ProjectControllerBase<Derived>::handle_notification(
         const AddChannelMappingNotification& notification
 ) const
 {
@@ -52,7 +60,8 @@ void ProjectControllerBase::handle_notification(
     project->add_association(notification.signal_id, notification.sensor_id);
 }
 
-void ProjectControllerBase::handle_notification(
+template <class Derived>
+void ProjectControllerBase<Derived>::handle_notification(
         const ModifySensorColourNotification& notification
 ) const
 {
@@ -60,7 +69,8 @@ void ProjectControllerBase::handle_notification(
     project->get_mutable_sensor(notification.sensor_id).set_colour(notification.colour);
 }
 
-void ProjectControllerBase::handle_notification(
+template <class Derived>
+void ProjectControllerBase<Derived>::handle_notification(
         const ModifySensorPositionNotification& notification
 ) const
 {
@@ -68,18 +78,26 @@ void ProjectControllerBase::handle_notification(
     project->get_mutable_sensor(notification.sensor_id).set_position(notification.position);
 }
 
-void ProjectControllerBase::handle_result(
+template <class Derived>
+void ProjectControllerBase<Derived>::handle_result(
+        LoadProjectResult&& result
+)
+{
+    static_cast<Derived*>(this)->handle_result_impl(std::move(result));
+}
+
+template <class Derived>
+void ProjectControllerBase<Derived>::handle_result(
         LoadSignalFileResult&& result
 )
 {
-    if (project == nullptr || result.get_project_id() != project->get_id())
-        LOG_F_WARN(
-                "Dropping LoadSignalFileResult, which was intended for the unavailable Project with ID {}.",
-                result.get_project_id()
-        );
-    else
-        for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
-            project->add_signal(std::move(signal));
+    static_cast<Derived*>(this)->handle_result_impl(std::move(result));
 }
+
+#ifdef __EMSCRIPTEN__
+template class ProjectControllerBase<PartialProjectController>;
+#else
+template class ProjectControllerBase<FullProjectController>;
+#endif // __EMSCRIPTEN__
 
 } // namespace echomap

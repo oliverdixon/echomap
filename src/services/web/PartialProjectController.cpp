@@ -38,7 +38,7 @@ PartialProjectController::PartialProjectController(
 {
 }
 
-PartialProjectController::~PartialProjectController() = default;
+PartialProjectController::~PartialProjectController() noexcept = default;
 
 void PartialProjectController::handle_notification(
         const CancelProjectLoadNotification& notification
@@ -91,7 +91,7 @@ void PartialProjectController::handle_notification(
     }
 }
 
-void PartialProjectController::handle_result(
+void PartialProjectController::handle_result_impl(
         LoadProjectResult&& result
 )
 {
@@ -110,7 +110,7 @@ void PartialProjectController::handle_result(
         change_active_project(std::move(new_project));
 }
 
-void PartialProjectController::handle_result(
+void PartialProjectController::handle_result_impl(
         LoadSignalFileResult&& result
 )
 {

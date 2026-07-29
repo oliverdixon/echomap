@@ -20,12 +20,12 @@ namespace echomap
 /**
  * @todo Document
  */
-class FullProjectController : public ProjectControllerBase
+class FullProjectController : public ProjectControllerBase<FullProjectController>
 {
 public:
     explicit FullProjectController(PanelHost& panel_host);
 
-    ~FullProjectController() override;
+    ~FullProjectController() noexcept;
 
     FullProjectController(const FullProjectController&) = delete;
     FullProjectController& operator=(const FullProjectController&) = delete;
@@ -33,7 +33,11 @@ public:
     FullProjectController(FullProjectController&&) = delete;
     FullProjectController& operator=(FullProjectController&&) = delete;
 
-    void handle_result(LoadProjectResult&& result) override;
+private:
+    friend ProjectControllerBase;
+
+    void handle_result_impl(LoadProjectResult&& result);
+    void handle_result_impl(LoadSignalFileResult&& result) const;
 };
 
 } // namespace echomap

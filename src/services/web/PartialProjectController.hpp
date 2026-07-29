@@ -28,7 +28,7 @@ struct CancelProjectLoadNotification;
 /**
  * @todo Document
  */
-class PartialProjectController : public ProjectControllerBase
+class PartialProjectController : public ProjectControllerBase<PartialProjectController>
 {
 public:
     explicit PartialProjectController(
@@ -37,7 +37,7 @@ public:
             Worker& worker
     );
 
-    ~PartialProjectController() override;
+    ~PartialProjectController() noexcept;
 
     PartialProjectController(const PartialProjectController&) = delete;
     PartialProjectController& operator=(const PartialProjectController&) = delete;
@@ -51,10 +51,12 @@ public:
     void handle_notification(const CompleteProjectLoadNotification& notification) const;
     void handle_notification(RegisterVFSMappingNotification& notification) const;
 
-    void handle_result(LoadProjectResult&& result) override;
-    void handle_result(LoadSignalFileResult&& result) override;
-
 private:
+    friend ProjectControllerBase;
+
+    void handle_result_impl(LoadProjectResult&& result);
+    void handle_result_impl(LoadSignalFileResult&& result);
+
     std::unique_ptr<PartialProject> partial_project;
     Worker& worker;
     INotificationSink& notification_sink;
