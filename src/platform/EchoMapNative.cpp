@@ -52,18 +52,16 @@ void EchoMapNative::handle_notification(
         RaiseFileChooserNotification& notification
 )
 {
-    if (panel_host.is_modal_shown()) {
+    if (panel_host.is_modal_shown())
         LOG_WARN("Ignoring request to raise file chooser since there is an active modal.");
-        return;
-    }
-
-#if 0 // TODO
-    active_modal = std::make_unique<FileChooser>(
-            this,
-            std::move(notification.success_callback),
-            std::move(notification.cancelled_callback)
-    );
-#endif
+    else
+        panel_host.change_active_modal(
+                std::make_unique<FileChooser>(
+                        render_host,
+                        std::move(notification.success_callback),
+                        std::move(notification.cancelled_callback)
+                )
+        );
 }
 
 } // namespace echomap

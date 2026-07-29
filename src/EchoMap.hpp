@@ -13,6 +13,7 @@
 #include "async/Worker.hpp"
 #include "async/WorkerResultDespatcher.hpp"
 #include "notifications/AllNotificationsFwd.hpp"
+#include "services/INotificationSink.hpp"
 #include "services/PanelHost.hpp"
 #include "services/RenderHost.hpp"
 
@@ -28,7 +29,7 @@ class Project;
  * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating
  * initialisation, game loop, interaction, and clean-up.
  */
-class EchoMap
+class EchoMap : public INotificationSink
 {
 public:
     /**
@@ -42,7 +43,7 @@ public:
      */
     EchoMap();
 
-    ~EchoMap() noexcept;
+    ~EchoMap() noexcept override;
 
     /**
      * Runs the platform-dependent event loop to manage and propagate interaction with the EchoMap application.
@@ -61,7 +62,7 @@ public:
      *
      * @param notification The Notification to schedule.
      */
-    void notify(const Notification& notification);
+    void notify(Notification&& notification) override;
 
     EchoMap(const EchoMap&) = delete;
     EchoMap& operator=(const EchoMap&) = delete;

@@ -35,14 +35,11 @@ public:
     /**
      * Create a new FileChooser modal for the given EchoMap instance.
      *
-     * @param app The owning EchoMap instance.
-     * @param invalidator TODO
-     *
+     * @param invalidator Service for invalidating frames.
      * @param success_callback The slot to invoke with the path once a file has been selected.
      * @param cancelled_callback The slot to invoke if the operation is cancelled.
      */
     explicit FileChooser(
-            EchoMap* app,
             IRenderInvalidator& invalidator,
             RaiseFileChooserNotification::SuccessCallbackT&& success_callback,
             RaiseFileChooserNotification::CancelledCallbackT&& cancelled_callback
@@ -65,7 +62,6 @@ private:
 
     std::string panel_name;
     bool is_open = false;
-    EchoMap* app;
     RaiseFileChooserNotification::SuccessCallbackT success_callback;
     RaiseFileChooserNotification::CancelledCallbackT cancelled_callback;
 };

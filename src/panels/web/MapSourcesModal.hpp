@@ -18,7 +18,7 @@
 namespace echomap
 {
 
-class EchoMap;
+class INotificationSink;
 class SignalFactory;
 
 template <class Range>
@@ -35,7 +35,7 @@ class MapSourcesModal final : public IWebPanel
 {
 public:
     explicit MapSourcesModal(
-            EchoMap* app,
+            INotificationSink& notification_sink,
             const PartialProject* project
     );
 
@@ -72,9 +72,9 @@ private:
     void draw_buttons(bool are_all_mapped);
 
     std::string panel_name;
-    EchoMap* app;
     const PartialProject* project;
     bool should_open = true;
+    INotificationSink& notification_sink;
 };
 
 } // namespace echomap

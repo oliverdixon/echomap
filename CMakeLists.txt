@@ -112,6 +112,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/RenderHost.hpp
         src/services/PanelHost.cpp
         src/services/PanelHost.hpp
+        src/services/INotificationSink.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

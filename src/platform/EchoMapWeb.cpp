@@ -60,9 +60,7 @@ void EchoMapWeb::handle_result(
 
     if (!new_project->observe_unloaded_signals().empty()) {
         // Raise the modal to query for the sources.
-#if 0 // TODO
-        active_modal = std::make_unique<MapSourcesModal>(this, new_project.get());
-#endif
+        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(*this, new_project.get()));
         unloaded_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));

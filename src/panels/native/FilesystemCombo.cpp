@@ -22,10 +22,8 @@ namespace echomap
 {
 
 FilesystemCombo::FilesystemCombo(
-        EchoMap* const app,
         IRenderInvalidator& invalidator
 ) :
-    app(app),
     invalidator(invalidator)
 {
     std::error_code error_code;

@@ -184,10 +184,10 @@ void EchoMap::change_active_project(
 }
 
 void EchoMap::notify(
-        const Notification& notification
+        Notification&& notification
 )
 {
-    notification_queue.emplace_back(notification);
+    notification_queue.emplace_back(std::move(notification));
 
     /*
      * The address is just a "hint" (as opposed to an ID) because the queue might be re-allocated. It's a best-guess

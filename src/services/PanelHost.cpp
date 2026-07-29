@@ -57,6 +57,13 @@ void PanelHost::reset_active_modal() noexcept
     active_modal.reset();
 }
 
+void PanelHost::change_active_modal(
+        std::unique_ptr<IPanel> modal
+) noexcept
+{
+    active_modal = std::move(modal);
+}
+
 void PanelHost::configure_default_dockspace(
         const ImGuiID dockspace_id
 )

@@ -23,7 +23,6 @@ public:
 
     IRenderInvalidator(const IRenderInvalidator&) = default;
     IRenderInvalidator& operator=(const IRenderInvalidator&) = default;
-
     IRenderInvalidator(IRenderInvalidator&&) = default;
     IRenderInvalidator& operator=(IRenderInvalidator&&) = default;
 

@@ -15,17 +15,12 @@ namespace echomap
 {
 
 FileChooser::FileChooser(
-        EchoMap* const app,
         IRenderInvalidator& invalidator,
         RaiseFileChooserNotification::SuccessCallbackT&& success_callback,
         RaiseFileChooserNotification::CancelledCallbackT&& cancelled_callback
 ) :
-    file_combo(
-            app,
-            invalidator
-    ),
+    file_combo(invalidator),
     panel_name(std::string("Select File to Open") + get_imgui_stable_name()),
-    app(app),
     success_callback(std::move(success_callback)),
     cancelled_callback(std::move(cancelled_callback))
 {

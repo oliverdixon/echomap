@@ -59,7 +59,7 @@ namespace echomap
  */
 template <typename Derived> class ActionControllerBase
 {
-    using CallbackT = sigc::slot<void(const Notification&)>;
+    using CallbackT = sigc::slot<void(Notification&&)>;
     static CallbackT callback;
 
 public:

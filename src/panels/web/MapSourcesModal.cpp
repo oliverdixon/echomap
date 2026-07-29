@@ -9,22 +9,22 @@
 
 #include "MapSourcesModal.hpp"
 
-#include "../../EchoMap.hpp"
 #include "../../actions/ActionController.hpp"
 #include "../../notifications/AllNotifications.hpp"
-#include "../../objects/web/PartialProject.hpp"
 #include "../../objects/factories/SignalFactory.hpp"
+#include "../../objects/web/PartialProject.hpp"
+#include "../../services/INotificationSink.hpp"
 
 namespace echomap
 {
 
 MapSourcesModal::MapSourcesModal(
-        EchoMap* const app,
+        INotificationSink& notification_sink,
         const PartialProject* const project
 ) :
     panel_name(std::string("Upload External Files") + get_imgui_stable_name()),
-    app(app),
-    project(project)
+    project(project),
+    notification_sink(notification_sink)
 {
 }
 
@@ -130,7 +130,7 @@ void MapSourcesModal::draw_buttons(
     ImGui::Spacing();
 
     if (ImGui::Button("Cancel", button_size)) {
-        app->notify(CancelProjectLoadNotification(project->get_id()));
+        notification_sink.notify(CancelProjectLoadNotification(project->get_id()));
         ImGui::CloseCurrentPopup();
         should_open = false;
     }
@@ -139,7 +139,7 @@ void MapSourcesModal::draw_buttons(
 
     if (are_all_mapped) {
         if (ImGui::Button("Continue", button_size)) {
-            app->notify(CompleteProjectLoadNotification(project->get_id()));
+            notification_sink.notify(CompleteProjectLoadNotification(project->get_id()));
             ImGui::CloseCurrentPopup();
         }
     } else {
