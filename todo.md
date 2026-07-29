@@ -1,12 +1,9 @@
 # TODO
 
-## Short Term
+## Architecture branch
 
-1. Introduce injected platform service interfaces.
-
-2. Extract ProjectController from EchoMap.
-
-3. Extract RenderHost and AppShell once the seams exist.
+1. Complete work in MapSourcesModal.
+2. Remove web-only notifications; they can be replaced with callback slots provided to MapSourcesModal constructor.
 
 ## Medium/Long Term
 
@@ -31,5 +28,3 @@
   * Used by Audacity (`aup3`) for similar data.
   * There is a well-regarded C++ library: https://github.com/fnc12/sqlite_orm (also on vcpkg)
   * Suited for binary blobs and relational structure.
-
-* Give the worker a richer job model.

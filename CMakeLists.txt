@@ -85,10 +85,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/async/tasks/LoadSignalFileTask.hpp
         src/async/results/LoadSignalFileResult.cpp
         src/async/results/LoadSignalFileResult.hpp
-        src/actions/ActionController.hpp
-        src/actions/ActionControllerBase.hpp
-        src/StaticInstanceController.cpp
-        src/StaticInstanceController.hpp
         src/errors/IgnoredWarning.cpp
         src/errors/IgnoredWarning.hpp
         src/notifications/ProjectSelectionCompleteNotification.hpp
@@ -117,15 +113,11 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/ProjectControllerBase.hpp
         src/services/ProjectController.hpp
         src/services/IProjectFilePicker.hpp
-        src/services/web/WebProjectFilePicker.cpp
-        src/services/web/WebProjectFilePicker.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     # WebAssembly/Emscripten-only translation units.
     target_sources(DummyTarget PRIVATE
-            src/actions/JSActionController.cpp
-            src/actions/JSActionController.hpp
             src/platform/EchoMapWeb.cpp
             src/platform/EchoMapWeb.hpp
             src/notifications/web/RegisterVFSMappingNotification.hpp
@@ -144,14 +136,16 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/objects/persistence/web/JSONPartialDeserialiser.hpp
             src/services/web/PartialProjectController.cpp
             src/services/web/PartialProjectController.hpp
+            src/services/web/WebProjectFilePicker.cpp
+            src/services/web/WebProjectFilePicker.hpp
+            src/services/web/VFSPicker.cpp
+            src/services/web/VFSPicker.hpp
     )
 endif ()
 
 if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     # Native-only translation units.
     target_sources(DummyTarget PRIVATE
-            src/actions/NativeActionController.cpp
-            src/actions/NativeActionController.hpp
             src/platform/EchoMapNative.cpp
             src/platform/EchoMapNative.hpp
             src/panels/native/FileChooser.cpp

@@ -23,6 +23,7 @@
 #include "../../panels/web/MapSourcesModal.hpp"
 #include "../../utility/Logger.hpp"
 #include "../PanelHost.hpp"
+#include "VFSPicker.hpp"
 #include "WebProjectFilePicker.hpp"
 
 namespace echomap
@@ -38,6 +39,7 @@ PartialProjectController::PartialProjectController(
             std::make_unique<WebProjectFilePicker>(),
             worker
     ),
+    vfs_picker(std::make_unique<VFSPicker>()),
     worker(worker),
     notification_sink(notification_sink)
 {

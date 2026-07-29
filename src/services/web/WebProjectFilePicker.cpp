@@ -47,19 +47,6 @@ EM_JS(void,
           }
       });
 
-EM_JS(void,
-      register_vfs_mapping,
-      (std::size_t project_id,
-       const char * external),
-      {
-          if (Module.echomapOpenVFSFileMapper) {
-              const externalPath = UTF8ToString(external);
-              Module.echomapOpenVFSFileMapper(project_id, externalPath);
-          } else {
-              console.error("Module.echomapOpenVFSFileMapper is not installed.");
-          }
-      });
-
 #pragma clang diagnostic pop
 
 } // namespace js
@@ -111,7 +98,7 @@ int WebProjectFilePicker::complete_project_file_pick(
 
     const auto callback = std::move(instance->success_callback);
     instance->success_callback = {};
-    instance->success_callback = {};
+    instance->cancelled_callback = {};
 
     if (callback)
         callback(selected_path);

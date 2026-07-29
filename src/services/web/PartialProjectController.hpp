@@ -20,6 +20,7 @@ namespace echomap
 class INotificationSink;
 class PartialProject;
 class Worker;
+class VFSPicker;
 
 struct RegisterVFSMappingNotification;
 struct CompleteProjectLoadNotification;
@@ -56,6 +57,7 @@ public:
 
 private:
     std::unique_ptr<PartialProject> partial_project;
+    std::unique_ptr<VFSPicker> vfs_picker;
     Worker& worker;
     INotificationSink& notification_sink;
 };

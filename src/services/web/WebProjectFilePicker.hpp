@@ -15,11 +15,6 @@
 #include "../IProjectFilePicker.hpp"
 
 extern "C" int echomap_on_project_file_picked(const char* path) noexcept;
-extern "C" int echomap_on_register_vfs_mapping(
-        std::size_t,
-        const char*,
-        const char*
-) noexcept;
 
 namespace echomap
 {
@@ -40,11 +35,6 @@ public:
 
 private:
     friend int ::echomap_on_project_file_picked(const char* path) noexcept;
-    friend int ::echomap_on_register_vfs_mapping(
-            std::size_t,
-            const char*,
-            const char*
-    ) noexcept;
 
     static int complete_project_file_pick(const char * path) noexcept;
 
