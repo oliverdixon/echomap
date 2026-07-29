@@ -21,6 +21,7 @@ namespace echomap
 class INotificationSink
 {
 public:
+    INotificationSink() = default;
     virtual ~INotificationSink() = default;
 
     INotificationSink(const INotificationSink&) = default;

@@ -16,6 +16,7 @@
 #include "services/INotificationSink.hpp"
 #include "services/PanelHost.hpp"
 #include "services/RenderHost.hpp"
+#include "services/IProjectController.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
@@ -81,9 +82,9 @@ protected:
     {
         // clang-format off
         return variant_helpers::Overloaded{
-            [this](const AddChannelMappingNotification& n) { handle_notification(n); },
-            [this](const ModifySensorColourNotification& n) { handle_notification(n); },
-            [this](const ModifySensorPositionNotification& n) { handle_notification(n); },
+            [this](const AddChannelMappingNotification& n) { project_controller->handle_notification(n); },
+            [this](const ModifySensorColourNotification& n) { project_controller->handle_notification(n); },
+            [this](const ModifySensorPositionNotification& n) { project_controller->handle_notification(n); },
             [this](const ProjectSelectionCompleteNotification& n) { handle_notification(n); },
             [this](const ClearErrorNotification& n) { handle_notification(n); },
         };
@@ -118,9 +119,6 @@ protected:
      */
     void process_worker_results();
 
-    void handle_notification(const AddChannelMappingNotification& notification) const;
-    void handle_notification(const ModifySensorColourNotification& notification) const;
-    void handle_notification(const ModifySensorPositionNotification& notification) const;
     void handle_notification(const ProjectSelectionCompleteNotification& notification);
     void handle_notification(const ClearErrorNotification& notification);
 
@@ -135,6 +133,8 @@ protected:
 
     std::deque<Notification> notification_queue; /**< FIFO queue for Notification objects. */
     std::unique_ptr<Project> project;            /**< Owning container for the active Project. */
+
+    std::unique_ptr<IProjectController> project_controller; // TODO doesn't need to be polymorphic.
 
     RenderHost render_host;
     PanelHost panel_host;

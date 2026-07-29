@@ -103,30 +103,6 @@ void EchoMap::process_worker_results()
 }
 
 void EchoMap::handle_notification(
-        const AddChannelMappingNotification& notification
-) const
-{
-    notification.verify_project(project.get());
-    project->add_association(notification.signal_id, notification.sensor_id);
-}
-
-void EchoMap::handle_notification(
-        const ModifySensorColourNotification& notification
-) const
-{
-    notification.verify_project(project.get());
-    project->get_mutable_sensor(notification.sensor_id).set_colour(notification.colour);
-}
-
-void EchoMap::handle_notification(
-        const ModifySensorPositionNotification& notification
-) const
-{
-    notification.verify_project(project.get());
-    project->get_mutable_sensor(notification.sensor_id).set_position(notification.position);
-}
-
-void EchoMap::handle_notification(
         const ProjectSelectionCompleteNotification& notification
 )
 {
