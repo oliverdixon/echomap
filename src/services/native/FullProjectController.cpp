@@ -30,7 +30,7 @@ FullProjectController::FullProjectController(
 
 FullProjectController::~FullProjectController() noexcept = default;
 
-void FullProjectController::handle_result_impl(
+void FullProjectController::handle_result(
         LoadProjectResult&& result
 )
 {
@@ -40,9 +40,9 @@ void FullProjectController::handle_result_impl(
         change_active_project(std::move(result).take_project());
 }
 
-void FullProjectController::handle_result_impl(
+void FullProjectController::handle_result(
         LoadSignalFileResult&& result
-) const
+)
 {
     if (project == nullptr || result.get_project_id() != project->get_id())
         LOG_F_WARN(
@@ -55,6 +55,5 @@ void FullProjectController::handle_result_impl(
 }
 
 } // namespace echomap
-
 
 #endif // __EMSCRIPTEN__

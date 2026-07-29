@@ -91,7 +91,7 @@ void PartialProjectController::handle_notification(
     }
 }
 
-void PartialProjectController::handle_result_impl(
+void PartialProjectController::handle_result(
         LoadProjectResult&& result
 )
 {
@@ -110,7 +110,7 @@ void PartialProjectController::handle_result_impl(
         change_active_project(std::move(new_project));
 }
 
-void PartialProjectController::handle_result_impl(
+void PartialProjectController::handle_result(
         LoadSignalFileResult&& result
 )
 {

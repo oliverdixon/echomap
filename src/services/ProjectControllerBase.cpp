@@ -27,18 +27,16 @@
 namespace echomap
 {
 
-template <class Derived>
-ProjectControllerBase<Derived>::ProjectControllerBase(
+ProjectControllerBase::ProjectControllerBase(
         PanelHost& panel_host
 ) :
     panel_host(panel_host)
 {
 }
 
-template <class Derived> ProjectControllerBase<Derived>::~ProjectControllerBase() noexcept = default;
+ProjectControllerBase::~ProjectControllerBase() noexcept = default;
 
-template <class Derived>
-void ProjectControllerBase<Derived>::change_active_project(
+void ProjectControllerBase::change_active_project(
         std::unique_ptr<Project> new_project
 )
 {
@@ -51,8 +49,7 @@ void ProjectControllerBase<Derived>::change_active_project(
     panel_host.change_active_project(project.get());
 }
 
-template <class Derived>
-void ProjectControllerBase<Derived>::handle_notification(
+void ProjectControllerBase::handle_notification(
         const AddChannelMappingNotification& notification
 ) const
 {
@@ -60,8 +57,7 @@ void ProjectControllerBase<Derived>::handle_notification(
     project->add_association(notification.signal_id, notification.sensor_id);
 }
 
-template <class Derived>
-void ProjectControllerBase<Derived>::handle_notification(
+void ProjectControllerBase::handle_notification(
         const ModifySensorColourNotification& notification
 ) const
 {
@@ -69,35 +65,12 @@ void ProjectControllerBase<Derived>::handle_notification(
     project->get_mutable_sensor(notification.sensor_id).set_colour(notification.colour);
 }
 
-template <class Derived>
-void ProjectControllerBase<Derived>::handle_notification(
+void ProjectControllerBase::handle_notification(
         const ModifySensorPositionNotification& notification
 ) const
 {
     notification.verify_project(project.get());
     project->get_mutable_sensor(notification.sensor_id).set_position(notification.position);
 }
-
-template <class Derived>
-void ProjectControllerBase<Derived>::handle_result(
-        LoadProjectResult&& result
-)
-{
-    static_cast<Derived*>(this)->handle_result_impl(std::move(result));
-}
-
-template <class Derived>
-void ProjectControllerBase<Derived>::handle_result(
-        LoadSignalFileResult&& result
-)
-{
-    static_cast<Derived*>(this)->handle_result_impl(std::move(result));
-}
-
-#ifdef __EMSCRIPTEN__
-template class ProjectControllerBase<PartialProjectController>;
-#else
-template class ProjectControllerBase<FullProjectController>;
-#endif // __EMSCRIPTEN__
 
 } // namespace echomap

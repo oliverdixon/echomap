@@ -28,12 +28,11 @@ class LoadProjectResult;
  * Base implementation for controllers requiring direct access to a Project, implementing the base set of Notification
  * and WorkerResult handlers.
  */
-template<class Derived>
 class ProjectControllerBase
 {
 public:
     explicit ProjectControllerBase(PanelHost& panel_host);
-    ~ProjectControllerBase() noexcept;
+    virtual ~ProjectControllerBase() noexcept;
 
     ProjectControllerBase(const ProjectControllerBase&) = delete;
     ProjectControllerBase& operator=(const ProjectControllerBase&) = delete;
@@ -47,8 +46,8 @@ public:
     void handle_notification(const ModifySensorColourNotification& notification) const;
     void handle_notification(const ModifySensorPositionNotification& notification) const;
 
-    void handle_result(LoadProjectResult&& result);
-    void handle_result(LoadSignalFileResult&& result);
+    virtual void handle_result(LoadProjectResult&& result) = 0;
+    virtual void handle_result(LoadSignalFileResult&& result) = 0;
 
 protected:
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)

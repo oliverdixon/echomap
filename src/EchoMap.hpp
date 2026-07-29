@@ -127,7 +127,6 @@ protected:
     std::vector<sigc::scoped_connection> connections;   /**< RAII lifetime manager for signal connections. */
 
     std::deque<Notification> notification_queue; /**< FIFO queue for Notification objects. */
-    std::unique_ptr<Project> project;            /**< Owning container for the active Project. */
 
     RenderHost render_host;
     PanelHost panel_host;
