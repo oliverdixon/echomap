@@ -56,7 +56,7 @@ bool FilesystemCombo::operator()(
 
         ImGui::EndCombo();
 
-        if (!was_combo_open)
+        if (!was_combo_open || changed)
             app->force_frames();
     }
 
@@ -237,7 +237,6 @@ bool FilesystemCombo::draw_child_entries(
     assert(cache.has_value());
 
     bool has_visible_entries = false;
-    bool changed = false;
 
     for (const auto& entry : cache->entries) {
         if (!filter.empty() && !entry.name.contains(filter))
@@ -245,27 +244,24 @@ bool FilesystemCombo::draw_child_entries(
 
         has_visible_entries = true;
 
-        if (!entry.draw())
-            continue;
+        if (entry.draw()) {
+            if (entry.is_directory)
+                update_current_state(entry.path);
+            else {
+                selected_path = entry.path;
+                update_current_state(entry.path.parent_path());
+                ImGui::CloseCurrentPopup();
+            }
 
-        if (entry.is_directory) {
-            update_current_state(entry.path);
-            return false;
+            // If an entry was selected, then we can assume the state changed.
+            return true;
         }
-
-        selected_path = entry.path;
-        update_current_state(entry.path.parent_path());
-
-        changed = true;
-        ImGui::CloseCurrentPopup();
-
-        return changed;
     }
 
     if (!has_visible_entries)
         ImGui::TextDisabled("No matching entries.");
 
-    return changed;
+    return false;
 }
 
 void FilesystemCombo::accept_path(

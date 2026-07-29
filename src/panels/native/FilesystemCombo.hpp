@@ -73,7 +73,7 @@ private:
         /**
          * Draws the Entry as a Dear ImGui Selectable.
          *
-         * @return Is the Entry selected?
+         * @return Was the Entry selected?
          */
         [[nodiscard]] bool draw() const noexcept;
 
@@ -164,12 +164,32 @@ private:
      */
     void update_current_state(const std::filesystem::path& path);
 
+    /**
+     * Draws the body of the combo box including the filter entry and all file and directory Entry objects of
+     * @ref current_target.
+     *
+     * @param selected_path Destination for the currently selected path.
+     * @return Has the selected path changed since the previous call?
+     */
     bool draw_combo_body(std::filesystem::path& selected_path);
 
     [[nodiscard]] BrowseTarget get_browse_target() const;
 
+    /**
+     * Draw the Entry representing the parent directory of the given directory.
+     *
+     * @param directory The directory whose parent Entry should be rendered.
+     * @return Was the parent Entry selected?
+     */
     bool draw_parent_entry(const std::filesystem::path& directory);
 
+    /**
+     * Draw the Entry objects representing the children files and directories of the @ref current_target.
+     *
+     * @param filter The applied filter to select named paths.
+     * @param selected_path Destination for the currently selected path.
+     * @return Has the selected path changed since the previous call?
+     */
     bool draw_child_entries(
             std::string_view filter,
             std::filesystem::path& selected_path
