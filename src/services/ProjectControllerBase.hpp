@@ -12,13 +12,17 @@
 
 #include <memory>
 
-#include "IProjectController.hpp"
-
 namespace echomap
 {
 
+struct ModifySensorPositionNotification;
+struct ModifySensorColourNotification;
+struct AddChannelMappingNotification;
+
 class PanelHost;
 class Project;
+class LoadSignalFileResult;
+class LoadProjectResult;
 
 /**
  * Base implementation for controllers requiring direct access to a Project, implementing the base set of Notification
@@ -26,11 +30,11 @@ class Project;
  *
  * @todo Should be CRTP.
  */
-class ProjectControllerBase : public IProjectController
+class ProjectControllerBase
 {
 public:
     explicit ProjectControllerBase(PanelHost& panel_host);
-    ~ProjectControllerBase() override;
+    virtual ~ProjectControllerBase();
 
     ProjectControllerBase(const ProjectControllerBase&) = delete;
     ProjectControllerBase& operator=(const ProjectControllerBase&) = delete;
@@ -38,13 +42,14 @@ public:
     ProjectControllerBase(ProjectControllerBase&&) = delete;
     ProjectControllerBase& operator=(ProjectControllerBase&&) = delete;
 
-    void change_active_project(std::unique_ptr<Project> new_project) override;
+    void change_active_project(std::unique_ptr<Project> new_project);
 
-    void handle_notification(const AddChannelMappingNotification& notification) const override;
-    void handle_notification(const ModifySensorColourNotification& notification) const override;
-    void handle_notification(const ModifySensorPositionNotification& notification) const override;
+    void handle_notification(const AddChannelMappingNotification& notification) const;
+    void handle_notification(const ModifySensorColourNotification& notification) const;
+    void handle_notification(const ModifySensorPositionNotification& notification) const;
 
-    void handle_result(LoadSignalFileResult&& result) override;
+    virtual void handle_result(LoadProjectResult&& result) = 0;
+    virtual void handle_result(LoadSignalFileResult&& result);
 
 protected:
     PanelHost& panel_host;
