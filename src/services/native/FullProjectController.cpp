@@ -22,9 +22,15 @@ namespace echomap
 {
 
 FullProjectController::FullProjectController(
-        PanelHost& panel_host
+        RenderHost& render_host,
+        PanelHost& panel_host,
+        Worker& worker
 ) :
-    ProjectControllerBase(panel_host)
+    ProjectControllerBase(
+            render_host,
+            panel_host,
+            worker
+    )
 {
 }
 
@@ -34,10 +40,8 @@ void FullProjectController::handle_result(
         LoadProjectResult&& result
 )
 {
-    if (panel_host.is_modal_shown())
-        LOG_WARN("Ignoring request to change active Project since there is an active modal.");
-    else
-        change_active_project(std::move(result).take_project());
+    panel_host.reset_active_modal();
+    change_active_project(std::move(result).take_project());
 }
 
 void FullProjectController::handle_result(

@@ -17,14 +17,6 @@
 #include "ModifySensorPositionNotification.hpp"
 #include "ProjectSelectionCompleteNotification.hpp"
 
-#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-
-// Native-only notifications.
-
-#include "native/RaiseFileChooserNotification.hpp"
-
-#endif // __EMSCRIPTEN__
-
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Web-only notifications.

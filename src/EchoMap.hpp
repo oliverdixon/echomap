@@ -97,7 +97,7 @@ protected:
      *
      * @param notification The notification to visit.
      */
-    virtual void visit_notification(Notification notification) = 0;
+    virtual void visit_notification(Notification notification);
 
     /**
      * Configure the core signals for the application instance.

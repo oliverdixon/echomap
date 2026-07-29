@@ -24,12 +24,6 @@ class EchoMapNative : public EchoMap
 {
 public:
     void run_event_loop() override;
-
-protected:
-    void visit_notification(Notification notification) override;
-
-private:
-    void handle_notification(RaiseFileChooserNotification& notification);
 };
 
 } // namespace echomap

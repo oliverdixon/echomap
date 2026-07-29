@@ -116,6 +116,7 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/ProjectControllerBase.cpp
         src/services/ProjectControllerBase.hpp
         src/services/ProjectController.hpp
+        src/services/IProjectFilePicker.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
@@ -149,7 +150,6 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     target_sources(DummyTarget PRIVATE
             src/actions/NativeActionController.cpp
             src/actions/NativeActionController.hpp
-            src/notifications/native/RaiseFileChooserNotification.hpp
             src/platform/EchoMapNative.cpp
             src/platform/EchoMapNative.hpp
             src/panels/native/FileChooser.cpp
@@ -160,6 +160,8 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/objects/persistence/native/JSONFullDeserialiser.hpp
             src/services/native/FullProjectController.cpp
             src/services/native/FullProjectController.hpp
+            src/services/native/NativeProjectFilePicker.cpp
+            src/services/native/NativeProjectFilePicker.hpp
     )
 endif ()
 

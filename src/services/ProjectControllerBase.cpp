@@ -9,7 +9,8 @@
 
 #include "ProjectControllerBase.hpp"
 
-#include "../async/results/LoadSignalFileResult.hpp"
+#include "../async/Worker.hpp"
+#include "../async/tasks/LoadProjectTask.hpp"
 #include "../notifications/AddChannelMappingNotification.hpp"
 #include "../notifications/ModifySensorColourNotification.hpp"
 #include "../notifications/ModifySensorPositionNotification.hpp"
@@ -21,16 +22,22 @@
 #ifdef __EMSCRIPTEN__
 #include "web/PartialProjectController.hpp"
 #else
-#include "native/FullProjectController.hpp"
 #endif // __EMSCRIPTEN__
 
 namespace echomap
 {
 
 ProjectControllerBase::ProjectControllerBase(
-        PanelHost& panel_host
+        RenderHost& render_host,
+        PanelHost& panel_host,
+        Worker& worker
 ) :
-    panel_host(panel_host)
+    panel_host(panel_host),
+    project_file_picker(
+            panel_host,
+            render_host
+    ),
+    worker(worker)
 {
 }
 
@@ -47,6 +54,16 @@ void ProjectControllerBase::change_active_project(
 
     project = std::move(new_project);
     panel_host.change_active_project(project.get());
+}
+
+void ProjectControllerBase::request_open_project()
+{
+    project_file_picker.request_project_file(
+            [this](const std::filesystem::path& path) {
+                worker.submit(std::make_unique<LoadProjectTask>(path, &worker));
+            },
+            {}
+    );
 }
 
 void ProjectControllerBase::handle_notification(

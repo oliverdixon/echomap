@@ -16,7 +16,7 @@
 
 #include <filesystem>
 
-#include "../../notifications/native/RaiseFileChooserNotification.hpp"
+#include "../../services/native/NativeProjectFilePicker.hpp"
 #include "../IProjectPanel.hpp"
 #include "FilesystemCombo.hpp"
 
@@ -41,8 +41,8 @@ public:
      */
     explicit FileChooser(
             IRenderInvalidator& invalidator,
-            RaiseFileChooserNotification::SuccessCallbackT&& success_callback,
-            RaiseFileChooserNotification::CancelledCallbackT&& cancelled_callback
+            NativeProjectFilePicker::SuccessCallbackT&& success_callback,
+            NativeProjectFilePicker::CancelledCallbackT&& cancelled_callback
     );
 
     void draw() noexcept override;
@@ -62,8 +62,8 @@ private:
 
     std::string panel_name;
     bool is_open = false;
-    RaiseFileChooserNotification::SuccessCallbackT success_callback;
-    RaiseFileChooserNotification::CancelledCallbackT cancelled_callback;
+    NativeProjectFilePicker::SuccessCallbackT success_callback;
+    NativeProjectFilePicker::CancelledCallbackT cancelled_callback;
 };
 
 } // namespace echomap

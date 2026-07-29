@@ -32,18 +32,15 @@ class Worker;
 class PanelHost
 {
 public:
-    explicit PanelHost(
-            Worker& worker,
-            WorkerResultDespatcher& despatcher,
-            IRenderInvalidator& invalidator_service
-    );
-
+    PanelHost();
     ~PanelHost() noexcept;
 
     PanelHost(const PanelHost&) = delete;
     PanelHost& operator=(const PanelHost&) = delete;
     PanelHost(PanelHost&&) = delete;
     PanelHost& operator=(PanelHost&&) = delete;
+
+    void add_panel(std::unique_ptr<IProjectPanel> panel);
 
     void draw_all() const;
     void reset_active_modal() noexcept;

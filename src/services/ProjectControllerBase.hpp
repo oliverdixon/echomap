@@ -12,6 +12,8 @@
 
 #include <memory>
 
+#include "ProjectFilePicker.hpp"
+
 namespace echomap
 {
 
@@ -23,6 +25,7 @@ class PanelHost;
 class Project;
 class LoadSignalFileResult;
 class LoadProjectResult;
+class Worker;
 
 /**
  * Base implementation for controllers requiring direct access to a Project, implementing the base set of Notification
@@ -31,7 +34,12 @@ class LoadProjectResult;
 class ProjectControllerBase
 {
 public:
-    explicit ProjectControllerBase(PanelHost& panel_host);
+    explicit ProjectControllerBase(
+            RenderHost& render_host,
+            PanelHost& panel_host,
+            Worker& worker
+    );
+
     virtual ~ProjectControllerBase() noexcept;
 
     ProjectControllerBase(const ProjectControllerBase&) = delete;
@@ -41,6 +49,8 @@ public:
     ProjectControllerBase& operator=(ProjectControllerBase&&) = delete;
 
     void change_active_project(std::unique_ptr<Project> new_project);
+
+    void request_open_project();
 
     void handle_notification(const AddChannelMappingNotification& notification) const;
     void handle_notification(const ModifySensorColourNotification& notification) const;
@@ -53,7 +63,9 @@ protected:
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
     PanelHost& panel_host;
+    ProjectFilePicker project_file_picker;
     std::unique_ptr<Project> project;
+    Worker& worker;
 
     // NOLINTEND(*-non-private-member-variables-in-classes)
 };

@@ -14,7 +14,6 @@
 #include "../panels/ChannelMappingPanel.hpp"
 #include "../panels/ErrorModal.hpp"
 #include "../panels/IProjectPanel.hpp"
-#include "../panels/MenuPanel.hpp"
 #include "../panels/ProjectPanel.hpp"
 #include "../panels/SensorGeometryPanel.hpp"
 #include "../panels/SignalDFTPanel.hpp"
@@ -23,21 +22,16 @@
 namespace echomap
 {
 
-PanelHost::PanelHost(
-        Worker& worker,
-        WorkerResultDespatcher& despatcher,
-        IRenderInvalidator& invalidator_service
-)
-{
-    panels.push_back(std::make_unique<MenuPanel>());
-    panels.push_back(std::make_unique<ProjectPanel>());
-    panels.push_back(std::make_unique<SignalWaveformPanel>(&worker, despatcher));
-    // panels.push_back(std::make_unique<SensorGeometryPanel>(this)); // TODO
-    // panels.push_back(std::make_unique<ChannelMappingPanel>(this)); // TODO
-    panels.push_back(std::make_unique<SignalDFTPanel>(&worker, despatcher, &invalidator_service));
-}
+PanelHost::PanelHost() = default;
 
 PanelHost::~PanelHost() noexcept = default;
+
+void PanelHost::add_panel(
+        std::unique_ptr<IProjectPanel> panel
+)
+{
+    panels.emplace_back(std::move(panel));
+}
 
 void PanelHost::draw_all() const
 {

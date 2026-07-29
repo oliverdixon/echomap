@@ -23,7 +23,11 @@ namespace echomap
 class FullProjectController : public ProjectControllerBase
 {
 public:
-    explicit FullProjectController(PanelHost& panel_host);
+    explicit FullProjectController(
+            RenderHost& render_host,
+            PanelHost& panel_host,
+            Worker& worker
+    );
 
     ~FullProjectController() noexcept override;
 

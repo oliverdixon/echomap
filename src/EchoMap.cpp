@@ -14,6 +14,10 @@
 #include "notifications/AllNotifications.hpp"
 #include "objects/Project.hpp"
 #include "objects/Signal.hpp"
+#include "panels/MenuPanel.hpp"
+#include "panels/ProjectPanel.hpp"
+#include "panels/SignalDFTPanel.hpp"
+#include "panels/SignalWaveformPanel.hpp"
 #include "utility/Logger.hpp"
 
 namespace echomap
@@ -25,11 +29,6 @@ EchoMap::EchoMap() :
         glfwPostEmptyEvent();
 #endif
     }},
-    panel_host(
-            worker,
-            despatcher,
-            render_host
-    ),
 #ifdef __EMSCRIPTEN__
     project_controller(
             panel_host,
@@ -37,10 +36,22 @@ EchoMap::EchoMap() :
             worker
     )
 #else
-    project_controller(panel_host)
+    project_controller(
+            render_host,
+            panel_host,
+            worker
+    )
 #endif
 {
     setup_subscriptions();
+
+    panel_host.add_panel(std::make_unique<MenuPanel>(project_controller));
+    panel_host.add_panel(std::make_unique<ProjectPanel>());
+    panel_host.add_panel(std::make_unique<SignalWaveformPanel>(&worker, despatcher));
+    panel_host.add_panel(std::make_unique<SignalDFTPanel>(&worker, despatcher, &render_host));
+
+    // panels.push_back(std::make_unique<SensorGeometryPanel>(this)); // TODO
+    // panels.push_back(std::make_unique<ChannelMappingPanel>(this)); // TODO
 }
 
 EchoMap::~EchoMap() noexcept = default;
@@ -67,6 +78,13 @@ void EchoMap::tick()
 {
     process_notifications();
     process_worker_results();
+}
+
+void EchoMap::visit_notification(
+        Notification notification
+)
+{
+    std::visit(make_common_notification_visitors(), notification);
 }
 
 void EchoMap::setup_subscriptions()

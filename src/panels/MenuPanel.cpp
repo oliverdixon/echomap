@@ -6,10 +6,17 @@
 
 #include <imgui.h>
 
-#include "../actions/ActionController.hpp"
+#include "../services/ProjectControllerBase.hpp"
 
 namespace echomap
 {
+
+MenuPanel::MenuPanel(
+        ProjectControllerBase& project_controller
+) :
+    project_controller(project_controller)
+{
+}
 
 void MenuPanel::draw() noexcept
 {
@@ -20,7 +27,7 @@ void MenuPanel::draw() noexcept
 
 
                 if (ImGui::MenuItem("... from filesystem"))
-                    ActionController::select_project_file();
+                    project_controller.request_open_project();
 
                 if (ImGui::BeginMenu("... from example repository")) {
                     ImGui::MenuItem("Example 1", nullptr, false, false);

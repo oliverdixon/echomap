@@ -21,14 +21,6 @@ struct ModifySensorPositionNotification;
 struct ProjectSelectionCompleteNotification;
 struct ClearErrorNotification;
 
-#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-
-// Native-only notifications.
-
-struct RaiseFileChooserNotification;
-
-#endif // __EMSCRIPTEN__
-
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Web-only notifications.
@@ -73,11 +65,6 @@ using Notification = std::variant<
         ModifySensorPositionNotification,
         ProjectSelectionCompleteNotification,
         ClearErrorNotification
-#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-        // Native-only notifications.
-        ,
-        RaiseFileChooserNotification
-#endif // __EMSCRIPTEN__
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         // Web-only notifications.
         ,
@@ -140,17 +127,6 @@ template <> constexpr std::string_view NotificationNames::get<ClearErrorNotifica
 {
     return "Clear Error State Notification";
 }
-
-#if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-
-// Names of native-only notifications.
-
-template <> constexpr std::string_view NotificationNames::get<RaiseFileChooserNotification>()
-{
-    return "Raise File Chooser Notification";
-}
-
-#endif // __EMSCRIPTEN__
 
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
