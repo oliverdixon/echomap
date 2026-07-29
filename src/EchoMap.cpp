@@ -80,13 +80,6 @@ void EchoMap::tick()
     process_worker_results();
 }
 
-void EchoMap::visit_notification(
-        Notification notification
-)
-{
-    std::visit(make_common_notification_visitors(), notification);
-}
-
 void EchoMap::setup_subscriptions()
 {
     // NOLINTBEGIN(*-redundant-casting) - False positive; casts are required for libsigcpp to resolve overloads.

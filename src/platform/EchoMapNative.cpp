@@ -11,6 +11,8 @@
 
 #include "EchoMapNative.hpp"
 
+#include "../notifications/AllNotifications.hpp"
+
 namespace echomap
 {
 
@@ -25,6 +27,19 @@ void EchoMapNative::run_event_loop()
         render_host.render(panel_host);
         render_host.process_instance_events();
     }
+}
+
+void EchoMapNative::visit_notification(
+        Notification notification
+)
+{
+    std::visit(
+            variant_helpers::Overloaded{
+                    make_common_notification_visitors(),
+            },
+
+            notification
+    );
 }
 
 } // namespace echomap

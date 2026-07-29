@@ -12,8 +12,6 @@
 
 #include <memory>
 
-#include "ProjectFilePicker.hpp"
-
 namespace echomap
 {
 
@@ -21,6 +19,7 @@ struct ModifySensorPositionNotification;
 struct ModifySensorColourNotification;
 struct AddChannelMappingNotification;
 
+class IProjectFilePicker;
 class PanelHost;
 class Project;
 class LoadSignalFileResult;
@@ -35,8 +34,8 @@ class ProjectControllerBase
 {
 public:
     explicit ProjectControllerBase(
-            RenderHost& render_host,
             PanelHost& panel_host,
+            std::unique_ptr<IProjectFilePicker> project_file_picker,
             Worker& worker
     );
 
@@ -50,7 +49,7 @@ public:
 
     void change_active_project(std::unique_ptr<Project> new_project);
 
-    void request_open_project();
+    void request_open_project() const;
 
     void handle_notification(const AddChannelMappingNotification& notification) const;
     void handle_notification(const ModifySensorColourNotification& notification) const;
@@ -63,8 +62,8 @@ protected:
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
     PanelHost& panel_host;
-    ProjectFilePicker project_file_picker;
     std::unique_ptr<Project> project;
+    std::unique_ptr<IProjectFilePicker> project_file_picker;
     Worker& worker;
 
     // NOLINTEND(*-non-private-member-variables-in-classes)

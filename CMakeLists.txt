@@ -117,6 +117,8 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/ProjectControllerBase.hpp
         src/services/ProjectController.hpp
         src/services/IProjectFilePicker.hpp
+        src/services/web/WebProjectFilePicker.cpp
+        src/services/web/WebProjectFilePicker.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

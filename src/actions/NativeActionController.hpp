@@ -27,13 +27,6 @@ class NativeActionController : public ActionControllerBase<NativeActionControlle
     friend ActionControllerBase;
 
     /**
-     * Invokes the native function for @ref ProjectFileAction.
-     * @implements ActionControllerBase::select_project_file
-     * @ingroup ProjectFileAction
-     */
-    static void select_project_file_impl();
-
-    /**
      * Invokes the native function for @ref RegisterVFSMapping.
      *
      * @param project_id The ID of the Project that owns the destination Signal.

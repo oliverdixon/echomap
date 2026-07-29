@@ -24,6 +24,8 @@ class EchoMapNative : public EchoMap
 {
 public:
     void run_event_loop() override;
+
+    void visit_notification(Notification notification) override;
 };
 
 } // namespace echomap

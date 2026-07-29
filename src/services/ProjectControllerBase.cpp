@@ -9,6 +9,8 @@
 
 #include "ProjectControllerBase.hpp"
 
+#include <filesystem>
+
 #include "../async/Worker.hpp"
 #include "../async/tasks/LoadProjectTask.hpp"
 #include "../notifications/AddChannelMappingNotification.hpp"
@@ -17,26 +19,19 @@
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
 #include "../utility/Logger.hpp"
+#include "IProjectFilePicker.hpp"
 #include "PanelHost.hpp"
-
-#ifdef __EMSCRIPTEN__
-#include "web/PartialProjectController.hpp"
-#else
-#endif // __EMSCRIPTEN__
 
 namespace echomap
 {
 
 ProjectControllerBase::ProjectControllerBase(
-        RenderHost& render_host,
         PanelHost& panel_host,
+        std::unique_ptr<IProjectFilePicker> project_file_picker,
         Worker& worker
 ) :
     panel_host(panel_host),
-    project_file_picker(
-            panel_host,
-            render_host
-    ),
+    project_file_picker(std::move(project_file_picker)),
     worker(worker)
 {
 }
@@ -56,9 +51,9 @@ void ProjectControllerBase::change_active_project(
     panel_host.change_active_project(project.get());
 }
 
-void ProjectControllerBase::request_open_project()
+void ProjectControllerBase::request_open_project() const
 {
-    project_file_picker.request_project_file(
+    project_file_picker->request_project_file(
             [this](const std::filesystem::path& path) {
                 worker.submit(std::make_unique<LoadProjectTask>(path, &worker));
             },

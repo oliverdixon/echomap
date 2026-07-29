@@ -23,6 +23,7 @@
 #include "../../panels/web/MapSourcesModal.hpp"
 #include "../../utility/Logger.hpp"
 #include "../PanelHost.hpp"
+#include "WebProjectFilePicker.hpp"
 
 namespace echomap
 {
@@ -32,7 +33,11 @@ PartialProjectController::PartialProjectController(
         INotificationSink& notification_sink,
         Worker& worker
 ) :
-    ProjectControllerBase(panel_host),
+    ProjectControllerBase(
+            panel_host,
+            std::make_unique<WebProjectFilePicker>(),
+            worker
+    ),
     worker(worker),
     notification_sink(notification_sink)
 {

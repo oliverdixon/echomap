@@ -14,13 +14,6 @@
 
 #include "ActionControllerBase.hpp"
 
-extern "C" int echomap_on_project_file_picked(const char* path) noexcept;
-extern "C" int echomap_on_register_vfs_mapping(
-        std::size_t,
-        const char*,
-        const char*
-) noexcept;
-
 namespace echomap
 {
 
@@ -32,19 +25,6 @@ namespace echomap
 class JSActionController : public ActionControllerBase<JSActionController>
 {
     friend ActionControllerBase;
-    friend int ::echomap_on_project_file_picked(const char* path) noexcept;
-    friend int ::echomap_on_register_vfs_mapping(
-            std::size_t,
-            const char*,
-            const char*
-    ) noexcept;
-
-    /**
-     * Invokes the JS function for @ref ProjectFileAction.
-     * @ingroup ProjectFileAction
-     * @implements ActionControllerBase::select_project_file
-     */
-    static void select_project_file_impl();
 
     /**
      * Invokes the JS function for @ref RegisterVFSMapping.

@@ -11,7 +11,7 @@
 #define ECHOMAP_PROJECTFILEPICKER_HPP
 
 #ifdef __EMSCRIPTEN__
-// TODO
+#include "web/WebProjectFilePicker.hpp"
 #else
 #include "native/NativeProjectFilePicker.hpp"
 #endif // __EMSCRIPTEN__
@@ -20,7 +20,7 @@ namespace echomap
 {
 
 #ifdef __EMSCRIPTEN__
-// TOD
+using ProjectFilePicker = WebProjectFilePicker;
 #else
 using ProjectFilePicker = NativeProjectFilePicker;
 #endif // __EMSCRIPTEN__

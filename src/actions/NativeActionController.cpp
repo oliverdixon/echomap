@@ -14,11 +14,6 @@
 namespace echomap
 {
 
-void NativeActionController::select_project_file_impl()
-{
-    // TODO remove.
-}
-
 void NativeActionController::register_vfs_mapping_impl(
         const std::size_t project_id,
         const std::filesystem::path& external

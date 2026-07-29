@@ -17,6 +17,8 @@
 namespace echomap
 {
 
+class RenderHost;
+
 /**
  * @todo Document
  */

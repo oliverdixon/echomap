@@ -19,99 +19,16 @@
 namespace echomap
 {
 
-#ifndef __DOXYGEN__
-
-// (Doxygen can't handle EM_JS declarations.)
-
-/**
- * JavaScript functions to service actions.
- *
- * The JS function signatures are defined as @c extern C++ in the @ref echomap::js namespace. They are called using the
- * standard C++ calling convention from JSActionController member functions, and typically invoke an exported C-linkage
- * free function as a callback following completion of the action.
- */
-namespace js
-{
-
-#pragma clang diagnostic push // Ignore unknown attributes for used Emscripten JS linkage.
-#pragma clang diagnostic ignored "-Wunknown-attributes"
-
-EM_JS(void,
-      select_project_file,
-      (),
-      {
-          if (Module.echomapOpenProjectFileChooser) {
-              Module.echomapOpenProjectFileChooser();
-          } else {
-              console.error("Module.echomapOpenProjectFileChooser is not installed.");
-          }
-      });
-
-EM_JS(void,
-      register_vfs_mapping,
-      (std::size_t project_id,
-       const char * external),
-      {
-          if (Module.echomapOpenVFSFileMapper) {
-              const externalPath = UTF8ToString(external);
-              Module.echomapOpenVFSFileMapper(project_id, externalPath);
-          } else {
-              console.error("Module.echomapOpenVFSFileMapper is not installed.");
-          }
-      });
-
-#pragma clang diagnostic pop
-
-} // namespace js
-
-#endif
-
-void JSActionController::select_project_file_impl()
-{
-    js::select_project_file();
-}
-
 void JSActionController::register_vfs_mapping_impl(
         const std::size_t project_id,
         const std::filesystem::path& external
 )
 {
-    js::register_vfs_mapping(project_id, external.c_str());
+    // TODO remove.
 }
 
 } // namespace echomap
 
-/**
- * Services the @ref ProjectFileAction callback for Emscripten.
- *
- * @param path The file-system path (in the Wasm VFS) selected in the prompt.
- * @return Zero status to indicate success; non-zero to indicate failure.
- *
- * @ingroup ProjectFileAction
- */
-extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_project_file_picked(
-        const char* const path
-) noexcept
-{
-    using namespace echomap;
-
-    if (path == nullptr)
-        return 2;
-
-    try {
-        JSActionController::notify<ProjectSelectionCompleteNotification>(path);
-        return 0;
-    } catch (const ConfigurationError& error) {
-        LOG_F_ERROR("Could not load path {} due to error: {}", path, error.what());
-        return 3;
-    } catch (const std::exception& error) {
-        LOG_F_ERROR("Could not load path {} due to unexpected error: {}", path, error.what());
-        return 4;
-    } catch (...) {
-        LOG_F_ERROR("Could not load path {} due to unknown error.", path);
-        return 5;
-    }
-}
 
 /**
  * Services the @ref RegisterVFSMapping callback for Emscripten.
@@ -130,24 +47,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
         const char* const internal
 ) noexcept
 {
-    using namespace echomap;
-
-    if (external == nullptr || internal == nullptr)
-        return 2;
-
-    try {
-        JSActionController::notify<RegisterVFSMappingNotification>(project_id, external, internal);
-        return 0;
-    } catch (const ConfigurationError& error) {
-        LOG_F_ERROR("Could not load path {} due to error: {}", internal, error.what());
-        return 3;
-    } catch (const std::exception& error) {
-        LOG_F_ERROR("Could not load path {} due to unexpected error: {}", internal, error.what());
-        return 4;
-    } catch (...) {
-        LOG_F_ERROR("Could not load path {} due to unknown error.", internal);
-        return 5;
-    }
+    // TODO remove.
 }
 
 #endif // __EMSCRIPTEN__

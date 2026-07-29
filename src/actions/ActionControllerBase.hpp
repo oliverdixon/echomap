@@ -86,16 +86,6 @@ public:
     }
 
     /**
-     * Invokes the @ref ProjectFileAction.
-     *
-     * @ingroup ProjectFileAction
-     */
-    static void select_project_file()
-    {
-        Derived::select_project_file_impl();
-    }
-
-    /**
      * Invokes the @ref RegisterVFSMapping.
      *
      * @param project_id The ID of the Project that owns the destination Signal.

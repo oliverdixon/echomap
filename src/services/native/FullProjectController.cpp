@@ -17,6 +17,7 @@
 #include "../../objects/Signal.hpp"
 #include "../../utility/Logger.hpp"
 #include "../PanelHost.hpp"
+#include "NativeProjectFilePicker.hpp"
 
 namespace echomap
 {
@@ -27,8 +28,11 @@ FullProjectController::FullProjectController(
         Worker& worker
 ) :
     ProjectControllerBase(
-            render_host,
             panel_host,
+            std::make_unique<NativeProjectFilePicker>(
+                    panel_host,
+                    render_host
+            ),
             worker
     )
 {
