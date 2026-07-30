@@ -17,6 +17,9 @@
 namespace echomap
 {
 
+class Signal;
+class Sensor;
+
 /**
  * @todo Document
  */
@@ -26,8 +29,8 @@ public:
     virtual ~IProjectMutationService() = default;
 
     virtual void add_channel_mapping(
-            id_type signal_id,
-            id_type sensor_id
+            const Signal& signal,
+            const Sensor& sensor
     ) = 0;
 
     virtual void modify_sensor_position(

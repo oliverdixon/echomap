@@ -13,11 +13,11 @@
 
 #include "../async/Worker.hpp"
 #include "../async/tasks/LoadProjectTask.hpp"
-#include "../errors/IgnoredWarning.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
 #include "../services/IFilePickerService.hpp"
 #include "../utility/Logger.hpp"
+#include "PanelHost.hpp"
 
 namespace echomap
 {
@@ -63,14 +63,18 @@ void ProjectControllerBase::request_open_project()
 }
 
 void ProjectControllerBase::add_channel_mapping(
-        const id_type signal_id,
-        const id_type sensor_id
+        const Signal& signal,
+        const Sensor& sensor
 )
 {
     if (project == nullptr)
-        throw IgnoredWarning("Dropping new channel mapping due to empty project.");
-
-    project->add_association(signal_id, sensor_id);
+        LOG_WARN("Dropping new channel mapping due to empty project.");
+    else
+        try {
+            project->add_association(signal, sensor);
+        } catch (const std::runtime_error& error) {
+            panel_host.raise_error(error.what());
+        }
 }
 
 void ProjectControllerBase::modify_sensor_position(
@@ -79,9 +83,13 @@ void ProjectControllerBase::modify_sensor_position(
 )
 {
     if (project == nullptr)
-        throw IgnoredWarning("Dropping Sensor position modification due to empty project.");
-
-    project->get_mutable_sensor(sensor_id).set_position(position);
+        LOG_WARN("Dropping Sensor position modification due to empty project.");
+    else
+        try {
+            project->get_mutable_sensor(sensor_id).set_position(position);
+        } catch (const std::runtime_error& error) {
+            panel_host.raise_error(error.what());
+        }
 }
 
 void ProjectControllerBase::modify_sensor_colour(
@@ -90,9 +98,13 @@ void ProjectControllerBase::modify_sensor_colour(
 )
 {
     if (project == nullptr)
-        throw IgnoredWarning("Dropping Sensor colour modification due to empty project.");
-
-    project->get_mutable_sensor(sensor_id).set_colour(colour);
+        LOG_WARN("Dropping Sensor colour modification due to empty project.");
+    else
+        try {
+            project->get_mutable_sensor(sensor_id).set_colour(colour);
+        } catch (const std::runtime_error& error) {
+            panel_host.raise_error(error.what());
+        }
 }
 
 } // namespace echomap

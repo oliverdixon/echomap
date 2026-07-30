@@ -82,8 +82,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/async/tasks/LoadSignalFileTask.hpp
         src/async/results/LoadSignalFileResult.cpp
         src/async/results/LoadSignalFileResult.hpp
-        src/errors/IgnoredWarning.cpp
-        src/errors/IgnoredWarning.hpp
         src/async/results/WorkerResult.hpp
         src/utility/Colour.hpp
         src/utility/Position.hpp

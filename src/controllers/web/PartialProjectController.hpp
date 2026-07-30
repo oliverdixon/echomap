@@ -9,9 +9,10 @@
 
 #ifndef ECHOMAP_PARTIALPROJECTCONTROLLER_HPP
 #define ECHOMAP_PARTIALPROJECTCONTROLLER_HPP
-#include <__filesystem/path.h>
 
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
+#include <filesystem>
 
 #include "../../objects/IDAllocator.hpp"
 #include "../../services/web/IPartialProjectBuilderService.hpp"
@@ -62,6 +63,14 @@ public:
     void handle_result(LoadSignalFileResult&& result) override;
 
 private:
+    void handle_complete_mapping(
+            id_type project_id,
+            const std::filesystem::path& external,
+            std::filesystem::path internal
+    ) const;
+
+    static void handle_cancelled_mapping(const std::filesystem::path& external);
+
     std::unique_ptr<PartialProject> partial_project;
     std::unique_ptr<VFSPickerService> vfs_picker;
     Worker& worker;

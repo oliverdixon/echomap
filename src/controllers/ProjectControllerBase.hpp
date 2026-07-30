@@ -53,8 +53,8 @@ public:
     void request_open_project() override;
 
     void add_channel_mapping(
-            id_type signal_id,
-            id_type sensor_id
+            const Signal& signal,
+            const Sensor& sensor
     ) override;
 
     void modify_sensor_position(

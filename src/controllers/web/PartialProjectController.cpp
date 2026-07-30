@@ -15,7 +15,6 @@
 #include "../../async/results/LoadProjectResult.hpp"
 #include "../../async/results/LoadSignalFileResult.hpp"
 #include "../../async/tasks/LoadSignalFileTask.hpp"
-#include "../../errors/IgnoredWarning.hpp"
 #include "../../objects/web/PartialProject.hpp"
 #include "../../panels/web/MapSourcesModal.hpp"
 #include "../../services/web/VFSPickerService.hpp"
@@ -55,29 +54,8 @@ void PartialProjectController::add_vfs_mapping(
     vfs_picker->request_vfs_mapping(
             intended_project_id,
             intended_external,
-            [this](const id_type project_id, const std::filesystem::path& external, std::filesystem::path internal) {
-                if (partial_project == nullptr)
-                    throw IgnoredWarning("Ignoring VFS mapping due to empty project.");
-
-                if (partial_project->get_id() != project_id)
-                    throw IgnoredWarning(
-                            std::format(
-                                    "Ignoring VFS mapping due to invalid project: requested {}, but have {}.",
-                                    project_id,
-                                    partial_project->get_id()
-                            )
-                    );
-
-                try {
-                    partial_project->add_vfs_mapping_for_unavailable_signal(external, std::move(internal));
-                } catch (const std::runtime_error&) {
-                    throw IgnoredWarning(
-                            std::format("Ignoring VFS mapping since we don't need a mapping for {}.", external.c_str())
-                    );
-                }
-            },
-            [](const std::filesystem::path&) {
-            }
+            sigc::mem_fun(*this, &PartialProjectController::handle_complete_mapping),
+            sigc::ptr_fun(&PartialProjectController::handle_cancelled_mapping)
     );
 }
 
@@ -85,17 +63,19 @@ void PartialProjectController::cancel_project_load(
         const id_type intended_project_id
 )
 {
-    if (partial_project == nullptr)
-        throw IgnoredWarning("Ignoring cancellation request due to empty project.");
+    if (partial_project == nullptr) {
+        LOG_WARN("Ignoring cancellation request due to empty project.");
+        return;
+    }
 
-    if (partial_project->get_id() != intended_project_id)
-        throw IgnoredWarning(
-                std::format(
-                        "Ignoring cancellation request due to invalid project: requested {}, but have {}.",
-                        intended_project_id,
-                        partial_project->get_id()
-                )
+    if (partial_project->get_id() != intended_project_id) {
+        LOG_F_WARN(
+                "Ignoring cancellation request due to invalid project: requested {}, but have {}.",
+                intended_project_id,
+                partial_project->get_id()
         );
+        return;
+    }
 
     panel_host.reset_active_modal();
     partial_project.reset();
@@ -105,24 +85,28 @@ void PartialProjectController::complete_project_load(
         const id_type intended_project_id
 )
 {
-    if (partial_project == nullptr)
-        throw IgnoredWarning("Ignored completed VFS mapping due to empty project.");
+    if (partial_project == nullptr) {
+        LOG_WARN("Ignored completed VFS mapping due to empty project.");
+        return;
+    }
 
-    if (partial_project->get_id() != intended_project_id)
-        throw IgnoredWarning(
-                std::format(
-                        "Ignored completed VFS mapping due to invalid project: requested {}, but have {}.",
-                        intended_project_id,
-                        partial_project->get_id()
-                )
+    if (partial_project->get_id() != intended_project_id) {
+        LOG_F_WARN(
+                "Ignored completed VFS mapping due to invalid project: requested {}, but have {}.",
+                intended_project_id,
+                partial_project->get_id()
         );
+        return;
+    }
 
     // For each group, create an asynchronous task to load the corresponding file.
 
     for (auto&& [vfs_path, factories] : partial_project->take_unloaded_factories()) {
 
-        if (!vfs_path.has_value())
-            throw std::runtime_error("Refusing to complete project load due to an incomplete VFS mapping.");
+        if (!vfs_path.has_value()) {
+            panel_host.raise_error("Refusing to complete project load due to an incomplete VFS mapping.");
+            return;
+        }
 
         // Once these tasks complete, if everything is loaded correctly, we'll change the active project.
         worker.submit(std::make_unique<LoadSignalFileTask>(partial_project->get_id(), *vfs_path, std::move(factories)));
@@ -140,9 +124,7 @@ void PartialProjectController::handle_result(
         return;
     }
 
-    auto&& new_project = std::move(result).take_project();
-
-    if (!new_project->observe_unloaded_signals().empty()) {
+    if (auto&& new_project = std::move(result).take_project(); !new_project->observe_unloaded_signals().empty()) {
         // Raise the modal to query for the sources.
         panel_host.change_active_modal(std::make_unique<MapSourcesModal>(*this, *this, *this));
         partial_project = std::move(new_project);
@@ -181,6 +163,42 @@ void PartialProjectController::handle_result(
 
     if (target == partial_project.get() && partial_project->observe_unloaded_signals().empty())
         change_active_project(std::move(partial_project));
+}
+
+void PartialProjectController::handle_complete_mapping(
+        const id_type project_id,
+        const std::filesystem::path& external,
+        std::filesystem::path internal
+) const
+{
+    if (partial_project == nullptr) {
+        LOG_F_WARN("Ignoring VFS mapping for {} to {} due to empty project.", external.c_str(), internal.c_str());
+        return;
+    }
+
+    if (partial_project->get_id() != project_id) {
+        LOG_F_WARN(
+                "Ignoring VFS mapping due to invalid project: requested {}, but have {}.",
+                project_id,
+                partial_project->get_id()
+        );
+
+        return;
+    }
+
+    try {
+        partial_project->add_vfs_mapping_for_unavailable_signal(external, std::move(internal));
+    } catch (const std::runtime_error&) {
+        LOG_F_WARN("Ignoring VFS mapping since we don't need a mapping for {}.", external.c_str());
+    }
+}
+
+void PartialProjectController::handle_cancelled_mapping(
+        const std::filesystem::path& external
+)
+{
+    std::ignore = external;
+    LOG_F_DEBUG("Cancelled VFS mapping for {}.", external.c_str());
 }
 
 } // namespace echomap

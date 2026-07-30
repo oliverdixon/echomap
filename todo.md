@@ -2,7 +2,7 @@
 
 ## Architecture branch
 
-1. Restore exception handling in panel services.
+1. Guard platform-dependent TUs.
 
 2. Document all symbols introduced on `arch` branch.
 
