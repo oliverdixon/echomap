@@ -19,12 +19,12 @@ namespace echomap
 MapSourcesModal::MapSourcesModal(
         IPartialProjectCompletionService& completion_service,
         IPartialProjectObserveService& observe_service,
-        IVFSRequestService& vfs_request_service
+        IPartialProjectBuilderService& builder_service
 ) :
     panel_name(std::string("Upload External Files") + get_imgui_stable_name()),
     completion_service(completion_service),
     observe_service(observe_service),
-    vfs_request_service(vfs_request_service)
+    builder_service(builder_service)
 {
 }
 
@@ -171,7 +171,7 @@ bool MapSourcesModal::draw_table_entry(
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, upload_button_frame_padding);
 
     if (ImGui::Button("Upload", ImVec2(button_size.x + 2 * padding.x, button_size.y)))
-        vfs_request_service.request_vfs_mapping(project_id, external_path);
+        builder_service.add_vfs_mapping(project_id, external_path);
 
     ImGui::PopStyleVar();
 

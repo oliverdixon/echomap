@@ -2,9 +2,9 @@
 
 ## Architecture branch
 
-1. Fix source hierarchy for services.
+1. Restore exception handling in panel services.
 
-2. Restore exception handling in panel services.
+2. Document all symbols introduced on `arch` branch.
 
 ## Medium/Long Term
 

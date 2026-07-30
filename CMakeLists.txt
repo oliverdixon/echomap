@@ -121,11 +121,11 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/controllers/web/PartialProjectController.hpp
             src/services/web/WebProjectFilePickerService.cpp
             src/services/web/WebProjectFilePickerService.hpp
-            src/services/web/VFSPicker.cpp
-            src/services/web/VFSPicker.hpp
+            src/services/web/VFSPickerService.cpp
+            src/services/web/VFSPickerService.hpp
             src/services/web/IPartialProjectObserveService.hpp
             src/services/web/IPartialProjectCompletionService.hpp
-            src/services/web/IVFSRequestService.hpp
+            src/services/web/IPartialProjectBuilderService.hpp
     )
 endif ()
 

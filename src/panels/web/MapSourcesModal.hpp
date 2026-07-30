@@ -18,9 +18,9 @@
 namespace echomap
 {
 
+class IPartialProjectBuilderService;
 class IPartialProjectCompletionService;
 class IPartialProjectObserveService;
-class IVFSRequestService;
 class SignalFactory;
 
 template <class Range>
@@ -39,7 +39,7 @@ public:
     explicit MapSourcesModal(
             IPartialProjectCompletionService& completion_service,
             IPartialProjectObserveService& observe_service,
-            IVFSRequestService& vfs_request_service
+            IPartialProjectBuilderService& builder_service
     );
 
     void draw() noexcept override;
@@ -72,7 +72,7 @@ private:
     bool should_open = true;
     IPartialProjectCompletionService& completion_service;
     IPartialProjectObserveService& observe_service;
-    IVFSRequestService& vfs_request_service;
+    IPartialProjectBuilderService& builder_service;
 };
 
 } // namespace echomap

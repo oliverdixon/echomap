@@ -14,17 +14,17 @@
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "../../objects/IDAllocator.hpp"
+#include "../../services/web/IPartialProjectBuilderService.hpp"
 #include "../../services/web/IPartialProjectCompletionService.hpp"
 #include "../../services/web/IPartialProjectObserveService.hpp"
-#include "../../services/web/IVFSRequestService.hpp"
 #include "../ProjectControllerBase.hpp"
 
 namespace echomap
 {
 
+class VFSPickerService;
 class PartialProject;
 class Worker;
-class VFSPicker;
 
 /**
  * @todo Document
@@ -32,7 +32,7 @@ class VFSPicker;
 class PartialProjectController : public ProjectControllerBase,
                                  public IPartialProjectObserveService,
                                  public IPartialProjectCompletionService,
-                                 public IVFSRequestService // TODO don't implement this.
+                                 public IPartialProjectBuilderService
 {
 public:
     explicit PartialProjectController(
@@ -50,7 +50,7 @@ public:
 
     [[nodiscard]] const PartialProject* observe_partial_project() const noexcept override;
 
-    void request_vfs_mapping(
+    void add_vfs_mapping(
             id_type intended_project_id,
             const std::filesystem::path& intended_external
     ) override;
@@ -63,7 +63,7 @@ public:
 
 private:
     std::unique_ptr<PartialProject> partial_project;
-    std::unique_ptr<VFSPicker> vfs_picker;
+    std::unique_ptr<VFSPickerService> vfs_picker;
     Worker& worker;
 };
 

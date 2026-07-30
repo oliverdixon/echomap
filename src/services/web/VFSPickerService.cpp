@@ -1,13 +1,13 @@
 /**
  * @file
  *
- * VFSPicker implementation
+ * VFSPickerService implementation
  *
  * @author Oliver Dixon
  * @date 2026-07-29
  */
 
-#include "VFSPicker.hpp"
+#include "VFSPickerService.hpp"
 
 #include <emscripten/em_js.h>
 
@@ -46,7 +46,7 @@ EM_JS(void,
 
 #endif // __DOXYGEN__
 
-VFSPicker::VFSPicker()
+VFSPickerService::VFSPickerService()
 {
     if (instance != nullptr)
         throw ConfigurationError("Only one VFSPicker instance may be active.");
@@ -54,13 +54,13 @@ VFSPicker::VFSPicker()
     instance = this;
 }
 
-VFSPicker::~VFSPicker() noexcept
+VFSPickerService::~VFSPickerService() noexcept
 {
     if (instance == this)
         instance = nullptr;
 }
 
-void VFSPicker::request_vfs_mapping(
+void VFSPickerService::request_vfs_mapping(
         id_type project_id,
         const std::filesystem::path& external,
         SuccessCallbackT success_callback,
@@ -81,7 +81,7 @@ void VFSPicker::request_vfs_mapping(
 
 }
 
-int VFSPicker::complete_vfs_mapping(
+int VFSPickerService::complete_vfs_mapping(
         const id_type project_id,
         const char* const external,
         const char* const internal
@@ -113,7 +113,7 @@ int VFSPicker::complete_vfs_mapping(
     return 0;
 }
 
-VFSPicker* VFSPicker::instance = nullptr;
+VFSPickerService* VFSPickerService::instance = nullptr;
 
 } // namespace echomap
 
@@ -137,7 +137,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
     using namespace echomap;
 
     try {
-        return VFSPicker::complete_vfs_mapping(project_id, external, internal);
+        return VFSPickerService::complete_vfs_mapping(project_id, external, internal);
     } catch (const ConfigurationError& error) {
         LOG_F_ERROR("Could not load path {} due to error: {}", internal, error.what());
         return 6;

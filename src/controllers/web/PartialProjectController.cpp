@@ -18,7 +18,7 @@
 #include "../../errors/IgnoredWarning.hpp"
 #include "../../objects/web/PartialProject.hpp"
 #include "../../panels/web/MapSourcesModal.hpp"
-#include "../../services/web/VFSPicker.hpp"
+#include "../../services/web/VFSPickerService.hpp"
 #include "../../services/web/WebProjectFilePickerService.hpp"
 #include "../../utility/Logger.hpp"
 #include "../PanelHost.hpp"
@@ -35,7 +35,7 @@ PartialProjectController::PartialProjectController(
             std::make_unique<WebProjectFilePickerService>(),
             worker
     ),
-    vfs_picker(std::make_unique<VFSPicker>()),
+    vfs_picker(std::make_unique<VFSPickerService>()),
     worker(worker)
 {
 }
@@ -47,7 +47,7 @@ const PartialProject* PartialProjectController::observe_partial_project() const 
     return partial_project.get();
 }
 
-void PartialProjectController::request_vfs_mapping(
+void PartialProjectController::add_vfs_mapping(
         const id_type intended_project_id,
         const std::filesystem::path& intended_external
 )

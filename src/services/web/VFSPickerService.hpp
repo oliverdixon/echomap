@@ -1,14 +1,14 @@
 /**
  * @file
  *
- * VFSPicker specification
+ * VFSPickerService specification
  *
  * @author Oliver Dixon
  * @date 2026-07-29
  */
 
-#ifndef ECHOMAP_VFSPICKER_HPP
-#define ECHOMAP_VFSPICKER_HPP
+#ifndef ECHOMAP_VFSPICKERSERVICE_HPP
+#define ECHOMAP_VFSPICKERSERVICE_HPP
 
 #include <sigc++/slot.h>
 
@@ -28,20 +28,20 @@ namespace echomap
 /**
  * @todo Document
  */
-class VFSPicker
+class VFSPickerService
 {
 public:
     using SuccessCallbackT =
             sigc::slot<void(id_type project_id, std::filesystem::path external, std::filesystem::path internal)>;
     using CancelledCallbackT = sigc::slot<void(std::filesystem::path external)>;
 
-    VFSPicker();
-    ~VFSPicker() noexcept;
+    VFSPickerService();
+    ~VFSPickerService() noexcept;
 
-    VFSPicker(const VFSPicker&) = delete;
-    VFSPicker& operator=(const VFSPicker&) = delete;
-    VFSPicker(VFSPicker&&) = delete;
-    VFSPicker& operator=(VFSPicker&&) = delete;
+    VFSPickerService(const VFSPickerService&) = delete;
+    VFSPickerService& operator=(const VFSPickerService&) = delete;
+    VFSPickerService(VFSPickerService&&) = delete;
+    VFSPickerService& operator=(VFSPickerService&&) = delete;
 
     void request_vfs_mapping(
             id_type project_id,
@@ -72,9 +72,9 @@ private:
     ) noexcept;
 
     std::optional<PendingRequest> pending_request;
-    static VFSPicker* instance;
+    static VFSPickerService* instance;
 };
 
 } // namespace echomap
 
-#endif // ECHOMAP_VFSPICKER_HPP
+#endif // ECHOMAP_VFSPICKERSERVICE_HPP
