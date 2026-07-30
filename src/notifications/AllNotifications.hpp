@@ -21,7 +21,6 @@
 
 // Web-only notifications.
 
-#include "web/CancelProjectLoadNotification.hpp"
 #include "web/CompleteProjectLoadNotification.hpp"
 
 #endif // __EMSCRIPTEN__

@@ -132,8 +132,7 @@ void MapSourcesModal::draw_buttons(
     ImGui::Spacing();
 
     if (ImGui::Button("Cancel", button_size)) {
-        notification_sink.notify(CancelProjectLoadNotification(project->get_id()));
-        ImGui::CloseCurrentPopup();
+        project_controller.cancel_project_load(project->get_id()), ImGui::CloseCurrentPopup();
         should_open = false;
     }
 

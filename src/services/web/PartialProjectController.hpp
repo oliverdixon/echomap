@@ -24,9 +24,7 @@ class PartialProject;
 class Worker;
 class VFSPicker;
 
-struct RegisterVFSMappingNotification;
 struct CompleteProjectLoadNotification;
-struct CancelProjectLoadNotification;
 
 /**
  * @todo Document
@@ -53,9 +51,11 @@ public:
             const std::filesystem::path& intended_external
     ) const;
 
+    void cancel_project_load(id_type intended_project_id);
+    void complete_project_load(id_type intended_project_id);
+
     using ProjectControllerBase::handle_notification;
 
-    void handle_notification(const CancelProjectLoadNotification& notification);
     void handle_notification(const CompleteProjectLoadNotification& notification) const;
 
     void handle_result(LoadProjectResult&& result) override;

@@ -127,8 +127,6 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/web/EmscriptenExtra.hpp
             src/objects/web/PartialProject.cpp
             src/objects/web/PartialProject.hpp
-            src/notifications/web/CancelProjectLoadNotification.cpp
-            src/notifications/web/CancelProjectLoadNotification.hpp
             src/panels/web/IWebPanel.hpp
             src/objects/persistence/web/JSONPartialDeserialiser.cpp
             src/objects/persistence/web/JSONPartialDeserialiser.hpp

@@ -25,7 +25,6 @@ struct ClearErrorNotification;
 
 // Web-only notifications.
 
-struct CancelProjectLoadNotification;
 struct CompleteProjectLoadNotification;
 
 #endif // __EMSCRIPTEN__
@@ -67,8 +66,7 @@ using Notification = std::variant<
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         // Web-only notifications.
         ,
-        CompleteProjectLoadNotification,
-        CancelProjectLoadNotification
+        CompleteProjectLoadNotification
 #endif // __EMSCRIPTEN__
         >;
 
@@ -129,11 +127,6 @@ template <> constexpr std::string_view NotificationNames::get<ClearErrorNotifica
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 // Names of web-only notifications.
-
-template <> constexpr std::string_view NotificationNames::get<CancelProjectLoadNotification>()
-{
-    return "Cancel Project Load Notification";
-}
 
 template <> constexpr std::string_view NotificationNames::get<CompleteProjectLoadNotification>()
 {

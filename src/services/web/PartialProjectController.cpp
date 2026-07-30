@@ -16,7 +16,6 @@
 #include "../../async/results/LoadSignalFileResult.hpp"
 #include "../../async/tasks/LoadSignalFileTask.hpp"
 #include "../../errors/IgnoredWarning.hpp"
-#include "../../notifications/web/CancelProjectLoadNotification.hpp"
 #include "../../notifications/web/CompleteProjectLoadNotification.hpp"
 #include "../../objects/web/PartialProject.hpp"
 #include "../../panels/web/MapSourcesModal.hpp"
@@ -56,13 +55,12 @@ void PartialProjectController::request_vfs_mapping(
             intended_external,
             [this](const id_type project_id, const std::filesystem::path& external, std::filesystem::path internal) {
                 if (partial_project == nullptr)
-                    throw IgnoredWarning("Dropping RegisterVFSMappingNotification due to empty project.");
+                    throw IgnoredWarning("Ignoring VFS mapping due to empty project.");
 
                 if (partial_project->get_id() != project_id)
                     throw IgnoredWarning(
                             std::format(
-                                    "Dropping RegisterVFSMappingNotification due to invalid project: requested {}, but "
-                                    "have {}.",
+                                    "Ignoring VFS mapping due to invalid project: requested {}, but have {}.",
                                     project_id,
                                     partial_project->get_id()
                             )
@@ -72,10 +70,7 @@ void PartialProjectController::request_vfs_mapping(
                     partial_project->add_vfs_mapping_for_unavailable_signal(external, std::move(internal));
                 } catch (const std::runtime_error&) {
                     throw IgnoredWarning(
-                            std::format(
-                                    "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
-                                    external.c_str()
-                            )
+                            std::format("Ignoring VFS mapping since we don't need a mapping for {}.", external.c_str())
                     );
                 }
             },
@@ -84,11 +79,21 @@ void PartialProjectController::request_vfs_mapping(
     );
 }
 
-void PartialProjectController::handle_notification(
-        const CancelProjectLoadNotification& notification
+void PartialProjectController::cancel_project_load(
+        const id_type intended_project_id
 )
 {
-    notification.verify_project(partial_project.get());
+    if (partial_project == nullptr)
+        throw IgnoredWarning("Ignoring cancellation request due to empty project.");
+
+    if (partial_project->get_id() != intended_project_id)
+        throw IgnoredWarning(
+                std::format(
+                        "Ignoring cancellation request due to invalid project: requested {}, but have {}.",
+                        intended_project_id,
+                        partial_project->get_id()
+                )
+        );
 
     panel_host.reset_active_modal();
     partial_project.reset();

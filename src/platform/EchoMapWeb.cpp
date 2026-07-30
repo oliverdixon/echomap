@@ -32,7 +32,6 @@ void EchoMapWeb::visit_notification(
 
             variant_helpers::Overloaded{
                 make_common_notification_visitors(),
-                [this](const CancelProjectLoadNotification& n) { project_controller.handle_notification(n); },
                 [this](const CompleteProjectLoadNotification& n) { project_controller.handle_notification(n); },
             },
 
