@@ -71,9 +71,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/async/tasks/DFTTask.hpp
         src/async/results/DFTResult.cpp
         src/async/results/DFTResult.hpp
-        src/notifications/AddChannelMappingNotification.hpp
-        src/notifications/ModifySensorPositionNotification.hpp
-        src/notifications/ModifySensorColourNotification.hpp
         src/async/tasks/ITask.cpp
         src/async/WorkerResultDespatcher.cpp
         src/async/WorkerResultDespatcher.hpp
@@ -87,14 +84,9 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/async/results/LoadSignalFileResult.hpp
         src/errors/IgnoredWarning.cpp
         src/errors/IgnoredWarning.hpp
-        src/notifications/AddChannelMappingNotification.cpp
-        src/notifications/ModifySensorPositionNotification.cpp
-        src/notifications/ModifySensorColourNotification.cpp
         src/async/results/WorkerResult.hpp
         src/utility/Colour.hpp
         src/utility/Position.hpp
-        src/notifications/AllNotifications.hpp
-        src/notifications/AllNotificationsFwd.hpp
         src/panels/IProjectPanel.hpp
         src/objects/persistence/JSONDeserialiserHelpers.cpp
         src/objects/persistence/JSONDeserialiserHelpers.hpp
@@ -106,11 +98,12 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/RenderHost.hpp
         src/services/PanelHost.cpp
         src/services/PanelHost.hpp
-        src/services/INotificationSink.hpp
         src/services/ProjectControllerBase.cpp
         src/services/ProjectControllerBase.hpp
         src/services/ProjectController.hpp
         src/services/IProjectFilePicker.hpp
+        src/services/IProjectMutationService.cpp
+        src/services/IProjectMutationService.hpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)

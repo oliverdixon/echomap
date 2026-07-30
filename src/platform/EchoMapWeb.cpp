@@ -13,22 +13,12 @@
 
 #include <emscripten/emscripten.h>
 
-#include "../notifications/AllNotifications.hpp"
-#include "../objects/web/PartialProject.hpp"
-
 #ifndef __EMSCRIPTEN_PTHREADS__
 #warning "The Emscripten application will be single-threaded."
 #endif // __EMSCRIPTEN_PTHREADS__
 
 namespace echomap
 {
-
-void EchoMapWeb::visit_notification(
-        Notification notification
-)
-{
-    std::visit(make_common_notification_visitors(), notification);
-}
 
 void EchoMapWeb::render_shim(
         void* const echomap_instance
@@ -44,10 +34,6 @@ void EchoMapWeb::run_event_loop()
 {
     emscripten_set_main_loop_arg(&EchoMapWeb::render_shim, this, 0, true);
 }
-
-EchoMapWeb::EchoMapWeb() = default;
-
-EchoMapWeb::~EchoMapWeb() = default;
 
 } // namespace echomap
 

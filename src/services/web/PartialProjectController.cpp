@@ -112,14 +112,14 @@ void PartialProjectController::complete_project_load(
                 )
         );
 
-    // For each group, create a worker notification to load the corresponding file.
+    // For each group, create an asynchronous task to load the corresponding file.
 
     for (auto&& [vfs_path, factories] : partial_project->take_unloaded_factories()) {
 
         if (!vfs_path.has_value())
             throw std::runtime_error("Refusing to complete project load due to an incomplete VFS mapping.");
 
-        // Once these notifications return, if everything is loaded correctly, we'll change the active project.
+        // Once these tasks complete, if everything is loaded correctly, we'll change the active project.
         worker.submit(std::make_unique<LoadSignalFileTask>(partial_project->get_id(), *vfs_path, std::move(factories)));
     }
 

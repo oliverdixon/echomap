@@ -12,10 +12,10 @@
 namespace echomap
 {
 
+class IProjectMutationService;
 class IRenderInvalidator;
 class Signal;
 class Sensor;
-class EchoMap;
 class WorkerResultDespatcher;
 
 /**
@@ -27,12 +27,12 @@ public:
     /**
      * Create a new ChannelMappingPanel to describe and configure Signal-Sensor mappings.
      *
-     * @param app The parent application instance.
+     * @param mutation_service TODO
      * @param invalidator TODO
      * @param initial_project An optional initial Project for the IPanel to display.
      */
     explicit ChannelMappingPanel(
-            EchoMap* app,
+            IProjectMutationService& mutation_service,
             IRenderInvalidator& invalidator,
             const Project* initial_project = nullptr
     );
@@ -57,8 +57,8 @@ private:
         const Sensor * sensor = nullptr;
     } new_entry_cache;
 
-    EchoMap* app;
-    const Project* active_project = nullptr;
+    IProjectMutationService& mutation_service;
+    const Project* active_project = nullptr; // TODO remove.
     IRenderInvalidator& invalidator;
 
     bool was_signal_combo_open = false; /**< Was the Associated Signal combo box open on the previous render cycle? */

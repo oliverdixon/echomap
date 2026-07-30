@@ -12,12 +12,10 @@
 
 #include <memory>
 
+#include "IProjectMutationService.hpp"
+
 namespace echomap
 {
-
-struct ModifySensorPositionNotification;
-struct ModifySensorColourNotification;
-struct AddChannelMappingNotification;
 
 class IProjectFilePicker;
 class PanelHost;
@@ -27,10 +25,10 @@ class LoadProjectResult;
 class Worker;
 
 /**
- * Base implementation for controllers requiring direct access to a Project, implementing the base set of Notification
- * and WorkerResult handlers.
+ * Base implementation for controllers requiring direct access to a Project, implementing the base set of WorkerResult
+ * handlers.
  */
-class ProjectControllerBase
+class ProjectControllerBase : public IProjectMutationService
 {
 public:
     explicit ProjectControllerBase(
@@ -39,7 +37,7 @@ public:
             Worker& worker
     );
 
-    virtual ~ProjectControllerBase() noexcept;
+    ~ProjectControllerBase() noexcept override;
 
     ProjectControllerBase(const ProjectControllerBase&) = delete;
     ProjectControllerBase& operator=(const ProjectControllerBase&) = delete;
@@ -51,9 +49,20 @@ public:
 
     void request_open_project() const;
 
-    void handle_notification(const AddChannelMappingNotification& notification) const;
-    void handle_notification(const ModifySensorColourNotification& notification) const;
-    void handle_notification(const ModifySensorPositionNotification& notification) const;
+    void add_channel_mapping(
+            id_type signal_id,
+            id_type sensor_id
+    ) override;
+
+    void modify_sensor_position(
+            id_type sensor_id,
+            const Position& position
+    ) override;
+
+    void modify_sensor_colour(
+            id_type sensor_id,
+            const Colour& colour
+    ) override;
 
     virtual void handle_result(LoadProjectResult&& result) = 0;
     virtual void handle_result(LoadSignalFileResult&& result) = 0;

@@ -7,22 +7,21 @@
 
 #include "SensorGeometryPanel.hpp"
 
-#include "../EchoMap.hpp"
-#include "../notifications/AllNotifications.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
+#include "../services/IProjectMutationService.hpp"
 #include "../utility/Logger.hpp"
 
 namespace echomap
 {
 
 SensorGeometryPanel::SensorGeometryPanel(
-        EchoMap* app,
+        IProjectMutationService& mutation_service,
         const Project* const initial_project
 ) :
     panel_name(std::string("Sensor Geometry") + get_imgui_stable_name()),
     active_project(initial_project),
-    app(app)
+    mutation_service(mutation_service)
 {
 }
 
@@ -109,10 +108,9 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
             ImGui::TableNextColumn();
 
             const ImVec4 colour = ImGui::ColorConvertU32ToFloat4(sensor_colours[row_idx]);
-            std::array<float, 4> new_colour = {colour.x, colour.y, colour.z, colour.w};
+            std::array new_colour = {colour.x, colour.y, colour.z, colour.w};
             if (ImGui::ColorEdit4("##colour", new_colour.data(), ImGuiColorEditFlags_NoInputs)) {
-                app->notify(ModifySensorColourNotification(
-                        active_project->get_id(),
+                mutation_service.modify_sensor_colour(
                         sensor.get_id(),
                         {
                                 .r = new_colour[0],
@@ -120,7 +118,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
                                 .b = new_colour[2],
                                 .a = new_colour[3],
                         }
-                ));
+                );
 
                 sensor_colours[row_idx] = IM_COL32(
                         static_cast<int>(new_colour[0] * 255.0f),
@@ -153,7 +151,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
             ++row_idx;
 
             if (position_changed)
-                app->notify(ModifySensorPositionNotification(active_project->get_id(), sensor.get_id(), new_position));
+                mutation_service.modify_sensor_position(sensor.get_id(), new_position);
         }
 
         ImGui::EndTable();

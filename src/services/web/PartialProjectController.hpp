@@ -50,8 +50,6 @@ public:
     void cancel_project_load(id_type intended_project_id);
     void complete_project_load(id_type intended_project_id) const;
 
-    using ProjectControllerBase::handle_notification;
-
     void handle_result(LoadProjectResult&& result) override;
     void handle_result(LoadSignalFileResult&& result) override;
 

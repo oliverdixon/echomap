@@ -13,9 +13,7 @@
 
 #include "../async/Worker.hpp"
 #include "../async/tasks/LoadProjectTask.hpp"
-#include "../notifications/AddChannelMappingNotification.hpp"
-#include "../notifications/ModifySensorColourNotification.hpp"
-#include "../notifications/ModifySensorPositionNotification.hpp"
+#include "../errors/IgnoredWarning.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
 #include "../utility/Logger.hpp"
@@ -61,28 +59,37 @@ void ProjectControllerBase::request_open_project() const
     );
 }
 
-void ProjectControllerBase::handle_notification(
-        const AddChannelMappingNotification& notification
-) const
+void ProjectControllerBase::add_channel_mapping(
+        const id_type signal_id,
+        const id_type sensor_id
+)
 {
-    notification.verify_project(project.get());
-    project->add_association(notification.signal_id, notification.sensor_id);
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping new channel mapping due to empty project.");
+
+    project->add_association(signal_id, sensor_id);
 }
 
-void ProjectControllerBase::handle_notification(
-        const ModifySensorColourNotification& notification
-) const
+void ProjectControllerBase::modify_sensor_position(
+        const id_type sensor_id,
+        const Position& position
+)
 {
-    notification.verify_project(project.get());
-    project->get_mutable_sensor(notification.sensor_id).set_colour(notification.colour);
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping Sensor position modification due to empty project.");
+
+    project->get_mutable_sensor(sensor_id).set_position(position);
 }
 
-void ProjectControllerBase::handle_notification(
-        const ModifySensorPositionNotification& notification
-) const
+void ProjectControllerBase::modify_sensor_colour(
+        const id_type sensor_id,
+        const Colour& colour
+)
 {
-    notification.verify_project(project.get());
-    project->get_mutable_sensor(notification.sensor_id).set_position(notification.position);
+    if (project == nullptr)
+        throw IgnoredWarning("Dropping Sensor colour modification due to empty project.");
+
+    project->get_mutable_sensor(sensor_id).set_colour(colour);
 }
 
 } // namespace echomap

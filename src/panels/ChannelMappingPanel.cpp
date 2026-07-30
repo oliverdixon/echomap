@@ -4,22 +4,22 @@
 
 #include "ChannelMappingPanel.hpp"
 
-#include "../EchoMap.hpp"
-#include "../notifications/AllNotifications.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
 #include "../objects/Signal.hpp"
+#include "../services/IProjectMutationService.hpp"
+#include "../services/IRenderInvalidator.hpp"
 
 namespace echomap
 {
 
 ChannelMappingPanel::ChannelMappingPanel(
-        EchoMap* app,
+        IProjectMutationService& mutation_service,
         IRenderInvalidator& invalidator,
         const Project* const initial_project
 ) :
     panel_name(std::string("Channel Mapping") + get_imgui_stable_name()),
-    app(app),
+    mutation_service(mutation_service),
     active_project(initial_project),
     invalidator(invalidator)
 {
@@ -41,11 +41,10 @@ void ChannelMappingPanel::draw() noexcept
 
             // If a new mapping has been fully described, add it and prompt for another.
             if (new_entry_cache.signal != nullptr && new_entry_cache.sensor != nullptr) {
-                app->notify(AddChannelMappingNotification(
-                        active_project->get_id(),
+                mutation_service.add_channel_mapping(
                         new_entry_cache.signal->get_id(),
                         new_entry_cache.sensor->get_id()
-                ));
+                );
 
                 new_entry_cache.signal = nullptr;
                 new_entry_cache.sensor = nullptr;

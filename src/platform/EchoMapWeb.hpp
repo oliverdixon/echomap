@@ -27,12 +27,7 @@ class EchoMapWeb : public EchoMap
 public:
     void run_event_loop() override;
 
-    EchoMapWeb();
-    ~EchoMapWeb() override;
-
 protected:
-    void visit_notification(Notification notification) override;
-
 private:
     /**
      * Invokes the renderer from a static context given an untyped mutable pointer to the EchoMap object instance.
@@ -42,8 +37,6 @@ private:
      * @param echomap_instance The EchoMapWeb application instance on which to invoke the renderer.
      */
     static void render_shim(void* echomap_instance);
-
-    std::unique_ptr<PartialProject> unloaded_project; /**< Owning container for the unloaded Project. */
 };
 
 } // namespace echomap

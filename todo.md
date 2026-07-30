@@ -2,8 +2,7 @@
 
 ## Architecture branch
 
-1. Complete work in MapSourcesModal.
-2. Remove web-only notifications; they can be replaced with callback slots provided to MapSourcesModal constructor.
+1. Panels shouldn't store a reference from the active project. They should ask for it from the project controller.
 
 ## Medium/Long Term
 

@@ -17,7 +17,7 @@
 namespace echomap
 {
 
-class EchoMap;
+class IProjectMutationService;
 class Project;
 class WorkerResultDespatcher;
 
@@ -30,11 +30,11 @@ public:
     /**
      * Create a new SensorGeometryPanel to plot and control Sensor information.
      *
-     * @param app The parent application instance.
+     * @param mutation_service TODO
      * @param initial_project An optional initial Project for the IPanel to display.
      */
     explicit SensorGeometryPanel(
-            EchoMap* app,
+            IProjectMutationService& mutation_service,
             const Project* initial_project = nullptr
     );
 
@@ -70,7 +70,7 @@ private:
     std::vector<ImU32> sensor_colours;
     ImPlot3DSpec plotting_spec_3d;
     const Project* active_project = nullptr;
-    EchoMap* app;
+    IProjectMutationService& mutation_service;
 };
 
 } // namespace echomap

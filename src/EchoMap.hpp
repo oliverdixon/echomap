@@ -12,8 +12,6 @@
 
 #include "async/Worker.hpp"
 #include "async/WorkerResultDespatcher.hpp"
-#include "notifications/AllNotificationsFwd.hpp"
-#include "services/INotificationSink.hpp"
 #include "services/PanelHost.hpp"
 #include "services/RenderHost.hpp"
 #include "services/ProjectController.hpp"
@@ -30,7 +28,7 @@ class Project;
  * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating
  * initialisation, game loop, interaction, and clean-up.
  */
-class EchoMap : public INotificationSink
+class EchoMap
 {
 public:
     /**
@@ -44,7 +42,7 @@ public:
      */
     EchoMap();
 
-    ~EchoMap() noexcept override;
+    virtual ~EchoMap() noexcept;
 
     /**
      * Runs the platform-dependent event loop to manage and propagate interaction with the EchoMap application.
@@ -53,15 +51,6 @@ public:
      * could be re-run, or the application could clean up by calling the destructor.
      */
     virtual void run_event_loop() = 0;
-
-    /**
-     * Submit a new Notification to the application queue.
-     *
-     * Notifications are processed at the beginning of render cycles in a first-come first-served ordering.
-     *
-     * @param notification The Notification to schedule.
-     */
-    void notify(Notification&& notification) override;
 
     EchoMap(const EchoMap&) = delete;
     EchoMap& operator=(const EchoMap&) = delete;
@@ -72,43 +61,12 @@ protected:
     void tick();
 
     /**
-     * Produce an overload set for @ref std::visit for all platform-independent Notification objects.
-     *
-     * @return The overload set.
-     */
-    auto make_common_notification_visitors()
-    {
-        // clang-format off
-        return variant_helpers::Overloaded{
-            [this](const AddChannelMappingNotification& n) { project_controller.handle_notification(n); },
-            [this](const ModifySensorColourNotification& n) { project_controller.handle_notification(n); },
-            [this](const ModifySensorPositionNotification& n) { project_controller.handle_notification(n); },
-        };
-        // clang-format on
-    }
-
-    /**
-     * Uses @ref std::visit on the given notification to invoke the corresponding handler.
-     *
-     * This function is virtual, since the overload set can be platform-dependent in addition to the base handlers
-     * provided by @ref make_common_notification_visitors.
-     *
-     * @param notification The notification to visit.
-     */
-    virtual void visit_notification(Notification notification) = 0;
-
-    /**
      * Configure the core signals for the application instance.
      *
      * This should be invoked during construction prior to any IPanel invocations as it takes the exclusive consumer
      * role for several critical message classes.
      */
     void setup_subscriptions();
-
-    /**
-     * Handle any unconsumed Notification objects from the queue.
-     */
-    void process_notifications();
 
     /**
      * Handle any unconsumed events from the Worker.
@@ -120,8 +78,6 @@ protected:
     Worker worker;                     /**< Multi-threaded worker for scheduling heavy computation tasks. */
     WorkerResultDespatcher despatcher; /**< Despatcher to manage Worker result channels. */
     std::vector<sigc::scoped_connection> connections;   /**< RAII lifetime manager for signal connections. */
-
-    std::deque<Notification> notification_queue; /**< FIFO queue for Notification objects. */
 
     RenderHost render_host;
     PanelHost panel_host;
