@@ -34,7 +34,6 @@ void EchoMapWeb::visit_notification(
                 make_common_notification_visitors(),
                 [this](const CancelProjectLoadNotification& n) { project_controller.handle_notification(n); },
                 [this](const CompleteProjectLoadNotification& n) { project_controller.handle_notification(n); },
-                [this](RegisterVFSMappingNotification& n) { project_controller.handle_notification(n); },
             },
 
             // clang-format on

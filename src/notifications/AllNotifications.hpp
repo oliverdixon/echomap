@@ -23,7 +23,6 @@
 
 #include "web/CancelProjectLoadNotification.hpp"
 #include "web/CompleteProjectLoadNotification.hpp"
-#include "web/RegisterVFSMappingNotification.hpp"
 
 #endif // __EMSCRIPTEN__
 

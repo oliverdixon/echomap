@@ -13,17 +13,20 @@
 #include "../../objects/factories/SignalFactory.hpp"
 #include "../../objects/web/PartialProject.hpp"
 #include "../../services/INotificationSink.hpp"
+#include "../../services/web/PartialProjectController.hpp"
 
 namespace echomap
 {
 
 MapSourcesModal::MapSourcesModal(
+        PartialProjectController& project_controller,
         INotificationSink& notification_sink,
         const PartialProject* const project
 ) :
     panel_name(std::string("Upload External Files") + get_imgui_stable_name()),
     project(project),
-    notification_sink(notification_sink)
+    notification_sink(notification_sink),
+    project_controller(project_controller)
 {
 }
 
@@ -163,11 +166,8 @@ bool MapSourcesModal::draw_table_entry(
     ImGui::SetCursorPos({ImGui::GetCursorPosX() - padding.x, ImGui::GetCursorPosY() - padding.y});
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, upload_button_frame_padding);
 
-#if 0
-    // TODO: give MapSourcesModal a VFSPicker& so it can request the mapping registration.
     if (ImGui::Button("Upload", ImVec2(button_size.x + 2 * padding.x, button_size.y)))
-        ActionController::register_vfs_mapping(project->get_id(), external_path);
-#endif
+        project_controller.request_vfs_mapping(project->get_id(), external_path);
 
     ImGui::PopStyleVar();
 

@@ -9,9 +9,11 @@
 
 #ifndef ECHOMAP_PARTIALPROJECTCONTROLLER_HPP
 #define ECHOMAP_PARTIALPROJECTCONTROLLER_HPP
+#include <__filesystem/path.h>
 
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
+#include "../../objects/IDAllocator.hpp"
 #include "../ProjectControllerBase.hpp"
 
 namespace echomap
@@ -46,11 +48,15 @@ public:
     PartialProjectController(PartialProjectController&&) = delete;
     PartialProjectController& operator=(PartialProjectController&&) = delete;
 
+    void request_vfs_mapping(
+            id_type intended_project_id,
+            const std::filesystem::path& intended_external
+    ) const;
+
     using ProjectControllerBase::handle_notification;
 
     void handle_notification(const CancelProjectLoadNotification& notification);
     void handle_notification(const CompleteProjectLoadNotification& notification) const;
-    void handle_notification(RegisterVFSMappingNotification& notification) const;
 
     void handle_result(LoadProjectResult&& result) override;
     void handle_result(LoadSignalFileResult&& result) override;

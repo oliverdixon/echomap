@@ -27,7 +27,6 @@ struct ClearErrorNotification;
 
 struct CancelProjectLoadNotification;
 struct CompleteProjectLoadNotification;
-struct RegisterVFSMappingNotification;
 
 #endif // __EMSCRIPTEN__
 
@@ -68,7 +67,6 @@ using Notification = std::variant<
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
         // Web-only notifications.
         ,
-        RegisterVFSMappingNotification,
         CompleteProjectLoadNotification,
         CancelProjectLoadNotification
 #endif // __EMSCRIPTEN__
@@ -140,11 +138,6 @@ template <> constexpr std::string_view NotificationNames::get<CancelProjectLoadN
 template <> constexpr std::string_view NotificationNames::get<CompleteProjectLoadNotification>()
 {
     return "Complete Project Load Notification";
-}
-
-template <> constexpr std::string_view NotificationNames::get<RegisterVFSMappingNotification>()
-{
-    return "Register VFS Mapping Notification";
 }
 
 #endif // __EMSCRIPTEN__

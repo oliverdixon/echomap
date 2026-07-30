@@ -120,8 +120,6 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     target_sources(DummyTarget PRIVATE
             src/platform/EchoMapWeb.cpp
             src/platform/EchoMapWeb.hpp
-            src/notifications/web/RegisterVFSMappingNotification.hpp
-            src/notifications/web/RegisterVFSMappingNotification.cpp
             src/panels/web/MapSourcesModal.cpp
             src/panels/web/MapSourcesModal.hpp
             src/notifications/web/CompleteProjectLoadNotification.hpp

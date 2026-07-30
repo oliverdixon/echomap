@@ -18,7 +18,6 @@
 #include "../../errors/IgnoredWarning.hpp"
 #include "../../notifications/web/CancelProjectLoadNotification.hpp"
 #include "../../notifications/web/CompleteProjectLoadNotification.hpp"
-#include "../../notifications/web/RegisterVFSMappingNotification.hpp"
 #include "../../objects/web/PartialProject.hpp"
 #include "../../panels/web/MapSourcesModal.hpp"
 #include "../../utility/Logger.hpp"
@@ -46,6 +45,44 @@ PartialProjectController::PartialProjectController(
 }
 
 PartialProjectController::~PartialProjectController() noexcept = default;
+
+void PartialProjectController::request_vfs_mapping(
+        const id_type intended_project_id,
+        const std::filesystem::path& intended_external
+) const
+{
+    vfs_picker->request_vfs_mapping(
+            intended_project_id,
+            intended_external,
+            [this](const id_type project_id, const std::filesystem::path& external, std::filesystem::path internal) {
+                if (partial_project == nullptr)
+                    throw IgnoredWarning("Dropping RegisterVFSMappingNotification due to empty project.");
+
+                if (partial_project->get_id() != project_id)
+                    throw IgnoredWarning(
+                            std::format(
+                                    "Dropping RegisterVFSMappingNotification due to invalid project: requested {}, but "
+                                    "have {}.",
+                                    project_id,
+                                    partial_project->get_id()
+                            )
+                    );
+
+                try {
+                    partial_project->add_vfs_mapping_for_unavailable_signal(external, std::move(internal));
+                } catch (const std::runtime_error&) {
+                    throw IgnoredWarning(
+                            std::format(
+                                    "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
+                                    external.c_str()
+                            )
+                    );
+                }
+            },
+            [](const std::filesystem::path&) {
+            }
+    );
+}
 
 void PartialProjectController::handle_notification(
         const CancelProjectLoadNotification& notification
@@ -77,27 +114,6 @@ void PartialProjectController::handle_notification(
     panel_host.reset_active_modal();
 }
 
-void PartialProjectController::handle_notification(
-        RegisterVFSMappingNotification& notification
-) const
-{
-    notification.verify_project(partial_project.get());
-
-    try {
-        partial_project->add_vfs_mapping_for_unavailable_signal(
-                notification.external,
-                std::move(notification.internal)
-        );
-    } catch (const std::runtime_error&) {
-        throw IgnoredWarning(
-                std::format(
-                        "Dropping RegisterVFSMappingNotification since we don't need a mapping for {}.",
-                        notification.external.c_str()
-                )
-        );
-    }
-}
-
 void PartialProjectController::handle_result(
         LoadProjectResult&& result
 )
@@ -111,7 +127,7 @@ void PartialProjectController::handle_result(
 
     if (!new_project->observe_unloaded_signals().empty()) {
         // Raise the modal to query for the sources.
-        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(notification_sink, new_project.get()));
+        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(*this, notification_sink, new_project.get()));
         partial_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));

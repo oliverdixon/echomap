@@ -31,7 +31,8 @@ namespace echomap
 class VFSPicker
 {
 public:
-    using SuccessCallbackT = sigc::slot<void(std::filesystem::path external, std::filesystem::path internal)>;
+    using SuccessCallbackT =
+            sigc::slot<void(id_type project_id, std::filesystem::path external, std::filesystem::path internal)>;
     using CancelledCallbackT = sigc::slot<void(std::filesystem::path external)>;
 
     VFSPicker();

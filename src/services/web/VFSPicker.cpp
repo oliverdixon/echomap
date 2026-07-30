@@ -108,7 +108,7 @@ int VFSPicker::complete_vfs_mapping(
         return 5;
 
     if (request.success_callback)
-        request.success_callback(request.external, std::filesystem::path{internal});
+        request.success_callback(project_id, request.external, std::filesystem::path{internal});
 
     return 0;
 }
