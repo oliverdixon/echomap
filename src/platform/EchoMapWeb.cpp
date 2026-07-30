@@ -27,17 +27,7 @@ void EchoMapWeb::visit_notification(
         Notification notification
 )
 {
-    std::visit(
-            // clang-format off
-
-            variant_helpers::Overloaded{
-                make_common_notification_visitors(),
-                [this](const CompleteProjectLoadNotification& n) { project_controller.handle_notification(n); },
-            },
-
-            // clang-format on
-            notification
-    );
+    std::visit(make_common_notification_visitors(), notification);
 }
 
 void EchoMapWeb::render_shim(

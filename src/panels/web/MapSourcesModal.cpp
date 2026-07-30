@@ -9,10 +9,8 @@
 
 #include "MapSourcesModal.hpp"
 
-#include "../../notifications/AllNotifications.hpp"
 #include "../../objects/factories/SignalFactory.hpp"
 #include "../../objects/web/PartialProject.hpp"
-#include "../../services/INotificationSink.hpp"
 #include "../../services/web/PartialProjectController.hpp"
 
 namespace echomap
@@ -20,12 +18,10 @@ namespace echomap
 
 MapSourcesModal::MapSourcesModal(
         PartialProjectController& project_controller,
-        INotificationSink& notification_sink,
         const PartialProject* const project
 ) :
     panel_name(std::string("Upload External Files") + get_imgui_stable_name()),
     project(project),
-    notification_sink(notification_sink),
     project_controller(project_controller)
 {
 }
@@ -140,7 +136,7 @@ void MapSourcesModal::draw_buttons(
 
     if (are_all_mapped) {
         if (ImGui::Button("Continue", button_size)) {
-            notification_sink.notify(CompleteProjectLoadNotification(project->get_id()));
+            project_controller.complete_project_load(project->get_id());
             ImGui::CloseCurrentPopup();
         }
     } else {

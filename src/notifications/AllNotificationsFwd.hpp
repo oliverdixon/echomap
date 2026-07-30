@@ -21,14 +21,6 @@ struct ModifySensorPositionNotification;
 struct ProjectSelectionCompleteNotification;
 struct ClearErrorNotification;
 
-#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-
-// Web-only notifications.
-
-struct CompleteProjectLoadNotification;
-
-#endif // __EMSCRIPTEN__
-
 /**
  * @defgroup Notifications Notifications
  * A trivial message sent exclusively to the EchoMap controller.
@@ -62,13 +54,7 @@ using Notification = std::variant<
         ModifySensorColourNotification,
         ModifySensorPositionNotification,
         ProjectSelectionCompleteNotification,
-        ClearErrorNotification
-#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-        // Web-only notifications.
-        ,
-        CompleteProjectLoadNotification
-#endif // __EMSCRIPTEN__
-        >;
+        ClearErrorNotification>;
 
 /**
  * Helper to retrieve names of Notification variant alternatives.
@@ -123,17 +109,6 @@ template <> constexpr std::string_view NotificationNames::get<ClearErrorNotifica
 {
     return "Clear Error State Notification";
 }
-
-#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-
-// Names of web-only notifications.
-
-template <> constexpr std::string_view NotificationNames::get<CompleteProjectLoadNotification>()
-{
-    return "Complete Project Load Notification";
-}
-
-#endif // __EMSCRIPTEN__
 
 constexpr std::array<std::string_view, std::variant_size_v<Notification>> NotificationNames::indexed_names =
         variant_helpers::variant_name_array<Notification, NotificationNames>;

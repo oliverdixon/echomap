@@ -32,7 +32,6 @@ EchoMap::EchoMap() :
 #ifdef __EMSCRIPTEN__
     project_controller(
             panel_host,
-            *this,
             worker
     )
 #else

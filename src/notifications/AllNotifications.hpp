@@ -17,12 +17,4 @@
 #include "ModifySensorPositionNotification.hpp"
 #include "ProjectSelectionCompleteNotification.hpp"
 
-#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
-
-// Web-only notifications.
-
-#include "web/CompleteProjectLoadNotification.hpp"
-
-#endif // __EMSCRIPTEN__
-
 #endif // ECHOMAP_ALLNOTIFICATIONS_HPP

@@ -122,8 +122,6 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/platform/EchoMapWeb.hpp
             src/panels/web/MapSourcesModal.cpp
             src/panels/web/MapSourcesModal.hpp
-            src/notifications/web/CompleteProjectLoadNotification.hpp
-            src/notifications/web/CompleteProjectLoadNotification.cpp
             src/web/EmscriptenExtra.hpp
             src/objects/web/PartialProject.cpp
             src/objects/web/PartialProject.hpp

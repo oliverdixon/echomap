@@ -16,7 +16,6 @@
 #include "../../async/results/LoadSignalFileResult.hpp"
 #include "../../async/tasks/LoadSignalFileTask.hpp"
 #include "../../errors/IgnoredWarning.hpp"
-#include "../../notifications/web/CompleteProjectLoadNotification.hpp"
 #include "../../objects/web/PartialProject.hpp"
 #include "../../panels/web/MapSourcesModal.hpp"
 #include "../../utility/Logger.hpp"
@@ -29,7 +28,6 @@ namespace echomap
 
 PartialProjectController::PartialProjectController(
         PanelHost& panel_host,
-        INotificationSink& notification_sink,
         Worker& worker
 ) :
     ProjectControllerBase(
@@ -38,8 +36,7 @@ PartialProjectController::PartialProjectController(
             worker
     ),
     vfs_picker(std::make_unique<VFSPicker>()),
-    worker(worker),
-    notification_sink(notification_sink)
+    worker(worker)
 {
 }
 
@@ -99,18 +96,28 @@ void PartialProjectController::cancel_project_load(
     partial_project.reset();
 }
 
-void PartialProjectController::handle_notification(
-        const CompleteProjectLoadNotification& notification
+void PartialProjectController::complete_project_load(
+        const id_type intended_project_id
 ) const
 {
-    notification.verify_project(partial_project.get());
+    if (partial_project == nullptr)
+        throw IgnoredWarning("Ignored completed VFS mapping due to empty project.");
+
+    if (partial_project->get_id() != intended_project_id)
+        throw IgnoredWarning(
+                std::format(
+                        "Ignored completed VFS mapping due to invalid project: requested {}, but have {}.",
+                        intended_project_id,
+                        partial_project->get_id()
+                )
+        );
 
     // For each group, create a worker notification to load the corresponding file.
 
     for (auto&& [vfs_path, factories] : partial_project->take_unloaded_factories()) {
 
         if (!vfs_path.has_value())
-            throw std::runtime_error("Refusing CompleteProjectLoadNotification due to an incomplete VFS mapping.");
+            throw std::runtime_error("Refusing to complete project load due to an incomplete VFS mapping.");
 
         // Once these notifications return, if everything is loaded correctly, we'll change the active project.
         worker.submit(std::make_unique<LoadSignalFileTask>(partial_project->get_id(), *vfs_path, std::move(factories)));
@@ -132,7 +139,7 @@ void PartialProjectController::handle_result(
 
     if (!new_project->observe_unloaded_signals().empty()) {
         // Raise the modal to query for the sources.
-        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(*this, notification_sink, new_project.get()));
+        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(*this, new_project.get()));
         partial_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));

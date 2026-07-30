@@ -19,7 +19,6 @@ namespace echomap
 {
 
 class PartialProjectController;
-class INotificationSink;
 class SignalFactory;
 
 template <class Range>
@@ -37,7 +36,6 @@ class MapSourcesModal final : public IWebPanel
 public:
     explicit MapSourcesModal(
             PartialProjectController& project_controller,
-            INotificationSink& notification_sink, // TODO remove.
             const PartialProject* project         // TODO replace with projectcontroller.
     );
 
@@ -76,7 +74,6 @@ private:
     std::string panel_name;
     const PartialProject* project;
     bool should_open = true;
-    INotificationSink& notification_sink;
     PartialProjectController& project_controller;
 };
 
