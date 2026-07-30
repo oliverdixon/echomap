@@ -1,5 +1,4 @@
 CMakeUserPresets.json
-/bootstrap-user.sh
 /docs/*
 !/docs/open.sh
 

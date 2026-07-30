@@ -2,26 +2,50 @@
   "version": 6,
   "configurePresets": [
     {
-      "name": "local",
+      "name": "local-toolchain",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "/clang",
-        "CMAKE_CXX_COMPILER": "/clang++",
+        "CMAKE_C_COMPILER": "/path/to/clang",
+        "CMAKE_CXX_COMPILER": "/path/to/clang++",
         "CMAKE_LINKER_TYPE": "LLD"
+      }
+    },
+    {
+      "name": "local-environment",
+      "hidden": true,
+      "environment": {
+        "VCPKG_ROOT": "/path/to/vcpkg",
+        "EMSDK": "/path/to/emsdk"
       }
     },
     {
       "name": "native-debug-local",
       "inherits": [
         "native-debug",
-        "local"
+        "local-toolchain",
+        "local-environment"
       ]
     },
     {
       "name": "native-release-local",
       "inherits": [
         "native-release",
-        "local"
+        "local-toolchain",
+        "local-environment"
+      ]
+    },
+    {
+      "name": "wasm-debug-local",
+      "inherits": [
+        "wasm-debug",
+        "local-environment"
+      ]
+    },
+    {
+      "name": "wasm-release-local",
+      "inherits": [
+        "wasm-release",
+        "local-environment"
       ]
     }
   ]

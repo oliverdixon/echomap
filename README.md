@@ -88,8 +88,9 @@ will work. Users without a Rust toolchain installed may look to Python's
       [configure your toolchain](https://www.jetbrains.com/help/clion/how-to-create-toolchain-in-clion.html#env-scripts)
       to source `/bootstrap.sh` as an environment file. The script is sourced into a non-interactive shell, so a wrapper
       should be used to export any local environment variables prior to running the bootstrapper.
-    * Advanced users with existing VCPKG or Emscripten SDK toolchains can provide a wrapper, named `/bootstrap-user.sh`,
-      which exports `VCPKG_ROOT` or `EMSDK` prior to sourcing the packaged bootstrap script.
+   * Advanced users with existing VCPKG or Emscripten SDK toolchains can skip the bootstrap and simply export
+     `VCPKG_ROOT` or `EMSDK` in the `CMakeUserPresets.json` file, as demonstrated in the
+     [sample](/cmake/CMakeUserPresets_SAMPLE.json), to avoid duplicating existing toolchains.
 
 2. Run CMake on one of the presets defined in [/CMakePresets.json](CMakePresets.json) depending on build type and target
    type:
