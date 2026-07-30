@@ -84,7 +84,6 @@ protected:
             [this](const ModifySensorColourNotification& n) { project_controller.handle_notification(n); },
             [this](const ModifySensorPositionNotification& n) { project_controller.handle_notification(n); },
             [this](const ProjectSelectionCompleteNotification& n) { handle_notification(n); },
-            [this](const ClearErrorNotification& n) { handle_notification(n); },
         };
         // clang-format on
     }
@@ -118,7 +117,6 @@ protected:
     void process_worker_results();
 
     void handle_notification(const ProjectSelectionCompleteNotification& notification);
-    void handle_notification(const ClearErrorNotification& notification);
 
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 

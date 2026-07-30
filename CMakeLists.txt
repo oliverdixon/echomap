@@ -96,7 +96,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/utility/Position.hpp
         src/notifications/AllNotifications.hpp
         src/notifications/AllNotificationsFwd.hpp
-        src/notifications/ClearErrorNotification.hpp
         src/panels/IProjectPanel.hpp
         src/objects/persistence/JSONDeserialiserHelpers.cpp
         src/objects/persistence/JSONDeserialiserHelpers.hpp

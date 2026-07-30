@@ -12,7 +12,6 @@
 
 #include "AddChannelMappingNotification.hpp"
 #include "AllNotificationsFwd.hpp"
-#include "ClearErrorNotification.hpp"
 #include "ModifySensorColourNotification.hpp"
 #include "ModifySensorPositionNotification.hpp"
 #include "ProjectSelectionCompleteNotification.hpp"

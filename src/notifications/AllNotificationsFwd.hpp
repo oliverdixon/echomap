@@ -19,7 +19,6 @@ struct AddChannelMappingNotification;
 struct ModifySensorColourNotification;
 struct ModifySensorPositionNotification;
 struct ProjectSelectionCompleteNotification;
-struct ClearErrorNotification;
 
 /**
  * @defgroup Notifications Notifications
@@ -53,8 +52,7 @@ using Notification = std::variant<
         AddChannelMappingNotification,
         ModifySensorColourNotification,
         ModifySensorPositionNotification,
-        ProjectSelectionCompleteNotification,
-        ClearErrorNotification>;
+        ProjectSelectionCompleteNotification>;
 
 /**
  * Helper to retrieve names of Notification variant alternatives.
@@ -103,11 +101,6 @@ template <> constexpr std::string_view NotificationNames::get<ModifySensorPositi
 template <> constexpr std::string_view NotificationNames::get<ProjectSelectionCompleteNotification>()
 {
     return "Project Selected Notification";
-}
-
-template <> constexpr std::string_view NotificationNames::get<ClearErrorNotification>()
-{
-    return "Clear Error State Notification";
 }
 
 constexpr std::array<std::string_view, std::variant_size_v<Notification>> NotificationNames::indexed_names =

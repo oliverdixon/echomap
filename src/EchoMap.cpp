@@ -147,12 +147,4 @@ void EchoMap::handle_notification(
         worker.submit(std::make_unique<LoadProjectTask>(*notification.path, &worker));
 }
 
-void EchoMap::handle_notification(
-        const ClearErrorNotification& notification
-)
-{
-    std::ignore = notification;
-    panel_host.clear_error();
-}
-
 } // namespace echomap
