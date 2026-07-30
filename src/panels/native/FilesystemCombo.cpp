@@ -22,7 +22,7 @@ namespace echomap
 {
 
 FilesystemCombo::FilesystemCombo(
-        IRenderInvalidator& invalidator
+        IRenderInvalidateService& invalidator
 ) :
     invalidator(invalidator)
 {

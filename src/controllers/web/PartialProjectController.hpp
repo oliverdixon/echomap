@@ -14,10 +14,10 @@
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include "../../objects/IDAllocator.hpp"
+#include "../../services/web/IPartialProjectCompletionService.hpp"
+#include "../../services/web/IPartialProjectObserveService.hpp"
+#include "../../services/web/IVFSRequestService.hpp"
 #include "../ProjectControllerBase.hpp"
-#include "IPartialProjectCompletionService.hpp"
-#include "IPartialProjectObserveService.hpp"
-#include "IVFSRequestService.hpp"
 
 namespace echomap
 {
@@ -32,7 +32,7 @@ class VFSPicker;
 class PartialProjectController : public ProjectControllerBase,
                                  public IPartialProjectObserveService,
                                  public IPartialProjectCompletionService,
-                                 public IVFSRequestService
+                                 public IVFSRequestService // TODO don't implement this.
 {
 public:
     explicit PartialProjectController(

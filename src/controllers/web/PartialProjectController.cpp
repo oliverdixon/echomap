@@ -18,10 +18,10 @@
 #include "../../errors/IgnoredWarning.hpp"
 #include "../../objects/web/PartialProject.hpp"
 #include "../../panels/web/MapSourcesModal.hpp"
+#include "../../services/web/VFSPicker.hpp"
+#include "../../services/web/WebProjectFilePickerService.hpp"
 #include "../../utility/Logger.hpp"
 #include "../PanelHost.hpp"
-#include "VFSPicker.hpp"
-#include "WebProjectFilePicker.hpp"
 
 namespace echomap
 {
@@ -32,7 +32,7 @@ PartialProjectController::PartialProjectController(
 ) :
     ProjectControllerBase(
             panel_host,
-            std::make_unique<WebProjectFilePicker>(),
+            std::make_unique<WebProjectFilePickerService>(),
             worker
     ),
     vfs_picker(std::make_unique<VFSPicker>()),

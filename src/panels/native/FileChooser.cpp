@@ -15,9 +15,9 @@ namespace echomap
 {
 
 FileChooser::FileChooser(
-        IRenderInvalidator& invalidator,
-        NativeProjectFilePicker::SuccessCallbackT&& success_callback,
-        NativeProjectFilePicker::CancelledCallbackT&& cancelled_callback
+        IRenderInvalidateService& invalidator,
+        IFilePickerService::SuccessCallbackT&& success_callback,
+        IFilePickerService::CancelledCallbackT&& cancelled_callback
 ) :
     file_combo(invalidator),
     panel_name(std::string("Select File to Open") + get_imgui_stable_name()),

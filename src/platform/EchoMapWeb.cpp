@@ -13,7 +13,7 @@
 
 #include <emscripten/emscripten.h>
 
-#include "../services/web/PartialProjectController.hpp"
+#include "../controllers/web/PartialProjectController.hpp"
 
 #ifndef __EMSCRIPTEN_PTHREADS__
 #warning "The Emscripten application will be single-threaded."

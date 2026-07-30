@@ -21,7 +21,7 @@
 #include "../objects/Project.hpp"
 #include "../objects/Signal.hpp"
 #include "../services/IProjectObserveService.hpp"
-#include "../services/IRenderInvalidator.hpp"
+#include "../services/IRenderInvalidateService.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/VariantHelpers.hpp"
 
@@ -31,7 +31,7 @@ namespace echomap
 SignalDFTPanel::SignalDFTPanel(
         Worker* parent_worker,
         WorkerResultDespatcher& despatcher,
-        IRenderInvalidator* const invalidation_service,
+        IRenderInvalidateService* const invalidation_service,
         const IProjectObserveService& observer_service
 ) :
     panel_name(std::string("Signal DFT Panel") + get_imgui_stable_name()),

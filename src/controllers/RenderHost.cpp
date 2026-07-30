@@ -15,11 +15,11 @@
 #include <implot.h>
 #include <implot3d.h>
 
-#include "PanelHost.hpp"
 #include "../RobotoMedium.hpp"
 #include "../errors/ConfigurationError.hpp"
 #include "../platform/SurfaceFactory.hpp"
 #include "../utility/Logger.hpp"
+#include "PanelHost.hpp"
 
 namespace echomap
 {

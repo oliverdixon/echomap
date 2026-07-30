@@ -17,6 +17,8 @@
 namespace echomap
 {
 
+class RenderHost;
+
 /**
  * @todo Document
  */
@@ -24,7 +26,7 @@ class FullProjectController : public ProjectControllerBase
 {
 public:
     explicit FullProjectController(
-            std::unique_ptr<IProjectFilePicker> project_file_picker,
+            std::unique_ptr<IFilePickerService> project_file_picker,
             PanelHost& panel_host,
             Worker& worker
     );

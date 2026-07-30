@@ -15,15 +15,15 @@
 #include "../../async/results/LoadSignalFileResult.hpp"
 #include "../../objects/Project.hpp"
 #include "../../objects/Signal.hpp"
+#include "../../services/IFilePickerService.hpp"
 #include "../../utility/Logger.hpp"
 #include "../PanelHost.hpp"
-#include "NativeProjectFilePicker.hpp"
 
 namespace echomap
 {
 
 FullProjectController::FullProjectController(
-        std::unique_ptr<IProjectFilePicker> project_file_picker,
+        std::unique_ptr<IFilePickerService> project_file_picker,
         PanelHost& panel_host,
         Worker& worker
 ) :

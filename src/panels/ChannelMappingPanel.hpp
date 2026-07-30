@@ -14,7 +14,7 @@ namespace echomap
 
 class IProjectMutationService;
 class IProjectObserveService;
-class IRenderInvalidator;
+class IRenderInvalidateService;
 class Signal;
 class Sensor;
 class WorkerResultDespatcher;
@@ -34,7 +34,7 @@ public:
      */
     explicit ChannelMappingPanel(
             IProjectMutationService& mutation_service,
-            IRenderInvalidator& invalidator,
+            IRenderInvalidateService& invalidator,
             const IProjectObserveService& observer_service
     );
 
@@ -57,7 +57,7 @@ private:
     } new_entry_cache;
 
     IProjectMutationService& mutation_service;
-    IRenderInvalidator& invalidator;
+    IRenderInvalidateService& invalidator;
     const IProjectObserveService& observer_service;
 
     bool was_signal_combo_open = false; /**< Was the Associated Signal combo box open on the previous render cycle? */

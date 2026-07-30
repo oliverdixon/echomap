@@ -23,7 +23,7 @@
 namespace echomap
 {
 
-class IRenderInvalidator;
+class IRenderInvalidateService;
 class EchoMap;
 
 /**
@@ -40,7 +40,7 @@ public:
      * @param invalidator Service for invalidating frames.
      * @throws std::runtime_error The CWD could not be interrogated.
      */
-    explicit FilesystemCombo(IRenderInvalidator& invalidator);
+    explicit FilesystemCombo(IRenderInvalidateService& invalidator);
 
     /**
      * Draws the FilesystemCombo control.
@@ -185,7 +185,7 @@ private:
     std::array<char, max_path_length> current_root{}; /**< The current raw string entered by the user. */
     BrowseTarget current_target;                      /**< The current target specified in the filter window. */
     std::optional<EntryCache> cache;                  /**< Cache of entries visible in the combo box. */
-    IRenderInvalidator& invalidator;
+    IRenderInvalidateService& invalidator;
 };
 
 } // namespace echomap

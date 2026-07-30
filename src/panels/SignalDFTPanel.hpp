@@ -27,7 +27,7 @@ class FrequencySpectrum;
 class WorkerResultDespatcher;
 class DFTResult;
 class Worker;
-class IRenderInvalidator;
+class IRenderInvalidateService;
 
 /**
  * Provides an IPanel to display and interact with previews of Signal frequency spectra (i.e., Signal DFTs).
@@ -48,7 +48,7 @@ public:
     explicit SignalDFTPanel(
             Worker* parent_worker,                    // TODO ref
             WorkerResultDespatcher& despatcher,
-            IRenderInvalidator* invalidation_service, // TODO reference
+            IRenderInvalidateService* invalidation_service, // TODO reference
             const IProjectObserveService& observer_service
     );
 
@@ -116,7 +116,7 @@ private:
     std::string panel_name;
     ImPlotSpec plotting_spec_2d;
     Worker* parent_worker;
-    IRenderInvalidator* invalidation_service; // TODO reference
+    IRenderInvalidateService* invalidation_service; // TODO reference
     const IProjectObserveService& observer_service;
 
     /**

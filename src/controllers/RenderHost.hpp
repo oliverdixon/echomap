@@ -14,7 +14,7 @@
 #include <imgui.h>
 #include <webgpu/webgpu_cpp.h>
 
-#include "IRenderInvalidator.hpp"
+#include "../services/IRenderInvalidateService.hpp"
 
 namespace echomap
 {
@@ -23,7 +23,7 @@ class PanelHost;
 /**
  * Provides services for low-level rendering.
  */
-class RenderHost : public IRenderInvalidator
+class RenderHost : public IRenderInvalidateService
 {
 public:
     RenderHost();

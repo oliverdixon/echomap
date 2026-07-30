@@ -1,18 +1,18 @@
 /**
  * @file
  *
- * WebProjectFilePicker specification
+ * WebProjectFilePickerService specification
  *
  * @author Oliver Dixon
  * @date 2026-07-29
  */
 
-#ifndef ECHOMAP_WEBPROJECTFILEPICKER_HPP
-#define ECHOMAP_WEBPROJECTFILEPICKER_HPP
+#ifndef ECHOMAP_WEBPROJECTFILEPICKERSERVICE_HPP
+#define ECHOMAP_WEBPROJECTFILEPICKERSERVICE_HPP
 
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
-#include "../IProjectFilePicker.hpp"
+#include "../IFilePickerService.hpp"
 
 extern "C" int echomap_on_project_file_picked(const char* path) noexcept;
 
@@ -22,11 +22,11 @@ namespace echomap
 /**
  * @todo Document
  */
-class WebProjectFilePicker : public IProjectFilePicker
+class WebProjectFilePickerService : public IFilePickerService
 {
 public:
-    WebProjectFilePicker();
-    ~WebProjectFilePicker() noexcept override;
+    WebProjectFilePickerService();
+    ~WebProjectFilePickerService() noexcept override;
 
     void request_project_file(
             SuccessCallbackT success,
@@ -41,11 +41,11 @@ private:
     SuccessCallbackT success_callback;
     CancelledCallbackT cancelled_callback;
 
-    static WebProjectFilePicker* instance;
+    static WebProjectFilePickerService* instance;
 };
 
 } // namespace echomap
 
 #endif // __EMSCRIPTEN__
 
-#endif // ECHOMAP_WEBPROJECTFILEPICKER_HPP
+#endif // ECHOMAP_WEBPROJECTFILEPICKERSERVICE_HPP

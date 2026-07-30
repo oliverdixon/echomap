@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * NativeProjectFilePicker implementation
+ * NativeProjectFilePickerService implementation
  *
  * @author Oliver Dixon
  * @date 2026-07-29
@@ -9,17 +9,17 @@
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
-#include "NativeProjectFilePicker.hpp"
+#include "NativeProjectFilePickerService.hpp"
 
+#include "../../controllers/PanelHost.hpp"
+#include "../../controllers/RenderHost.hpp"
 #include "../../panels/native/FileChooser.hpp"
 #include "../../utility/Logger.hpp"
-#include "../PanelHost.hpp"
-#include "../RenderHost.hpp"
 
 namespace echomap
 {
 
-NativeProjectFilePicker::NativeProjectFilePicker(
+NativeProjectFilePickerService::NativeProjectFilePickerService(
         PanelHost& panel_host,
         RenderHost& render_host
 ) :
@@ -28,7 +28,7 @@ NativeProjectFilePicker::NativeProjectFilePicker(
 {
 }
 
-void NativeProjectFilePicker::request_project_file(
+void NativeProjectFilePickerService::request_project_file(
         SuccessCallbackT success,
         CancelledCallbackT cancelled
 )

@@ -16,20 +16,19 @@
 #include "../errors/IgnoredWarning.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
+#include "../services/IFilePickerService.hpp"
 #include "../utility/Logger.hpp"
-#include "IProjectFilePicker.hpp"
-#include "PanelHost.hpp"
 
 namespace echomap
 {
 
 ProjectControllerBase::ProjectControllerBase(
         PanelHost& panel_host,
-        std::unique_ptr<IProjectFilePicker> project_file_picker,
+        std::unique_ptr<IFilePickerService> file_picker_service,
         Worker& worker
 ) :
     panel_host(panel_host),
-    project_file_picker(std::move(project_file_picker)),
+    project_file_picker(std::move(file_picker_service)),
     worker(worker)
 {
 }

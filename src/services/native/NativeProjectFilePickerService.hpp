@@ -1,18 +1,18 @@
 /**
  * @file
  *
- * NativeProjectFilePicker specification
+ * NativeProjectFilePickerService specification
  *
  * @author Oliver Dixon
  * @date 2026-07-29
  */
 
-#ifndef ECHOMAP_NATIVEPROJECTFILEPICKER_HPP
-#define ECHOMAP_NATIVEPROJECTFILEPICKER_HPP
+#ifndef ECHOMAP_NATIVEPROJECTFILEPICKERSERVICE_HPP
+#define ECHOMAP_NATIVEPROJECTFILEPICKERSERVICE_HPP
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
-#include "../IProjectFilePicker.hpp"
+#include "../IFilePickerService.hpp"
 
 namespace echomap
 {
@@ -23,10 +23,10 @@ class RenderHost;
 /**
  * @todo Document
  */
-class NativeProjectFilePicker : public IProjectFilePicker
+class NativeProjectFilePickerService : public IFilePickerService
 {
 public:
-    explicit NativeProjectFilePicker(
+    explicit NativeProjectFilePickerService(
             PanelHost& panel_host,
             RenderHost& render_host
     );
@@ -45,4 +45,4 @@ private:
 
 #endif // __EMSCRIPTEN__
 
-#endif // ECHOMAP_NATIVEPROJECTFILEPICKER_HPP
+#endif // ECHOMAP_NATIVEPROJECTFILEPICKERSERVICE_HPP

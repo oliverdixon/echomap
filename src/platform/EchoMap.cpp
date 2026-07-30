@@ -10,6 +10,7 @@
 #include <sigc++/adaptors/bind.h>
 
 #include "../async/tasks/LoadProjectTask.hpp"
+#include "../controllers/ProjectControllerBase.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Signal.hpp"
 #include "../panels/ChannelMappingPanel.hpp"
@@ -18,7 +19,6 @@
 #include "../panels/SensorGeometryPanel.hpp"
 #include "../panels/SignalDFTPanel.hpp"
 #include "../panels/SignalWaveformPanel.hpp"
-#include "../services/ProjectControllerBase.hpp"
 #include "../utility/Logger.hpp"
 
 namespace echomap

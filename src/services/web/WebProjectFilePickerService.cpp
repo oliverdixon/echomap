@@ -1,7 +1,7 @@
 /**
  * @file
  *
- * WebProjectFilePicker implementation
+ * WebProjectFilePickerService implementation
  *
  * @author Oliver Dixon
  * @date 2026-07-29
@@ -9,7 +9,7 @@
 
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
-#include "WebProjectFilePicker.hpp"
+#include "WebProjectFilePickerService.hpp"
 
 #include <emscripten/em_js.h>
 
@@ -53,9 +53,9 @@ EM_JS(void,
 
 #endif // __DOXYGEN__
 
-WebProjectFilePicker* WebProjectFilePicker::instance = nullptr;
+WebProjectFilePickerService* WebProjectFilePickerService::instance = nullptr;
 
-WebProjectFilePicker::WebProjectFilePicker()
+WebProjectFilePickerService::WebProjectFilePickerService()
 {
     if (instance != nullptr)
         throw ConfigurationError("Only one WebProjectFilePicker instance may be active.");
@@ -63,13 +63,13 @@ WebProjectFilePicker::WebProjectFilePicker()
     instance = this;
 }
 
-WebProjectFilePicker::~WebProjectFilePicker() noexcept
+WebProjectFilePickerService::~WebProjectFilePickerService() noexcept
 {
     if (instance == this)
         instance = nullptr;
 }
 
-void WebProjectFilePicker::request_project_file(
+void WebProjectFilePickerService::request_project_file(
         SuccessCallbackT success,
         CancelledCallbackT cancelled
 )
@@ -80,7 +80,7 @@ void WebProjectFilePicker::request_project_file(
     js::select_project_file();
 }
 
-int WebProjectFilePicker::complete_project_file_pick(
+int WebProjectFilePickerService::complete_project_file_pick(
         const char* path
 ) noexcept
 {
@@ -123,7 +123,7 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_project_file_picked(
     using namespace echomap;
 
     try {
-        return WebProjectFilePicker::complete_project_file_pick(path);
+        return WebProjectFilePickerService::complete_project_file_pick(path);
     } catch (const ConfigurationError& error) {
         LOG_F_ERROR("Could not load path {} due to error: {}", path, error.what());
         return 3;

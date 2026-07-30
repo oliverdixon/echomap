@@ -92,14 +92,14 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/objects/persistence/JSONDeserialiser.hpp
         src/utility/FFTRealComplex.cpp
         src/utility/FFTRealComplex.hpp
-        src/services/IRenderInvalidator.hpp
-        src/services/RenderHost.cpp
-        src/services/RenderHost.hpp
-        src/services/PanelHost.cpp
-        src/services/PanelHost.hpp
-        src/services/ProjectControllerBase.cpp
-        src/services/ProjectControllerBase.hpp
-        src/services/IProjectFilePicker.hpp
+        src/services/IRenderInvalidateService.hpp
+        src/controllers/RenderHost.cpp
+        src/controllers/RenderHost.hpp
+        src/controllers/PanelHost.cpp
+        src/controllers/PanelHost.hpp
+        src/controllers/ProjectControllerBase.cpp
+        src/controllers/ProjectControllerBase.hpp
+        src/services/IFilePickerService.hpp
         src/services/IProjectMutationService.hpp
         src/services/IProjectOpenService.hpp
         src/services/IProjectObserveService.hpp
@@ -117,10 +117,10 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/objects/web/PartialProject.hpp
             src/objects/persistence/web/JSONPartialDeserialiser.cpp
             src/objects/persistence/web/JSONPartialDeserialiser.hpp
-            src/services/web/PartialProjectController.cpp
-            src/services/web/PartialProjectController.hpp
-            src/services/web/WebProjectFilePicker.cpp
-            src/services/web/WebProjectFilePicker.hpp
+            src/controllers/web/PartialProjectController.cpp
+            src/controllers/web/PartialProjectController.hpp
+            src/services/web/WebProjectFilePickerService.cpp
+            src/services/web/WebProjectFilePickerService.hpp
             src/services/web/VFSPicker.cpp
             src/services/web/VFSPicker.hpp
             src/services/web/IPartialProjectObserveService.hpp
@@ -140,10 +140,10 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/panels/native/FilesystemCombo.hpp
             src/objects/persistence/native/JSONFullDeserialiser.cpp
             src/objects/persistence/native/JSONFullDeserialiser.hpp
-            src/services/native/FullProjectController.cpp
-            src/services/native/FullProjectController.hpp
-            src/services/native/NativeProjectFilePicker.cpp
-            src/services/native/NativeProjectFilePicker.hpp
+            src/controllers/native/FullProjectController.cpp
+            src/controllers/native/FullProjectController.hpp
+            src/services/native/NativeProjectFilePickerService.cpp
+            src/services/native/NativeProjectFilePickerService.hpp
     )
 endif ()
 

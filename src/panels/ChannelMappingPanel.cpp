@@ -9,14 +9,14 @@
 #include "../objects/Signal.hpp"
 #include "../services/IProjectMutationService.hpp"
 #include "../services/IProjectObserveService.hpp"
-#include "../services/IRenderInvalidator.hpp"
+#include "../services/IRenderInvalidateService.hpp"
 
 namespace echomap
 {
 
 ChannelMappingPanel::ChannelMappingPanel(
         IProjectMutationService& mutation_service,
-        IRenderInvalidator& invalidator,
+        IRenderInvalidateService& invalidator,
         const IProjectObserveService& observer_service
 ) :
     panel_name(std::string("Channel Mapping") + get_imgui_stable_name()),

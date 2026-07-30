@@ -17,7 +17,7 @@
 
 namespace echomap
 {
-class IRenderInvalidator;
+class IRenderInvalidateService;
 
 class ErrorModal;
 class IPanel;

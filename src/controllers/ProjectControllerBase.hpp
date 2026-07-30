@@ -12,14 +12,14 @@
 
 #include <memory>
 
-#include "IProjectMutationService.hpp"
-#include "IProjectObserveService.hpp"
-#include "IProjectOpenService.hpp"
+#include "../services/IProjectMutationService.hpp"
+#include "../services/IProjectObserveService.hpp"
+#include "../services/IProjectOpenService.hpp"
 
 namespace echomap
 {
 
-class IProjectFilePicker;
+class IFilePickerService;
 class PanelHost;
 class Project;
 class LoadSignalFileResult;
@@ -35,7 +35,7 @@ class ProjectControllerBase : public IProjectMutationService, public IProjectOpe
 public:
     explicit ProjectControllerBase(
             PanelHost& panel_host,
-            std::unique_ptr<IProjectFilePicker> project_file_picker,
+            std::unique_ptr<IFilePickerService> file_picker_service,
             Worker& worker
     );
 
@@ -75,7 +75,7 @@ protected:
 
     PanelHost& panel_host;
     std::unique_ptr<Project> project;
-    std::unique_ptr<IProjectFilePicker> project_file_picker;
+    std::unique_ptr<IFilePickerService> project_file_picker;
     Worker& worker;
 
     // NOLINTEND(*-non-private-member-variables-in-classes)

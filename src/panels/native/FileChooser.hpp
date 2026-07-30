@@ -16,7 +16,7 @@
 
 #include <filesystem>
 
-#include "../../services/native/NativeProjectFilePicker.hpp"
+#include "../../services/IFilePickerService.hpp"
 #include "../IPanel.hpp"
 #include "FilesystemCombo.hpp"
 
@@ -24,7 +24,7 @@ namespace echomap
 {
 
 class EchoMap;
-class IRenderInvalidator;
+class IRenderInvalidateService;
 
 /**
  * Modal containing controls for interactively selecting a file from the file-system.
@@ -40,9 +40,9 @@ public:
      * @param cancelled_callback The slot to invoke if the operation is cancelled.
      */
     explicit FileChooser(
-            IRenderInvalidator& invalidator,
-            NativeProjectFilePicker::SuccessCallbackT&& success_callback,
-            NativeProjectFilePicker::CancelledCallbackT&& cancelled_callback
+            IRenderInvalidateService& invalidator,
+            IFilePickerService::SuccessCallbackT&& success_callback,
+            IFilePickerService::CancelledCallbackT&& cancelled_callback
     );
 
     void draw() noexcept override;
@@ -60,8 +60,8 @@ private:
 
     std::string panel_name;
     bool is_open = false;
-    NativeProjectFilePicker::SuccessCallbackT success_callback;
-    NativeProjectFilePicker::CancelledCallbackT cancelled_callback;
+    IFilePickerService::SuccessCallbackT success_callback;
+    IFilePickerService::CancelledCallbackT cancelled_callback;
 };
 
 } // namespace echomap

@@ -11,8 +11,8 @@
 
 #include "EchoMapNative.hpp"
 
-#include "../services/native/FullProjectController.hpp"
-#include "../services/native/NativeProjectFilePicker.hpp"
+#include "../controllers/native/FullProjectController.hpp"
+#include "../services/native/NativeProjectFilePickerService.hpp"
 
 namespace echomap
 {
@@ -24,7 +24,7 @@ EchoMapNative::EchoMapNative() :
 {
     setup_controller(
             std::make_unique<FullProjectController>(
-                    std::make_unique<NativeProjectFilePicker>(panel_host, render_host),
+                    std::make_unique<NativeProjectFilePickerService>(panel_host, render_host),
                     panel_host,
                     worker
             )

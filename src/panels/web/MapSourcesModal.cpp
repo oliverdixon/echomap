@@ -9,9 +9,9 @@
 
 #include "MapSourcesModal.hpp"
 
+#include "../../controllers/web/PartialProjectController.hpp"
 #include "../../objects/factories/SignalFactory.hpp"
 #include "../../objects/web/PartialProject.hpp"
-#include "../../services/web/PartialProjectController.hpp"
 
 namespace echomap
 {

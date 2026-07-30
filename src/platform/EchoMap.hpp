@@ -12,8 +12,8 @@
 
 #include "../async/Worker.hpp"
 #include "../async/WorkerResultDespatcher.hpp"
-#include "../services/PanelHost.hpp"
-#include "../services/RenderHost.hpp"
+#include "../controllers/PanelHost.hpp"
+#include "../controllers/RenderHost.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
