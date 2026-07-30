@@ -12,12 +12,10 @@
 
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
-#include "../EchoMap.hpp"
+#include "EchoMap.hpp"
 
 namespace echomap
 {
-
-class PartialProject;
 
 /**
  * EchoMap application implementation for WebAssembly/Emscripten platforms.
@@ -25,9 +23,10 @@ class PartialProject;
 class EchoMapWeb : public EchoMap
 {
 public:
+    EchoMapWeb();
+
     void run_event_loop() override;
 
-protected:
 private:
     /**
      * Invokes the renderer from a static context given an untyped mutable pointer to the EchoMap object instance.

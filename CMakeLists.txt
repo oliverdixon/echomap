@@ -8,8 +8,8 @@ project(EchoMap)
 
 # The DummyTarget provides a target to IntelliJ IDEs to manage. We extract the source vector for the real targets.
 add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
-        src/EchoMap.cpp
-        src/EchoMap.hpp
+        src/platform/EchoMap.cpp
+        src/platform/EchoMap.hpp
         src/App.cpp
         src/panels/IPanel.hpp
         src/RobotoMedium.hpp
@@ -99,7 +99,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/PanelHost.hpp
         src/services/ProjectControllerBase.cpp
         src/services/ProjectControllerBase.hpp
-        src/services/ProjectController.hpp
         src/services/IProjectFilePicker.hpp
         src/services/IProjectMutationService.hpp
         src/services/IProjectOpenService.hpp

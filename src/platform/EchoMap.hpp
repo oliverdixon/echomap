@@ -10,11 +10,10 @@
 
 #include <sigc++/scoped_connection.h>
 
-#include "async/Worker.hpp"
-#include "async/WorkerResultDespatcher.hpp"
-#include "services/PanelHost.hpp"
-#include "services/RenderHost.hpp"
-#include "services/ProjectController.hpp"
+#include "../async/Worker.hpp"
+#include "../async/WorkerResultDespatcher.hpp"
+#include "../services/PanelHost.hpp"
+#include "../services/RenderHost.hpp"
 
 /**
  * The main EchoMap outermost namespace for all non-exported symbols.
@@ -22,7 +21,7 @@
 namespace echomap
 {
 
-class Project;
+class ProjectControllerBase;
 
 /**
  * The EchoMap maintains state for the application including WebGPU and Dear ImGui context, encapsulating
@@ -31,17 +30,6 @@ class Project;
 class EchoMap
 {
 public:
-    /**
-     * Initialise a EchoMap application instance.
-     *
-     * Initialisation is a computationally substantial task. Context from all managed frameworks must be initialised
-     * (GLFW, WebGPU/Dawn, and Dear ImGui) and their components registered. Once the constructor has completed, the game
-     * loop can begin with @ref run_event_loop.
-     *
-     * @throws ConfigurationError Some part of initialisation, described in the exception message, did not succeed.
-     */
-    EchoMap();
-
     virtual ~EchoMap() noexcept;
 
     /**
@@ -58,15 +46,18 @@ public:
     EchoMap& operator=(EchoMap&&) = delete;
 
 protected:
-    void tick();
-
     /**
-     * Configure the core signals for the application instance.
+     * Initialise a EchoMap application instance.
      *
-     * This should be invoked during construction prior to any IPanel invocations as it takes the exclusive consumer
-     * role for several critical message classes.
+     * Initialisation is a computationally substantial task. Context from all managed frameworks must be initialised
+     * (GLFW, WebGPU/Dawn, and Dear ImGui) and their components registered. Once the constructor has completed, the game
+     * loop can begin with @ref run_event_loop.
+     *
+     * @throws ConfigurationError Some part of initialisation, described in the exception message, did not succeed.
      */
-    void setup_subscriptions();
+    EchoMap(std::function<void()> worker_result_callback = {});
+
+    void setup_controller(std::unique_ptr<ProjectControllerBase> controller);
 
     /**
      * Handle any unconsumed events from the Worker.
@@ -81,7 +72,7 @@ protected:
 
     RenderHost render_host;
     PanelHost panel_host;
-    ProjectController project_controller;
+    std::unique_ptr<ProjectControllerBase> project_controller;
 
     // NOLINTEND(*-non-private-member-variables-in-classes)
 };

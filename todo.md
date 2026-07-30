@@ -2,7 +2,9 @@
 
 ## Architecture branch
 
-1. Panels shouldn't store a reference from the active project. They should ask for it from the project controller.
+1. Fix source hierarchy for services.
+
+2. Restore exception handling in panel services.
 
 ## Medium/Long Term
 

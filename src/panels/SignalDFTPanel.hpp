@@ -46,7 +46,7 @@ public:
      * @param observer_service TODO
      */
     explicit SignalDFTPanel(
-            Worker* parent_worker,
+            Worker* parent_worker,                    // TODO ref
             WorkerResultDespatcher& despatcher,
             IRenderInvalidator* invalidation_service, // TODO reference
             const IProjectObserveService& observer_service

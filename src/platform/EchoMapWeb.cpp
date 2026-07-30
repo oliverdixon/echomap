@@ -13,6 +13,8 @@
 
 #include <emscripten/emscripten.h>
 
+#include "../services/web/PartialProjectController.hpp"
+
 #ifndef __EMSCRIPTEN_PTHREADS__
 #warning "The Emscripten application will be single-threaded."
 #endif // __EMSCRIPTEN_PTHREADS__
@@ -20,13 +22,18 @@
 namespace echomap
 {
 
+EchoMapWeb::EchoMapWeb()
+{
+    setup_controller(std::make_unique<PartialProjectController>(panel_host, worker));
+}
+
 void EchoMapWeb::render_shim(
         void* const echomap_instance
 )
 {
-    auto* instance = static_cast<EchoMapWeb*>(echomap_instance);
+    auto* const instance = static_cast<EchoMapWeb*>(echomap_instance);
 
-    instance->tick();
+    instance->process_worker_results();
     instance->render_host.render(instance->panel_host);
 }
 

@@ -43,7 +43,7 @@ public:
      * @param observer_service TODO
      */
     explicit SignalWaveformPanel(
-            Worker* parent_worker,
+            Worker* parent_worker, // TODO ref
             WorkerResultDespatcher& despatcher,
             const IProjectObserveService& observer_service
     );

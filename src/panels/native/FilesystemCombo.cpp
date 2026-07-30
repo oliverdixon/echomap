@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <cstring>
 
-#include "../../EchoMap.hpp"
+#include "../../platform/EchoMap.hpp"
 
 namespace echomap
 {
