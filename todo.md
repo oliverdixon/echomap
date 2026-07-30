@@ -2,7 +2,7 @@
 
 ## Architecture branch
 
-1. Guard platform-dependent TUs.
+1. Resolve simple TODOs (e.g. ref instead of ptr) introduced on `arch` branch.
 
 2. Document all symbols introduced on `arch` branch.
 

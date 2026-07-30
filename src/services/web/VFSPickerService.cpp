@@ -7,6 +7,8 @@
  * @date 2026-07-29
  */
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "VFSPickerService.hpp"
 
 #include <emscripten/em_js.h>
@@ -149,3 +151,5 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
         return 8;
     }
 }
+
+#endif // __EMSCRIPTEN__

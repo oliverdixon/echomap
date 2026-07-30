@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_IPARTIALPROJECTBUILDERSERVICE_HPP
 #define ECHOMAP_IPARTIALPROJECTBUILDERSERVICE_HPP
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 namespace echomap
 {
 
@@ -28,5 +30,7 @@ public:
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_IPARTIALPROJECTBUILDERSERVICE_HPP

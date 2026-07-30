@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_IPARTIALPROJECTCOMPLETIONSERVICE_HPP
 #define ECHOMAP_IPARTIALPROJECTCOMPLETIONSERVICE_HPP
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include "../../objects/IDAllocator.hpp"
 
 namespace echomap
@@ -29,5 +31,7 @@ public:
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_IPARTIALPROJECTCOMPLETIONSERVICE_HPP

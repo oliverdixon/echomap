@@ -10,6 +10,8 @@
 #ifndef ECHOMAP_VFSPICKERSERVICE_HPP
 #define ECHOMAP_VFSPICKERSERVICE_HPP
 
+#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+
 #include <sigc++/slot.h>
 
 #include <filesystem>
@@ -76,5 +78,7 @@ private:
 };
 
 } // namespace echomap
+
+#endif // __EMSCRIPTEN__
 
 #endif // ECHOMAP_VFSPICKERSERVICE_HPP
