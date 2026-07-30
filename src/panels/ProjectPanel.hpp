@@ -7,14 +7,14 @@
 
 #include <string>
 
-#include "IProjectPanel.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
 
 class IProjectObserveService;
 
-class ProjectPanel final : public IProjectPanel
+class ProjectPanel final : public IPanel
 {
 public:
     /**

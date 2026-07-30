@@ -87,7 +87,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/async/results/WorkerResult.hpp
         src/utility/Colour.hpp
         src/utility/Position.hpp
-        src/panels/IProjectPanel.hpp
         src/objects/persistence/JSONDeserialiserHelpers.cpp
         src/objects/persistence/JSONDeserialiserHelpers.hpp
         src/objects/persistence/JSONDeserialiser.hpp
@@ -117,7 +116,6 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/web/EmscriptenExtra.hpp
             src/objects/web/PartialProject.cpp
             src/objects/web/PartialProject.hpp
-            src/panels/web/IWebPanel.hpp
             src/objects/persistence/web/JSONPartialDeserialiser.cpp
             src/objects/persistence/web/JSONPartialDeserialiser.hpp
             src/services/web/PartialProjectController.cpp
@@ -126,6 +124,9 @@ if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
             src/services/web/WebProjectFilePicker.hpp
             src/services/web/VFSPicker.cpp
             src/services/web/VFSPicker.hpp
+            src/services/web/IPartialProjectObserveService.hpp
+            src/services/web/IPartialProjectCompletionService.hpp
+            src/services/web/IVFSRequestService.hpp
     )
 endif ()
 

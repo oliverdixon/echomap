@@ -17,7 +17,7 @@
 #include <filesystem>
 
 #include "../../services/native/NativeProjectFilePicker.hpp"
-#include "../IProjectPanel.hpp"
+#include "../IPanel.hpp"
 #include "FilesystemCombo.hpp"
 
 namespace echomap
@@ -29,7 +29,7 @@ class IRenderInvalidator;
 /**
  * Modal containing controls for interactively selecting a file from the file-system.
  */
-class FileChooser : public IProjectPanel
+class FileChooser : public IPanel
 {
 public:
     /**

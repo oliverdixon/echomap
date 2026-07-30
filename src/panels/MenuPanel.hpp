@@ -7,14 +7,14 @@
 
 #include <string>
 
-#include "IProjectPanel.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
 
 class IProjectOpenService;
 
-class MenuPanel final : public IProjectPanel
+class MenuPanel final : public IPanel
 {
 public:
     explicit MenuPanel(IProjectOpenService& project_opener);

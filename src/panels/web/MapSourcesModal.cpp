@@ -17,18 +17,25 @@ namespace echomap
 {
 
 MapSourcesModal::MapSourcesModal(
-        PartialProjectController& project_controller,
-        const PartialProject* const project
+        IPartialProjectCompletionService& completion_service,
+        IPartialProjectObserveService& observe_service,
+        IVFSRequestService& vfs_request_service
 ) :
     panel_name(std::string("Upload External Files") + get_imgui_stable_name()),
-    project(project),
-    project_controller(project_controller)
+    completion_service(completion_service),
+    observe_service(observe_service),
+    vfs_request_service(vfs_request_service)
 {
 }
 
 void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
 {
-    if (project->observe_unloaded_signals().empty())
+    if (observe_service.observe_partial_project() == nullptr)
+        return;
+
+    const auto& active_project = *observe_service.observe_partial_project();
+
+    if (active_project.observe_unloaded_signals().empty())
         return;
 
     if (std::exchange(should_open, false))
@@ -42,10 +49,10 @@ void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
         )) {
         ImGui::PushID("UploadExternalModal");
 
-        draw_preamble();
+        draw_preamble(active_project);
 
         // The remaining number of signals for which there is no given path in VFS, decremented as we enumerate.
-        auto unmapped_count = project->observe_unloaded_signals().size();
+        auto unmapped_count = active_project.observe_unloaded_signals().size();
 
         if (ImGui::BeginTable("##UploadTable", 5, table_flags)) {
             ImGui::TableSetupColumn("##UploadButton", ImGuiTableColumnFlags_WidthFixed, button_size.x);
@@ -55,13 +62,17 @@ void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
             ImGui::TableSetupColumn("Given Path", ImGuiTableColumnFlags_WidthStretch);
             ImGui::TableHeadersRow();
 
-            for (const auto& [external_path, mapping_info] : project->observe_unloaded_signals())
+            for (const auto& [external_path, mapping_info] : active_project.observe_unloaded_signals())
                 if (draw_table_entry(
                             external_path,
                             mapping_info.first,
-                            std::views::transform(mapping_info.second, [](const std::unique_ptr<SignalFactory>& ptr) {
-                                return ptr.get();
-                            })
+                            std::views::transform(
+                                    mapping_info.second,
+                                    [](const std::unique_ptr<SignalFactory>& ptr) {
+                                        return ptr.get();
+                                    }
+                            ),
+                            active_project.get_id()
                     ))
 
                     --unmapped_count;
@@ -69,7 +80,7 @@ void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
             ImGui::EndTable();
         }
 
-        draw_buttons(unmapped_count == 0);
+        draw_buttons(unmapped_count == 0, active_project.get_id());
 
         ImGui::PopID();
         ImGui::EndPopup();
@@ -86,24 +97,19 @@ void MapSourcesModal::reshow() noexcept
     should_open = true;
 }
 
-void MapSourcesModal::change_active_project(
-        const PartialProject* new_project
-)
-{
-    std::ignore = new_project;
-}
-
 const char* MapSourcesModal::get_imgui_stable_name() noexcept
 {
     return "###IndividualUploadModal";
 }
 
-void MapSourcesModal::draw_preamble() const noexcept
+void MapSourcesModal::draw_preamble(
+        const Project& active_project
+) noexcept
 {
     ImGui::TextWrapped(
                 "%s contains references to externally sourced signals. Browser security requires that each externally "
                 "sourced file is uploaded separately.",
-                project->get_c_str_name()
+                active_project.get_c_str_name()
     );
 
     ImGui::Spacing();
@@ -120,7 +126,8 @@ void MapSourcesModal::draw_preamble() const noexcept
 }
 
 void MapSourcesModal::draw_buttons(
-        const bool are_all_mapped
+        const bool are_all_mapped,
+        const id_type project_id
 )
 {
     ImGui::Spacing();
@@ -128,7 +135,8 @@ void MapSourcesModal::draw_buttons(
     ImGui::Spacing();
 
     if (ImGui::Button("Cancel", button_size)) {
-        project_controller.cancel_project_load(project->get_id()), ImGui::CloseCurrentPopup();
+        completion_service.cancel_project_load(project_id);
+        ImGui::CloseCurrentPopup();
         should_open = false;
     }
 
@@ -136,7 +144,7 @@ void MapSourcesModal::draw_buttons(
 
     if (are_all_mapped) {
         if (ImGui::Button("Continue", button_size)) {
-            project_controller.complete_project_load(project->get_id());
+            completion_service.complete_project_load(project_id);
             ImGui::CloseCurrentPopup();
         }
     } else {
@@ -150,7 +158,8 @@ void MapSourcesModal::draw_buttons(
 bool MapSourcesModal::draw_table_entry(
         const std::filesystem::path& external_path,
         const std::optional<std::filesystem::path>& vfs_path,
-        SignalFactoryRange auto&& factories
+        SignalFactoryRange auto&& factories,
+        const id_type project_id
 ) const noexcept
 {
     ImGui::PushID(external_path.c_str());
@@ -162,7 +171,7 @@ bool MapSourcesModal::draw_table_entry(
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, upload_button_frame_padding);
 
     if (ImGui::Button("Upload", ImVec2(button_size.x + 2 * padding.x, button_size.y)))
-        project_controller.request_vfs_mapping(project->get_id(), external_path);
+        vfs_request_service.request_vfs_mapping(project_id, external_path);
 
     ImGui::PopStyleVar();
 

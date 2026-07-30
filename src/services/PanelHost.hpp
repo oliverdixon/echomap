@@ -21,7 +21,6 @@ class IRenderInvalidator;
 
 class ErrorModal;
 class IPanel;
-class IProjectPanel;
 class Project;
 class WorkerResultDespatcher;
 class Worker;
@@ -40,7 +39,7 @@ public:
     PanelHost(PanelHost&&) = delete;
     PanelHost& operator=(PanelHost&&) = delete;
 
-    void add_panel(std::unique_ptr<IProjectPanel> panel);
+    void add_panel(std::unique_ptr<IPanel> panel);
 
     void draw_all() const;
     void reset_active_modal() noexcept;
@@ -60,9 +59,9 @@ public:
     [[nodiscard]] bool is_modal_shown() const noexcept;
 
 private:
-    std::vector<std::unique_ptr<IProjectPanel>> panels; /**< Individual display components. */
-    std::unique_ptr<IPanel> active_modal;               /**< The current active non-ErrorModal modal panel. */
-    std::unique_ptr<ErrorModal> error_modal;            /**< Indicate errors over all other panels. */
+    std::vector<std::unique_ptr<IPanel>> panels; /**< Individual display components. */
+    std::unique_ptr<IPanel> active_modal;        /**< The current active non-ErrorModal modal panel. */
+    std::unique_ptr<ErrorModal> error_modal;     /**< Indicate errors over all other panels. */
 };
 
 } // namespace echomap

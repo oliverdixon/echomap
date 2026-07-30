@@ -16,7 +16,7 @@
 
 #include "../objects/IDAllocator.hpp"
 #include "../objects/factories/WindowFunctions.hpp"
-#include "IProjectPanel.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
@@ -32,7 +32,7 @@ class IRenderInvalidator;
 /**
  * Provides an IPanel to display and interact with previews of Signal frequency spectra (i.e., Signal DFTs).
  */
-class SignalDFTPanel final : public IProjectPanel
+class SignalDFTPanel final : public IPanel
 {
 public:
     /**

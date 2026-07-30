@@ -13,7 +13,6 @@
 
 #include "../panels/ChannelMappingPanel.hpp"
 #include "../panels/ErrorModal.hpp"
-#include "../panels/IProjectPanel.hpp"
 #include "../panels/ProjectPanel.hpp"
 #include "../panels/SensorGeometryPanel.hpp"
 #include "../panels/SignalDFTPanel.hpp"
@@ -27,7 +26,7 @@ PanelHost::PanelHost() = default;
 PanelHost::~PanelHost() noexcept = default;
 
 void PanelHost::add_panel(
-        std::unique_ptr<IProjectPanel> panel
+        std::unique_ptr<IPanel> panel
 )
 {
     panels.emplace_back(std::move(panel));

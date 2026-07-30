@@ -42,10 +42,15 @@ PartialProjectController::PartialProjectController(
 
 PartialProjectController::~PartialProjectController() noexcept = default;
 
+const PartialProject* PartialProjectController::observe_partial_project() const noexcept
+{
+    return partial_project.get();
+}
+
 void PartialProjectController::request_vfs_mapping(
         const id_type intended_project_id,
         const std::filesystem::path& intended_external
-) const
+)
 {
     vfs_picker->request_vfs_mapping(
             intended_project_id,
@@ -98,7 +103,7 @@ void PartialProjectController::cancel_project_load(
 
 void PartialProjectController::complete_project_load(
         const id_type intended_project_id
-) const
+)
 {
     if (partial_project == nullptr)
         throw IgnoredWarning("Ignored completed VFS mapping due to empty project.");
@@ -139,7 +144,7 @@ void PartialProjectController::handle_result(
 
     if (!new_project->observe_unloaded_signals().empty()) {
         // Raise the modal to query for the sources.
-        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(*this, new_project.get()));
+        panel_host.change_active_modal(std::make_unique<MapSourcesModal>(*this, *this, *this));
         partial_project = std::move(new_project);
     } else
         change_active_project(std::move(new_project));

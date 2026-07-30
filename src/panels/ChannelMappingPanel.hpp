@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "IProjectPanel.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
@@ -22,7 +22,7 @@ class WorkerResultDespatcher;
 /**
  * Provides a panel for defining mappings between Signal and Sensor objects.
  */
-class ChannelMappingPanel final : public IProjectPanel
+class ChannelMappingPanel final : public IPanel
 {
 public:
     /**

@@ -15,6 +15,9 @@
 
 #include "../../objects/IDAllocator.hpp"
 #include "../ProjectControllerBase.hpp"
+#include "IPartialProjectCompletionService.hpp"
+#include "IPartialProjectObserveService.hpp"
+#include "IVFSRequestService.hpp"
 
 namespace echomap
 {
@@ -26,7 +29,10 @@ class VFSPicker;
 /**
  * @todo Document
  */
-class PartialProjectController : public ProjectControllerBase
+class PartialProjectController : public ProjectControllerBase,
+                                 public IPartialProjectObserveService,
+                                 public IPartialProjectCompletionService,
+                                 public IVFSRequestService
 {
 public:
     explicit PartialProjectController(
@@ -42,13 +48,15 @@ public:
     PartialProjectController(PartialProjectController&&) = delete;
     PartialProjectController& operator=(PartialProjectController&&) = delete;
 
+    [[nodiscard]] const PartialProject* observe_partial_project() const noexcept override;
+
     void request_vfs_mapping(
             id_type intended_project_id,
             const std::filesystem::path& intended_external
-    ) const;
+    ) override;
 
-    void cancel_project_load(id_type intended_project_id);
-    void complete_project_load(id_type intended_project_id) const;
+    void cancel_project_load(id_type intended_project_id) override;
+    void complete_project_load(id_type intended_project_id) override;
 
     void handle_result(LoadProjectResult&& result) override;
     void handle_result(LoadSignalFileResult&& result) override;

@@ -13,12 +13,14 @@
 #include <filesystem>
 #include <string>
 
-#include "IWebPanel.hpp"
+#include "../IPanel.hpp"
 
 namespace echomap
 {
 
-class PartialProjectController;
+class IPartialProjectCompletionService;
+class IPartialProjectObserveService;
+class IVFSRequestService;
 class SignalFactory;
 
 template <class Range>
@@ -31,12 +33,13 @@ concept SignalFactoryRange =
  * This is most useful in browser (WebAssembly VFS) contexts where the application cannot interrogate the file system
  * directly.
  */
-class MapSourcesModal final : public IWebPanel
+class MapSourcesModal : public IPanel
 {
 public:
     explicit MapSourcesModal(
-            PartialProjectController& project_controller,
-            const PartialProject* project         // TODO replace with projectcontroller.
+            IPartialProjectCompletionService& completion_service,
+            IPartialProjectObserveService& observe_service,
+            IVFSRequestService& vfs_request_service
     );
 
     void draw() noexcept override;
@@ -45,36 +48,31 @@ public:
 
     void reshow() noexcept;
 
-    /**
-     * Do nothing.
-     *
-     * THe active Project may be changed in the background, but that shouldn't interfere with an active modal. This
-     * modal will also typically relate to an unloaded (or partially loaded) Project, not the active one.
-     *
-     * @param new_project Ignored.
-     */
-    void change_active_project(const PartialProject* new_project) override;
-
     static const char* get_imgui_stable_name() noexcept;
 
 private:
     constexpr static ImVec2 upload_button_frame_padding{0.0f, 0.0f};
     constexpr static ImVec2 default_modal_size{500.0f, 300.0f};
 
-    void draw_preamble() const noexcept;
+    static void draw_preamble(const Project& active_project) noexcept;
 
     bool draw_table_entry(
             const std::filesystem::path& external_path,
             const std::optional<std::filesystem::path>& vfs_path,
-            SignalFactoryRange auto&& factories
+            SignalFactoryRange auto&& factories,
+            uint64_t project_id
     ) const noexcept;
 
-    void draw_buttons(bool are_all_mapped);
+    void draw_buttons(
+            bool are_all_mapped,
+            uint64_t project_id
+    );
 
     std::string panel_name;
-    const PartialProject* project;
     bool should_open = true;
-    PartialProjectController& project_controller;
+    IPartialProjectCompletionService& completion_service;
+    IPartialProjectObserveService& observe_service;
+    IVFSRequestService& vfs_request_service;
 };
 
 } // namespace echomap
