@@ -46,10 +46,14 @@ void ProjectControllerBase::change_active_project(
         LOG_F_DEBUG("Changing active project to {}.", new_project->get_name());
 
     project = std::move(new_project);
-    panel_host.change_active_project(project.get());
 }
 
-void ProjectControllerBase::request_open_project() const
+const Project* ProjectControllerBase::observe_project() const noexcept
+{
+    return project.get();
+}
+
+void ProjectControllerBase::request_open_project()
 {
     project_file_picker->request_project_file(
             [this](const std::filesystem::path& path) {

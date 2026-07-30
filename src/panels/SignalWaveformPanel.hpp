@@ -19,6 +19,7 @@
 namespace echomap
 {
 
+class IProjectObserveService;
 class WorkerResultDespatcher;
 class DownsampleResult;
 class Signal;
@@ -39,12 +40,12 @@ public:
      *
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
-     * @param initial_project An optional initial Project for the IPanel to display.
+     * @param observer_service TODO
      */
     explicit SignalWaveformPanel(
             Worker* parent_worker,
             WorkerResultDespatcher& despatcher,
-            const Project* initial_project = nullptr
+            const IProjectObserveService& observer_service
     );
 
     ~SignalWaveformPanel() noexcept override;
@@ -58,8 +59,6 @@ public:
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
-
-    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 
@@ -118,8 +117,8 @@ private:
 
     std::string panel_name;
     ImPlotSpec plotting_spec_2d;
-    Worker* parent_worker;
-    const Project* active_project = nullptr;
+    Worker* parent_worker; // TODO reference
+    const IProjectObserveService& observer_service;
     std::vector<sigc::scoped_connection> connections;
 };
 

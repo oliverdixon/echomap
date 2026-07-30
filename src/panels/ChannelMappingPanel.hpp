@@ -13,6 +13,7 @@ namespace echomap
 {
 
 class IProjectMutationService;
+class IProjectObserveService;
 class IRenderInvalidator;
 class Signal;
 class Sensor;
@@ -29,25 +30,23 @@ public:
      *
      * @param mutation_service TODO
      * @param invalidator TODO
-     * @param initial_project An optional initial Project for the IPanel to display.
+     * @param observer_service
      */
     explicit ChannelMappingPanel(
             IProjectMutationService& mutation_service,
             IRenderInvalidator& invalidator,
-            const Project* initial_project = nullptr
+            const IProjectObserveService& observer_service
     );
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
 
-    void change_active_project(const Project* new_project) override;
-
     static const char* get_imgui_stable_name() noexcept;
 
 private:
-    void draw_new_channel_mapping() noexcept;
-    void draw_existing_channel_mapping() const noexcept;
+    void draw_new_channel_mapping(const Project& active_project) noexcept;
+    static void draw_existing_channel_mapping(const Project& active_project) noexcept;
 
     std::string panel_name;
 
@@ -58,8 +57,8 @@ private:
     } new_entry_cache;
 
     IProjectMutationService& mutation_service;
-    const Project* active_project = nullptr; // TODO remove.
     IRenderInvalidator& invalidator;
+    const IProjectObserveService& observer_service;
 
     bool was_signal_combo_open = false; /**< Was the Associated Signal combo box open on the previous render cycle? */
     bool was_sensor_combo_open = false; /**< Was the Associated Sensor combo box open on the previous render cycle? */

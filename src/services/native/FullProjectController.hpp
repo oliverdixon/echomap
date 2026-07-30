@@ -17,8 +17,6 @@
 namespace echomap
 {
 
-class RenderHost;
-
 /**
  * @todo Document
  */
@@ -26,12 +24,12 @@ class FullProjectController : public ProjectControllerBase
 {
 public:
     explicit FullProjectController(
-            RenderHost& render_host,
+            std::unique_ptr<IProjectFilePicker> project_file_picker,
             PanelHost& panel_host,
             Worker& worker
     );
 
-    ~FullProjectController() noexcept override;
+    ~FullProjectController() noexcept override = default;
 
     FullProjectController(const FullProjectController&) = delete;
     FullProjectController& operator=(const FullProjectController&) = delete;

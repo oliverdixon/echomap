@@ -10,6 +10,7 @@
 #include "../objects/Project.hpp"
 #include "../objects/Sensor.hpp"
 #include "../services/IProjectMutationService.hpp"
+#include "../services/IProjectObserveService.hpp"
 #include "../utility/Logger.hpp"
 
 namespace echomap
@@ -17,11 +18,11 @@ namespace echomap
 
 SensorGeometryPanel::SensorGeometryPanel(
         IProjectMutationService& mutation_service,
-        const Project* const initial_project
+        const IProjectObserveService& observer_service
 ) :
     panel_name(std::string("Sensor Geometry") + get_imgui_stable_name()),
-    active_project(initial_project),
-    mutation_service(mutation_service)
+    mutation_service(mutation_service),
+    observer_service(observer_service)
 {
 }
 
@@ -33,26 +34,19 @@ const char* SensorGeometryPanel::get_imgui_name() const noexcept
 void SensorGeometryPanel::draw() noexcept
 {
     if (ImGui::Begin(panel_name.c_str())) {
-        if (active_project == nullptr)
+        const auto* const optional_project = observer_service.observe_project();
+        if (optional_project == nullptr)
             ImGui::Text("No project is loaded.");
-        else if (active_project->get_sensors_count() == 0u)
+        else if (optional_project->get_sensors_count() == 0u)
             ImGui::Text("No sensors are loaded.");
         else {
-            recache_sensor_colours();
-            draw_geometry_summary();
-            draw_geometry_plot();
+            recache_sensor_colours(*optional_project);
+            draw_geometry_summary(*optional_project);
+            draw_geometry_plot(*optional_project);
         }
     }
 
     ImGui::End();
-}
-
-void SensorGeometryPanel::change_active_project(
-        const Project* const new_project
-)
-{
-    active_project = new_project;
-    sensor_colours.clear();
 }
 
 const char* SensorGeometryPanel::get_imgui_stable_name() noexcept
@@ -60,13 +54,15 @@ const char* SensorGeometryPanel::get_imgui_stable_name() noexcept
     return "###SensorGeometryPanel";
 }
 
-void SensorGeometryPanel::recache_sensor_colours() noexcept
+void SensorGeometryPanel::recache_sensor_colours(
+        const Project& active_project
+) noexcept
 {
-    if (active_project->get_sensors_count() != sensor_colours.size()) {
+    if (active_project.get_sensors_count() != sensor_colours.size()) {
         // Ensure that we maintain the correct number of colours for the current number of sensors.
         try {
-            sensor_colours.resize(active_project->get_sensors_count());
-            for (auto [src, dst] : std::views::zip(active_project->observe_sensors(), sensor_colours))
+            sensor_colours.resize(active_project.get_sensors_count());
+            for (auto [src, dst] : std::views::zip(active_project.observe_sensors(), sensor_colours))
                 dst = IM_COL32(
                         static_cast<int>(src.colour.r * 255.0f),
                         static_cast<int>(src.colour.g * 255.0f),
@@ -88,7 +84,9 @@ void SensorGeometryPanel::recache_sensor_colours() noexcept
     }
 }
 
-void SensorGeometryPanel::draw_geometry_summary() noexcept
+void SensorGeometryPanel::draw_geometry_summary(
+        const Project& active_project
+) noexcept
 {
     ImGui::SeparatorText("Geometry Summary");
     if (ImGui::BeginTable("##GeometrySummary", 5, table_flags)) {
@@ -101,7 +99,7 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
 
         std::size_t row_idx = 0;
 
-        for (const auto& sensor : active_project->observe_sensors()) {
+        for (const auto& sensor : active_project.observe_sensors()) {
             ImGui::PushID(static_cast<int>(sensor.get_id()));
 
             ImGui::TableNextRow();
@@ -158,7 +156,9 @@ void SensorGeometryPanel::draw_geometry_summary() noexcept
     }
 }
 
-void SensorGeometryPanel::draw_geometry_plot() const noexcept
+void SensorGeometryPanel::draw_geometry_plot(
+        const Project& active_project
+) const noexcept
 {
     ImGui::SeparatorText("Geometry Plot");
     ImPlot3D::PushStyleColor(ImPlot3DCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
@@ -172,8 +172,8 @@ void SensorGeometryPanel::draw_geometry_plot() const noexcept
         ImPlot3D::PlotScatterG(
                 "",
                 get_sensor_point,
-                active_project,
-                static_cast<int>(active_project->get_sensors_count()),
+                &active_project,
+                static_cast<int>(active_project.get_sensors_count()),
                 plotting_spec_3d
         );
 

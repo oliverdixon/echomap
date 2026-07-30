@@ -12,7 +12,7 @@
 namespace echomap
 {
 
-class WorkerResultDespatcher;
+class IProjectObserveService;
 
 class ProjectPanel final : public IProjectPanel
 {
@@ -20,21 +20,19 @@ public:
     /**
      * Create a new ProjectPanel to display Project metadata.
      *
-     * @param initial_project An optional initial Project for the IPanel to describe.
+     * @param observer_service TODO
      */
-    explicit ProjectPanel(const Project* initial_project = nullptr);
+    explicit ProjectPanel(const IProjectObserveService& observer_service);
 
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
-    void change_active_project(const Project* new_project) override;
-
     static const char* get_imgui_stable_name() noexcept;
 
 private:
     std::string panel_name;
-    const Project* active_project = nullptr;
+    const IProjectObserveService& observer_service;
 };
 
 } // namespace echomap

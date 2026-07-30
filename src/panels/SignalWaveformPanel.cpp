@@ -15,6 +15,7 @@
 #include "../async/tasks/DownsampleTask.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Signal.hpp"
+#include "../services/IProjectObserveService.hpp"
 #include "../utility/Logger.hpp"
 
 namespace echomap
@@ -23,7 +24,7 @@ namespace echomap
 SignalWaveformPanel::SignalWaveformPanel(
         Worker* parent_worker,
         WorkerResultDespatcher& despatcher,
-        const Project* const initial_project
+        const IProjectObserveService& observer_service
 ) :
     bounding_box{
             std::numeric_limits<double>::max(),
@@ -33,7 +34,7 @@ SignalWaveformPanel::SignalWaveformPanel(
     },
     panel_name(std::string("Signal Waveform Preview") + get_imgui_stable_name()),
     parent_worker(parent_worker),
-    active_project(initial_project)
+    observer_service(observer_service)
 {
     connections.emplace_back(despatcher.downsample_finished_channel.nominate_consumer(
             sigc::mem_fun(*this, &SignalWaveformPanel::handle_downsampled_result)
@@ -52,13 +53,14 @@ const char* SignalWaveformPanel::get_imgui_name() const noexcept
 void SignalWaveformPanel::draw() noexcept
 {
     if (ImGui::Begin(panel_name.c_str())) {
-        if (active_project == nullptr)
+        if (observer_service.observe_project() == nullptr)
             ImGui::Text("No project is loaded.");
         else if (ImPlot::BeginAlignedPlots("##WaveformAlignedGroup")) {
             ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+            const auto& active_project = *observer_service.observe_project();
             bool drawn_any = false;
 
-            for (const auto& signal : active_project->share_signals()) {
+            for (const auto& signal : active_project.share_signals()) {
                 drawn_any = true;
 
                 if (const auto* const downsampled = get_downsampled_signal(signal); downsampled == nullptr)
@@ -91,15 +93,6 @@ void SignalWaveformPanel::draw() noexcept
     }
 
     ImGui::End();
-}
-
-void SignalWaveformPanel::change_active_project(
-        const Project* const new_project
-)
-{
-    active_project = new_project;
-    downsample_cache.clear();
-    update_bounding_box();
 }
 
 const char* SignalWaveformPanel::get_imgui_stable_name() noexcept

@@ -12,21 +12,19 @@
 namespace echomap
 {
 
-class ProjectControllerBase;
+class IProjectOpenService;
 
 class MenuPanel final : public IProjectPanel
 {
 public:
-    explicit MenuPanel(ProjectControllerBase& project_controller);
+    explicit MenuPanel(IProjectOpenService& project_opener);
 
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
-    void change_active_project(const Project* new_project) override;
-
 private:
-    ProjectControllerBase& project_controller;
+    IProjectOpenService& project_opener;
 
     std::string panel_name = "Menu";
 };

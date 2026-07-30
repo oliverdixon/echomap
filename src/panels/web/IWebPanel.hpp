@@ -30,7 +30,7 @@ public:
      *
      * @param new_project An observing pointer to the new active Project.
      */
-    virtual void change_active_project(const PartialProject * new_project) = 0;
+    virtual void change_active_project(const PartialProject* new_project) = 0; // TODO remove.
 };
 
 } // namespace echomap

@@ -20,6 +20,7 @@
 
 namespace echomap
 {
+class IProjectObserveService;
 
 class Signal;
 class FrequencySpectrum;
@@ -42,13 +43,13 @@ public:
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
      * @param invalidation_service The service to invalidate render cycles.
-     * @param initial_project An optional initial Project for the IPanel to display.
+     * @param observer_service TODO
      */
     explicit SignalDFTPanel(
             Worker* parent_worker,
             WorkerResultDespatcher& despatcher,
-            IRenderInvalidator* invalidation_service,
-            const Project* initial_project = nullptr
+            IRenderInvalidator* invalidation_service, // TODO reference
+            const IProjectObserveService& observer_service
     );
 
     ~SignalDFTPanel() noexcept override;
@@ -62,8 +63,6 @@ public:
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
-
-    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 
@@ -87,7 +86,7 @@ private:
     void draw_configuration_scale_type() noexcept;
     void draw_configuration_preview_actions() noexcept;
 
-    void draw_preview_section() noexcept;
+    void draw_preview_section(const Project& active_project) noexcept;
     void draw_preview_of_signal(std::shared_ptr<Signal> signal) noexcept;
 
     void reset_available_transform_sizes();
@@ -117,8 +116,8 @@ private:
     std::string panel_name;
     ImPlotSpec plotting_spec_2d;
     Worker* parent_worker;
-    const Project* active_project = nullptr;
-    IRenderInvalidator* invalidation_service;
+    IRenderInvalidator* invalidation_service; // TODO reference
+    const IProjectObserveService& observer_service;
 
     /**
      * A three-way key into the FrequencySpectrum cache.

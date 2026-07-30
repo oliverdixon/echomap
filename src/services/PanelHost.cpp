@@ -100,14 +100,6 @@ void PanelHost::configure_default_dockspace(
     ImGui::DockBuilderDockWindow(SignalDFTPanel::get_imgui_stable_name(), dock_id_main_lower_right);
 }
 
-void PanelHost::change_active_project(
-        const Project* const new_project
-) const
-{
-    for (const auto& panel : panels)
-        panel->change_active_project(new_project);
-}
-
 void PanelHost::raise_error(
         const std::string_view message
 )

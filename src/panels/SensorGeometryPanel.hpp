@@ -18,8 +18,7 @@ namespace echomap
 {
 
 class IProjectMutationService;
-class Project;
-class WorkerResultDespatcher;
+class IProjectObserveService;
 
 /**
  * Provides a panel for defining and reviewing (in a 3D plot) positions of loaded Sensor objects in the active Project.
@@ -31,25 +30,23 @@ public:
      * Create a new SensorGeometryPanel to plot and control Sensor information.
      *
      * @param mutation_service TODO
-     * @param initial_project An optional initial Project for the IPanel to display.
+     * @param observer_service TODO
      */
     explicit SensorGeometryPanel(
             IProjectMutationService& mutation_service,
-            const Project* initial_project = nullptr
+            const IProjectObserveService& observer_service
     );
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
 
-    void change_active_project(const Project* new_project) override;
-
     static const char* get_imgui_stable_name() noexcept;
 
 private:
-    void recache_sensor_colours() noexcept;
-    void draw_geometry_summary() noexcept;
-    void draw_geometry_plot() const noexcept;
+    void recache_sensor_colours(const Project& active_project) noexcept;
+    void draw_geometry_summary(const Project& active_project) noexcept;
+    void draw_geometry_plot(const Project& active_project) const noexcept;
 
     /**
      * Callback helper to get the ImPlot3DPoint representation of the stored Sensor at a fixed index.
@@ -69,8 +66,8 @@ private:
 
     std::vector<ImU32> sensor_colours;
     ImPlot3DSpec plotting_spec_3d;
-    const Project* active_project = nullptr;
     IProjectMutationService& mutation_service;
+    const IProjectObserveService& observer_service;
 };
 
 } // namespace echomap

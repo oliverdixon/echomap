@@ -23,12 +23,6 @@ class Project;
 class IProjectPanel : public IPanel
 {
 public:
-    /**
-     * Updates the active Project being described by the IPanel.
-     *
-     * @param new_project An observing pointer to the new active Project.
-     */
-    virtual void change_active_project(const Project * new_project) = 0;
 };
 
 } // namespace echomap

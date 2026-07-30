@@ -47,7 +47,6 @@ public:
     void change_active_modal(std::unique_ptr<IPanel> modal) noexcept;
 
     static void configure_default_dockspace(ImGuiID dockspace_id);
-    void change_active_project(const Project* new_project) const;
 
     void raise_error(std::string_view message);
 

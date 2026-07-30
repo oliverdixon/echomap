@@ -20,6 +20,10 @@
 #include "panels/SignalWaveformPanel.hpp"
 #include "utility/Logger.hpp"
 
+#ifndef __EMSCRIPTEN__
+#include "services/native/NativeProjectFilePicker.hpp"
+#endif // __EMSCRIPTEN__
+
 namespace echomap
 {
 
@@ -36,7 +40,10 @@ EchoMap::EchoMap() :
     )
 #else
     project_controller(
-            render_host,
+            std::make_unique<NativeProjectFilePicker>(
+                    panel_host,
+                    render_host
+            ),
             panel_host,
             worker
     )
@@ -45,11 +52,11 @@ EchoMap::EchoMap() :
     setup_subscriptions();
 
     panel_host.add_panel(std::make_unique<MenuPanel>(project_controller));
-    panel_host.add_panel(std::make_unique<ProjectPanel>());
-    panel_host.add_panel(std::make_unique<SignalWaveformPanel>(&worker, despatcher));
-    panel_host.add_panel(std::make_unique<SignalDFTPanel>(&worker, despatcher, &render_host));
-    panel_host.add_panel(std::make_unique<SensorGeometryPanel>(project_controller));
-    panel_host.add_panel(std::make_unique<ChannelMappingPanel>(project_controller, render_host));
+    panel_host.add_panel(std::make_unique<ProjectPanel>(project_controller));
+    panel_host.add_panel(std::make_unique<SignalWaveformPanel>(&worker, despatcher, project_controller));
+    panel_host.add_panel(std::make_unique<SignalDFTPanel>(&worker, despatcher, &render_host, project_controller));
+    panel_host.add_panel(std::make_unique<SensorGeometryPanel>(project_controller, project_controller));
+    panel_host.add_panel(std::make_unique<ChannelMappingPanel>(project_controller, render_host, project_controller));
 }
 
 EchoMap::~EchoMap() noexcept = default;

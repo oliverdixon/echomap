@@ -23,22 +23,17 @@ namespace echomap
 {
 
 FullProjectController::FullProjectController(
-        RenderHost& render_host,
+        std::unique_ptr<IProjectFilePicker> project_file_picker,
         PanelHost& panel_host,
         Worker& worker
 ) :
     ProjectControllerBase(
             panel_host,
-            std::make_unique<NativeProjectFilePicker>(
-                    panel_host,
-                    render_host
-            ),
+            std::move(project_file_picker),
             worker
     )
 {
 }
-
-FullProjectController::~FullProjectController() noexcept = default;
 
 void FullProjectController::handle_result(
         LoadProjectResult&& result

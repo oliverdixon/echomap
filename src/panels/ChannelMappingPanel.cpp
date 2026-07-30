@@ -8,6 +8,7 @@
 #include "../objects/Sensor.hpp"
 #include "../objects/Signal.hpp"
 #include "../services/IProjectMutationService.hpp"
+#include "../services/IProjectObserveService.hpp"
 #include "../services/IRenderInvalidator.hpp"
 
 namespace echomap
@@ -16,12 +17,12 @@ namespace echomap
 ChannelMappingPanel::ChannelMappingPanel(
         IProjectMutationService& mutation_service,
         IRenderInvalidator& invalidator,
-        const Project* const initial_project
+        const IProjectObserveService& observer_service
 ) :
     panel_name(std::string("Channel Mapping") + get_imgui_stable_name()),
     mutation_service(mutation_service),
-    active_project(initial_project),
-    invalidator(invalidator)
+    invalidator(invalidator),
+    observer_service(observer_service)
 {
 }
 
@@ -33,11 +34,12 @@ const char* ChannelMappingPanel::get_imgui_name() const noexcept
 void ChannelMappingPanel::draw() noexcept
 {
     if (ImGui::Begin(panel_name.c_str())) {
-        if (active_project == nullptr)
+        if (observer_service.observe_project() == nullptr)
             ImGui::Text("No project is loaded.");
         else {
+            const auto& active_project = *observer_service.observe_project();
             ImGui::SeparatorText("Create Channel Mapping");
-            draw_new_channel_mapping();
+            draw_new_channel_mapping(active_project);
 
             // If a new mapping has been fully described, add it and prompt for another.
             if (new_entry_cache.signal != nullptr && new_entry_cache.sensor != nullptr) {
@@ -51,18 +53,11 @@ void ChannelMappingPanel::draw() noexcept
             }
 
             ImGui::SeparatorText("Existing Channel Mapping");
-            draw_existing_channel_mapping();
+            draw_existing_channel_mapping(active_project);
         }
     }
 
     ImGui::End();
-}
-
-void ChannelMappingPanel::change_active_project(
-        const Project* const new_project
-)
-{
-    active_project = new_project;
 }
 
 const char* ChannelMappingPanel::get_imgui_stable_name() noexcept
@@ -70,7 +65,9 @@ const char* ChannelMappingPanel::get_imgui_stable_name() noexcept
     return "###ChannelMappingPanel";
 }
 
-void ChannelMappingPanel::draw_new_channel_mapping() noexcept
+void ChannelMappingPanel::draw_new_channel_mapping(
+        const Project& active_project
+) noexcept
 {
     // TODO refactor monster.
 
@@ -90,7 +87,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         );
 
         if (is_signal_combo_open) {
-            for (const auto& signal : active_project->observe_signals()) {
+            for (const auto& signal : active_project.observe_signals()) {
                 const bool is_selected = new_entry_cache.signal == nullptr ? false : signal == *new_entry_cache.signal;
 
                 // Checks if something has changed (thus current value needs updating).
@@ -116,7 +113,7 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
         );
 
         if (is_sensor_combo_open) {
-            for (const auto& sensor : active_project->observe_sensors()) {
+            for (const auto& sensor : active_project.observe_sensors()) {
                 const bool is_selected = new_entry_cache.sensor == nullptr ? false : sensor == *new_entry_cache.sensor;
 
                 if (ImGui::Selectable(sensor.get_c_str_name(), is_selected))
@@ -139,7 +136,9 @@ void ChannelMappingPanel::draw_new_channel_mapping() noexcept
     }
 }
 
-void ChannelMappingPanel::draw_existing_channel_mapping() const noexcept
+void ChannelMappingPanel::draw_existing_channel_mapping(
+        const Project& active_project
+) noexcept
 {
     if (ImGui::BeginTable("##ExistingChannelMapping", 2, table_flags)) {
         ImGui::TableSetupColumn("Signal", ImGuiTableColumnFlags_WidthStretch);
@@ -147,7 +146,7 @@ void ChannelMappingPanel::draw_existing_channel_mapping() const noexcept
         ImGui::TableHeadersRow();
 
         // Display existing associations.
-        for (const auto& [signal, sensor] : active_project->observe_associations()) {
+        for (const auto& [signal, sensor] : active_project.observe_associations()) {
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());

@@ -20,6 +20,7 @@
 #include "../objects/FrequencySpectrum.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Signal.hpp"
+#include "../services/IProjectObserveService.hpp"
 #include "../services/IRenderInvalidator.hpp"
 #include "../utility/Logger.hpp"
 #include "../utility/VariantHelpers.hpp"
@@ -31,12 +32,12 @@ SignalDFTPanel::SignalDFTPanel(
         Worker* parent_worker,
         WorkerResultDespatcher& despatcher,
         IRenderInvalidator* const invalidation_service,
-        const Project* const initial_project
+        const IProjectObserveService& observer_service
 ) :
     panel_name(std::string("Signal DFT Panel") + get_imgui_stable_name()),
     parent_worker(parent_worker),
-    active_project(initial_project),
-    invalidation_service(invalidation_service)
+    invalidation_service(invalidation_service),
+    observer_service(observer_service)
 {
     connections.emplace_back(despatcher.dft_finished_channel.nominate_consumer(
             sigc::mem_fun(*this, &SignalDFTPanel::handle_completed_dft)
@@ -52,13 +53,14 @@ SignalDFTPanel::SignalDFTPanel(SignalDFTPanel&&) noexcept = default;
 void SignalDFTPanel::draw() noexcept
 {
     if (ImGui::Begin(panel_name.c_str())) {
-        if (active_project == nullptr)
+        if (observer_service.observe_project() == nullptr)
             ImGui::Text("No project is loaded.");
         else {
+            const auto& active_project = *observer_service.observe_project();
             bool drawn_any = false;
             std::uint64_t max_sample_count = 0;
 
-            for (const auto& signal : active_project->observe_signals()) {
+            for (const auto& signal : active_project.observe_signals()) {
                 max_sample_count = std::max(max_sample_count, signal.get_sample_count());
                 drawn_any = true;
             }
@@ -66,7 +68,7 @@ void SignalDFTPanel::draw() noexcept
             if (drawn_any) {
                 update_available_sizes(max_sample_count);
                 draw_configuration_section();
-                draw_preview_section();
+                draw_preview_section(active_project);
             } else
                 ImGui::Text("No signals are available.");
         }
@@ -78,17 +80,6 @@ void SignalDFTPanel::draw() noexcept
 const char* SignalDFTPanel::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
-}
-
-void SignalDFTPanel::change_active_project(
-        const Project* const new_project
-)
-{
-    active_project = new_project;
-    spectra_cache.clear();
-    reset_available_transform_sizes();
-    update_spectrum_bounds();
-    reset_viewport_bounds();
 }
 
 const char* SignalDFTPanel::get_imgui_stable_name() noexcept
@@ -292,7 +283,9 @@ void SignalDFTPanel::draw_configuration_preview_actions() noexcept
     }
 }
 
-void SignalDFTPanel::draw_preview_section() noexcept
+void SignalDFTPanel::draw_preview_section(
+        const Project& active_project
+) noexcept
 {
     ImGui::SeparatorText("DFT Previews");
 
@@ -302,7 +295,7 @@ void SignalDFTPanel::draw_preview_section() noexcept
         std::vector<const Signal*> excluded_variable;
         std::vector<const Signal*> excluded_size;
 
-        for (const auto& signal : active_project->share_signals()) {
+        for (const auto& signal : active_project.share_signals()) {
             bool excluded = false;
             if (!signal->is_uniformly_sampled()) {
                 excluded_variable.emplace_back(signal.get());
