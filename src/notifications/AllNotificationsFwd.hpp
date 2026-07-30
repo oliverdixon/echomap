@@ -18,7 +18,6 @@ namespace echomap
 struct AddChannelMappingNotification;
 struct ModifySensorColourNotification;
 struct ModifySensorPositionNotification;
-struct ProjectSelectionCompleteNotification;
 
 /**
  * @defgroup Notifications Notifications
@@ -51,8 +50,7 @@ struct ProjectSelectionCompleteNotification;
 using Notification = std::variant<
         AddChannelMappingNotification,
         ModifySensorColourNotification,
-        ModifySensorPositionNotification,
-        ProjectSelectionCompleteNotification>;
+        ModifySensorPositionNotification>;
 
 /**
  * Helper to retrieve names of Notification variant alternatives.
@@ -96,11 +94,6 @@ template <> constexpr std::string_view NotificationNames::get<ModifySensorColour
 template <> constexpr std::string_view NotificationNames::get<ModifySensorPositionNotification>()
 {
     return "Modify Sensor Position Notification";
-}
-
-template <> constexpr std::string_view NotificationNames::get<ProjectSelectionCompleteNotification>()
-{
-    return "Project Selected Notification";
 }
 
 constexpr std::array<std::string_view, std::variant_size_v<Notification>> NotificationNames::indexed_names =

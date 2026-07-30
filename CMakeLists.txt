@@ -87,7 +87,6 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/async/results/LoadSignalFileResult.hpp
         src/errors/IgnoredWarning.cpp
         src/errors/IgnoredWarning.hpp
-        src/notifications/ProjectSelectionCompleteNotification.hpp
         src/notifications/AddChannelMappingNotification.cpp
         src/notifications/ModifySensorPositionNotification.cpp
         src/notifications/ModifySensorColourNotification.cpp

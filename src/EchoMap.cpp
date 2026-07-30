@@ -137,14 +137,4 @@ void EchoMap::process_worker_results()
         }
 }
 
-void EchoMap::handle_notification(
-        const ProjectSelectionCompleteNotification& notification
-)
-{
-    panel_host.reset_active_modal();
-
-    if (notification.path.has_value())
-        worker.submit(std::make_unique<LoadProjectTask>(*notification.path, &worker));
-}
-
 } // namespace echomap

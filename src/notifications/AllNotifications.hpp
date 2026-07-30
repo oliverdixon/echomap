@@ -14,6 +14,5 @@
 #include "AllNotificationsFwd.hpp"
 #include "ModifySensorColourNotification.hpp"
 #include "ModifySensorPositionNotification.hpp"
-#include "ProjectSelectionCompleteNotification.hpp"
 
 #endif // ECHOMAP_ALLNOTIFICATIONS_HPP

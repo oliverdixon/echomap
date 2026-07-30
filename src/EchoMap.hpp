@@ -83,7 +83,6 @@ protected:
             [this](const AddChannelMappingNotification& n) { project_controller.handle_notification(n); },
             [this](const ModifySensorColourNotification& n) { project_controller.handle_notification(n); },
             [this](const ModifySensorPositionNotification& n) { project_controller.handle_notification(n); },
-            [this](const ProjectSelectionCompleteNotification& n) { handle_notification(n); },
         };
         // clang-format on
     }
@@ -115,8 +114,6 @@ protected:
      * Handle any unconsumed events from the Worker.
      */
     void process_worker_results();
-
-    void handle_notification(const ProjectSelectionCompleteNotification& notification);
 
     // NOLINTBEGIN(*-non-private-member-variables-in-classes)
 
