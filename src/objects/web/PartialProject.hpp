@@ -13,6 +13,7 @@
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
 #include <filesystem>
+#include <map>
 
 #include "../Project.hpp"
 #include "../factories/SignalFactory.hpp"

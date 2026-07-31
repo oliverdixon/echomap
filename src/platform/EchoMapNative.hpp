@@ -12,7 +12,7 @@
 
 #if !defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
-#include "../EchoMap.hpp"
+#include "EchoMap.hpp"
 
 namespace echomap
 {
@@ -23,13 +23,9 @@ namespace echomap
 class EchoMapNative : public EchoMap
 {
 public:
+    EchoMapNative();
+
     void run_event_loop() override;
-
-protected:
-    void visit_notification(Notification notification) override;
-
-private:
-    void handle_notification(RaiseFileChooserNotification& notification);
 };
 
 } // namespace echomap

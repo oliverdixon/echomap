@@ -15,13 +15,12 @@ namespace echomap
 {
 
 FileChooser::FileChooser(
-        EchoMap* const app,
-        RaiseFileChooserNotification::SuccessCallbackT&& success_callback,
-        RaiseFileChooserNotification::CancelledCallbackT&& cancelled_callback
+        IRenderInvalidateService& invalidator,
+        IFilePickerService::SuccessCallbackT&& success_callback,
+        IFilePickerService::CancelledCallbackT&& cancelled_callback
 ) :
-    file_combo(app),
+    file_combo(invalidator),
     panel_name(std::string("Select File to Open") + get_imgui_stable_name()),
-    app(app),
     success_callback(std::move(success_callback)),
     cancelled_callback(std::move(cancelled_callback))
 {
@@ -69,13 +68,6 @@ void FileChooser::draw() noexcept
 const char* FileChooser::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
-}
-
-void FileChooser::change_active_project(
-        const Project* const new_project
-)
-{
-    std::ignore = new_project;
 }
 
 const char* FileChooser::get_imgui_stable_name() noexcept

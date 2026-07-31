@@ -6,10 +6,17 @@
 
 #include <imgui.h>
 
-#include "../actions/ActionController.hpp"
+#include "../services/IProjectOpenService.hpp"
 
 namespace echomap
 {
+
+MenuPanel::MenuPanel(
+        IProjectOpenService& project_opener
+) :
+    project_opener(project_opener)
+{
+}
 
 void MenuPanel::draw() noexcept
 {
@@ -17,10 +24,8 @@ void MenuPanel::draw() noexcept
         if (ImGui::BeginMenu("File")) {
             ImGui::MenuItem("New Project");
             if (ImGui::BeginMenu("Open Project")) {
-
-
                 if (ImGui::MenuItem("... from filesystem"))
-                    ActionController::select_project_file();
+                    project_opener.request_open_project();
 
                 if (ImGui::BeginMenu("... from example repository")) {
                     ImGui::MenuItem("Example 1", nullptr, false, false);
@@ -62,13 +67,6 @@ void MenuPanel::draw() noexcept
 const char* MenuPanel::get_imgui_name() const noexcept
 {
     return panel_name.c_str();
-}
-
-void MenuPanel::change_active_project(
-        const Project* const new_project
-)
-{
-    std::ignore = new_project;
 }
 
 } // namespace echomap

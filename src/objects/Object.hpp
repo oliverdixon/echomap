@@ -68,7 +68,7 @@ public:
         return name;
     }
 
-    [[nodiscard]] const char* get_imgui_name() const noexcept
+    [[nodiscard]] const char* get_c_str_name() const noexcept
     {
         assert(is_valid());
         return name.c_str();

@@ -1,15 +1,5 @@
 # TODO
 
-## Short Term
-
-1. Split EchoMap into app shell, project controller, and render host.
-
-2. Move ImGui/ImPlot types out of the domain model.
-
-3. Replace global/static platform callbacks with injected services.
-
-## Medium/Long Term
-
 *In no particular order...*
 
 * Add an autocorrelation panel. Or maybe just an option on the existing DFT panel and rename it something like
@@ -31,5 +21,3 @@
   * Used by Audacity (`aup3`) for similar data.
   * There is a well-regarded C++ library: https://github.com/fnc12/sqlite_orm (also on vcpkg)
   * Suited for binary blobs and relational structure.
-
-* Give the worker a richer job model.

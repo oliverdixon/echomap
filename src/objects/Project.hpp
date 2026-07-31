@@ -5,10 +5,7 @@
 #ifndef ECHOMAP_PROJECT_HPP
 #define ECHOMAP_PROJECT_HPP
 
-#include <implot3d.h>
-
 #include <flat_map>
-#include <map>
 #include <memory>
 #include <ranges>
 #include <string_view>
@@ -160,11 +157,6 @@ public:
                    return *optional;
                });
     }
-
-    [[nodiscard]] static ImPlot3DPoint get_sensor_point(
-            int idx,
-            const void* project_instance
-    ) noexcept;
 
     /**
      * Retrieve a mutable reference to the Sensor with the given ID.

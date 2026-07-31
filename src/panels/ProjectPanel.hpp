@@ -5,40 +5,41 @@
 #ifndef ECHOMAP_PROJECTPANEL_HPP
 #define ECHOMAP_PROJECTPANEL_HPP
 
-#include <sigc++/scoped_connection.h>
-
 #include <string>
 
-#include "IProjectPanel.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
 
-class WorkerResultDespatcher;
+class IProjectObserveService;
 
-class ProjectPanel final : public IProjectPanel
+class ProjectPanel final : public IPanel
 {
 public:
     /**
      * Create a new ProjectPanel to display Project metadata.
      *
-     * @param initial_project An optional initial Project for the IPanel to describe.
+     * @param observer_service Service for observing the active Project.
      */
-    explicit ProjectPanel(const Project* initial_project = nullptr);
+    explicit ProjectPanel(const IProjectObserveService& observer_service);
+
+    ProjectPanel(const ProjectPanel&) = delete;
+    ProjectPanel& operator=(const ProjectPanel&) = delete;
+    ProjectPanel(ProjectPanel&&) = delete;
+    ProjectPanel& operator=(ProjectPanel&&) = delete;
+
+    ~ProjectPanel() override = default;
 
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
-    void change_active_project(const Project* new_project) override;
-
     static const char* get_imgui_stable_name() noexcept;
 
 private:
     std::string panel_name;
-
-    const Project* active_project = nullptr;
-    std::vector<sigc::scoped_connection> connections;
+    const IProjectObserveService& observer_service;
 };
 
 } // namespace echomap

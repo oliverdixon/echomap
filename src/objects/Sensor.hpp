@@ -25,8 +25,8 @@ public:
     Sensor(const Sensor& old_sensor);
     Sensor(const Sensor& old_sensor, std::string_view new_name);
 
-    void set_colour(Colour new_colour) noexcept;
-    void set_position(Position new_position) noexcept;
+    void set_colour(const Colour& new_colour) noexcept;
+    void set_position(const Position& new_position) noexcept;
 };
 
 template <> constexpr std::string_view Object<Sensor>::class_name = "Sensor";

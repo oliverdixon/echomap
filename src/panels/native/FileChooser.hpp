@@ -16,39 +16,38 @@
 
 #include <filesystem>
 
-#include "../../notifications/native/RaiseFileChooserNotification.hpp"
-#include "../IProjectPanel.hpp"
+#include "../../services/IFilePickerService.hpp"
+#include "../IPanel.hpp"
 #include "FilesystemCombo.hpp"
 
 namespace echomap
 {
 
 class EchoMap;
+class IRenderInvalidateService;
 
 /**
  * Modal containing controls for interactively selecting a file from the file-system.
  */
-class FileChooser : public IProjectPanel
+class FileChooser : public IPanel
 {
 public:
     /**
      * Create a new FileChooser modal for the given EchoMap instance.
      *
-     * @param app The owning EchoMap instance.
+     * @param invalidator Service for invalidating frames.
      * @param success_callback The slot to invoke with the path once a file has been selected.
      * @param cancelled_callback The slot to invoke if the operation is cancelled.
      */
     explicit FileChooser(
-            EchoMap* app,
-            RaiseFileChooserNotification::SuccessCallbackT&& success_callback,
-            RaiseFileChooserNotification::CancelledCallbackT&& cancelled_callback
+            IRenderInvalidateService& invalidator,
+            IFilePickerService::SuccessCallbackT&& success_callback,
+            IFilePickerService::CancelledCallbackT&& cancelled_callback
     );
 
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
-
-    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 
@@ -61,9 +60,8 @@ private:
 
     std::string panel_name;
     bool is_open = false;
-    EchoMap* app;
-    RaiseFileChooserNotification::SuccessCallbackT success_callback;
-    RaiseFileChooserNotification::CancelledCallbackT cancelled_callback;
+    IFilePickerService::SuccessCallbackT success_callback;
+    IFilePickerService::CancelledCallbackT cancelled_callback;
 };
 
 } // namespace echomap

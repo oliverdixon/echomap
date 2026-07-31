@@ -39,14 +39,14 @@ Sensor::Sensor(
 }
 
 void Sensor::set_colour(
-        const Colour new_colour
+        const Colour& new_colour
 ) noexcept
 {
     colour = new_colour;
 }
 
 void Sensor::set_position(
-        const Position new_position
+        const Position& new_position
 ) noexcept
 {
     position = new_position;

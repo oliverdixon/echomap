@@ -7,21 +7,37 @@
 
 #include <string>
 
-#include "IProjectPanel.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
 
-class MenuPanel final : public IProjectPanel
+class IProjectOpenService;
+
+class MenuPanel final : public IPanel
 {
 public:
+    /**
+     * Creates a MenuPanel to display an application-wide top menu.
+     *
+     * @param project_opener Service for prompting to open a new Project.
+     */
+    explicit MenuPanel(IProjectOpenService& project_opener);
+
+    MenuPanel(const MenuPanel&) = delete;
+    MenuPanel& operator=(const MenuPanel&) = delete;
+    MenuPanel(MenuPanel&&) = delete;
+    MenuPanel& operator=(MenuPanel&&) = delete;
+
+    ~MenuPanel() override = default;
+
     void draw() noexcept override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
-    void change_active_project(const Project* new_project) override;
-
 private:
+    IProjectOpenService& project_opener;
+
     std::string panel_name = "Menu";
 };
 

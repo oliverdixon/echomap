@@ -15,15 +15,16 @@
 #include "../async/tasks/DownsampleTask.hpp"
 #include "../objects/Project.hpp"
 #include "../objects/Signal.hpp"
+#include "../services/IProjectObserveService.hpp"
 #include "../utility/Logger.hpp"
 
 namespace echomap
 {
 
 SignalWaveformPanel::SignalWaveformPanel(
-        Worker* parent_worker,
+        Worker& parent_worker,
         WorkerResultDespatcher& despatcher,
-        const Project* const initial_project
+        const IProjectObserveService& observer_service
 ) :
     bounding_box{
             std::numeric_limits<double>::max(),
@@ -33,7 +34,7 @@ SignalWaveformPanel::SignalWaveformPanel(
     },
     panel_name(std::string("Signal Waveform Preview") + get_imgui_stable_name()),
     parent_worker(parent_worker),
-    active_project(initial_project)
+    observer_service(observer_service)
 {
     connections.emplace_back(despatcher.downsample_finished_channel.nominate_consumer(
             sigc::mem_fun(*this, &SignalWaveformPanel::handle_downsampled_result)
@@ -41,8 +42,6 @@ SignalWaveformPanel::SignalWaveformPanel(
 }
 
 SignalWaveformPanel::~SignalWaveformPanel() noexcept = default;
-
-SignalWaveformPanel::SignalWaveformPanel(SignalWaveformPanel&&) noexcept = default;
 
 const char* SignalWaveformPanel::get_imgui_name() const noexcept
 {
@@ -52,18 +51,19 @@ const char* SignalWaveformPanel::get_imgui_name() const noexcept
 void SignalWaveformPanel::draw() noexcept
 {
     if (ImGui::Begin(panel_name.c_str())) {
-        if (active_project == nullptr)
+        if (observer_service.observe_project() == nullptr)
             ImGui::Text("No project is loaded.");
         else if (ImPlot::BeginAlignedPlots("##WaveformAlignedGroup")) {
             ImPlot::PushStyleColor(ImPlotCol_FrameBg, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+            const auto& active_project = *observer_service.observe_project();
             bool drawn_any = false;
 
-            for (const auto& signal : active_project->share_signals()) {
+            for (const auto& signal : active_project.share_signals()) {
                 drawn_any = true;
 
                 if (const auto* const downsampled = get_downsampled_signal(signal); downsampled == nullptr)
-                    ImGui::Text("Loading downsampled variant of %s...", signal->get_imgui_name());
-                else if (ImPlot::BeginPlot(downsampled->get_imgui_name())) {
+                    ImGui::Text("Loading downsampled variant of %s...", signal->get_c_str_name());
+                else if (ImPlot::BeginPlot(downsampled->get_c_str_name())) {
 
                     ImPlot::SetupAxes("Time (seconds)", "Amplitude");
                     ImPlot::SetupAxisLinks(ImAxis_X1, &bounding_box.X.Min, &bounding_box.X.Max);
@@ -91,15 +91,6 @@ void SignalWaveformPanel::draw() noexcept
     }
 
     ImGui::End();
-}
-
-void SignalWaveformPanel::change_active_project(
-        const Project* const new_project
-)
-{
-    active_project = new_project;
-    downsample_cache.clear();
-    update_bounding_box();
 }
 
 const char* SignalWaveformPanel::get_imgui_stable_name() noexcept
@@ -177,7 +168,7 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
          */
 
         downsample_cache.emplace(signal->get_id(), nullptr);
-        parent_worker->submit(std::make_unique<DownsampleTask>(std::move(signal)));
+        parent_worker.submit(std::make_unique<DownsampleTask>(std::move(signal)));
         return nullptr;
     }
 

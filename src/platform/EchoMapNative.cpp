@@ -11,61 +11,37 @@
 
 #include "EchoMapNative.hpp"
 
-#include "../notifications/AllNotifications.hpp"
-#include "../panels/native/FileChooser.hpp"
-#include "../utility/Logger.hpp"
+#include "../controllers/native/FullProjectController.hpp"
+#include "../services/native/NativeProjectFilePickerService.hpp"
 
 namespace echomap
 {
 
+EchoMapNative::EchoMapNative() :
+    EchoMap([] {
+        glfwPostEmptyEvent();
+    })
+{
+    setup_controller(
+            std::make_unique<FullProjectController>(
+                    std::make_unique<NativeProjectFilePickerService>(panel_host, render_host),
+                    panel_host,
+                    worker
+            )
+    );
+}
+
 void EchoMapNative::run_event_loop()
 {
-    render();
-    instance.ProcessEvents();
+    process_worker_results();
+    render_host.render(panel_host);
+    render_host.process_instance_events();
 
-    while (glfwWindowShouldClose(window) == 0) {
-        if (forced_frames > 0) {
-            glfwPollEvents();
-            --forced_frames;
-        } else
-            glfwWaitEvents();
-
-        render();
-        instance.ProcessEvents();
+    while (render_host.wait_for_frame_trigger()) {
+        process_worker_results();
+        render_host.render(panel_host);
+        render_host.process_instance_events();
     }
-}
-
-void EchoMapNative::visit_notification(
-        Notification notification
-)
-{
-    std::visit(
-            // clang-format off
-
-            variant_helpers::Overloaded{
-                make_common_notification_visitors(),
-                [this](RaiseFileChooserNotification& n) { handle_notification(n); },
-            },
-
-            // clang-format on
-            notification
-    );
-}
-
-void EchoMapNative::handle_notification(
-        RaiseFileChooserNotification& notification
-)
-{
-    if (active_modal != nullptr) {
-        LOG_WARN("Ignoring request to raise file chooser since there is an active modal.");
-        return;
-    }
-
-    active_modal = std::make_unique<FileChooser>(
-            this,
-            std::move(notification.success_callback),
-            std::move(notification.cancelled_callback)
-    );
 }
 
 } // namespace echomap

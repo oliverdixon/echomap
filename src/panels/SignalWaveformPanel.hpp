@@ -14,11 +14,12 @@
 #include <string>
 
 #include "../objects/IDAllocator.hpp"
-#include "IProjectPanel.hpp"
+#include "IPanel.hpp"
 
 namespace echomap
 {
 
+class IProjectObserveService;
 class WorkerResultDespatcher;
 class DownsampleResult;
 class Signal;
@@ -29,7 +30,7 @@ class Worker;
  *
  * Additionally, the panel owns the downsampled time series in a cache used exclusively for visualisation.
  */
-class SignalWaveformPanel final : public IProjectPanel
+class SignalWaveformPanel final : public IPanel
 {
 public:
     /**
@@ -39,27 +40,24 @@ public:
      *
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
-     * @param initial_project An optional initial Project for the IPanel to display.
+     * @param observer_service Service for observing the active Project.
      */
     explicit SignalWaveformPanel(
-            Worker* parent_worker,
+            Worker& parent_worker,
             WorkerResultDespatcher& despatcher,
-            const Project* initial_project = nullptr
+            const IProjectObserveService& observer_service
     );
 
     ~SignalWaveformPanel() noexcept override;
 
     SignalWaveformPanel(const SignalWaveformPanel&) = delete;
     SignalWaveformPanel& operator=(const SignalWaveformPanel&) = delete;
-
-    SignalWaveformPanel(SignalWaveformPanel&&) noexcept;
-    SignalWaveformPanel& operator=(SignalWaveformPanel&&) noexcept = delete;
+    SignalWaveformPanel(SignalWaveformPanel&&) = delete;
+    SignalWaveformPanel& operator=(SignalWaveformPanel&&) = delete;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
     void draw() noexcept override;
-
-    void change_active_project(const Project* new_project) override;
 
     static const char* get_imgui_stable_name() noexcept;
 
@@ -118,8 +116,8 @@ private:
 
     std::string panel_name;
     ImPlotSpec plotting_spec_2d;
-    Worker* parent_worker;
-    const Project* active_project = nullptr;
+    Worker& parent_worker;
+    const IProjectObserveService& observer_service;
     std::vector<sigc::scoped_connection> connections;
 };
 
