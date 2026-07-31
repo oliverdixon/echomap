@@ -35,14 +35,14 @@ public:
      * during the scheduling and execution of the job. Shared ownership is required to preserve lifetimes across the
      * master and computation threads.
      *
-     * @param signal The shared-ownership Signal to analyse.
+     * @param signal A weak reference to the Signal to analyse.
      * @param window_function The window function to preprocess the input data.
      * @param transform_size The number of samples to include in the transform.
      *
-     * @pre The given Signal must detain a non-nullptr Signal.
+     * @pre The given Signal must detain a non-expired Signal.
      */
     explicit DFTTask(
-            std::shared_ptr<Signal> signal,
+            std::weak_ptr<Signal> signal,
             WindowFunctions::AllFunctions window_function,
             std::size_t transform_size
     );
@@ -52,10 +52,13 @@ public:
     DFTTask(const DFTTask&) = delete;
     DFTTask& operator=(const DFTTask&) = delete;
 
+    DFTTask(DFTTask&& other) noexcept;
+    DFTTask& operator=(DFTTask&& other) noexcept;
+
 private:
     WorkerResult execute_work() override;
 
-    std::shared_ptr<Signal> signal;
+    std::weak_ptr<Signal> signal;
     WindowFunctions::AllFunctions window_function;
     std::size_t transform_size;
 };

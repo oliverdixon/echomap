@@ -35,8 +35,16 @@ public:
      */
     explicit LoadProjectTask(
             std::filesystem::path path,
-            Worker* worker
+            Worker& worker
     );
+
+    ~LoadProjectTask() override = default;
+
+    LoadProjectTask(const LoadProjectTask&) = delete;
+    LoadProjectTask& operator=(const LoadProjectTask&) = delete;
+
+    LoadProjectTask(LoadProjectTask&& other) noexcept;
+    LoadProjectTask& operator=(LoadProjectTask&& other) noexcept;
 
 private:
     /**
@@ -64,7 +72,7 @@ private:
      */
     std::filesystem::path project_file_path;
 
-    Worker* worker;
+    std::reference_wrapper<Worker> worker;
 };
 
 } // namespace echomap

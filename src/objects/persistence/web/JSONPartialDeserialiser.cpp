@@ -107,10 +107,10 @@ namespace echomap
 
 std::unique_ptr<PartialProject> JSONPartialDeserialiser::deserialise_project(
         const std::filesystem::path& path,
-        Worker* const worker
+        Worker& worker
 )
 {
-    parent_worker = worker;
+    parent_worker = &worker;
     const auto json = simdjson::padded_string::load(path.c_str());
     auto doc = parser.iterate(json);
     auto partial_project = std::make_unique<PartialProject>();

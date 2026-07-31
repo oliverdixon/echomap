@@ -36,13 +36,13 @@ public:
      * during the scheduling and execution of the job. Shared ownership is required to preserve lifetimes across the
      * master and computation threads.
      *
-     * @param signal The shared-ownership Signal to downsample.
+     * @param signal A weak reference to the Signal to downsample.
      * @param factor The multiplicative factor by which the Signal should be downsampled.
      *
-     * @pre The given Signal must detain a non-nullptr Signal.
+     * @pre The given Signal must detain a non-expired Signal.
      */
     explicit DownsampleTask(
-            std::shared_ptr<Signal> signal,
+            std::weak_ptr<Signal> signal,
             float factor = downsampling_factor
     );
 
@@ -51,13 +51,14 @@ public:
     DownsampleTask(const DownsampleTask&) = delete;
     DownsampleTask& operator=(const DownsampleTask&) = delete;
 
-    // TODO needs move operators.
+    DownsampleTask(DownsampleTask&& other) noexcept;
+    DownsampleTask& operator=(DownsampleTask&& other) noexcept;
 
 private:
     WorkerResult execute_work() override;
 
-    std::shared_ptr<Signal> signal;
-    const float factor;
+    std::weak_ptr<Signal> signal;
+    float factor;
 };
 
 } // namespace echomap

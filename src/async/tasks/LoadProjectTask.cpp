@@ -22,12 +22,36 @@ JSONDeserialiser LoadProjectTask::deserialiser{};
 
 LoadProjectTask::LoadProjectTask(
         std::filesystem::path path,
-        Worker* const worker
+        Worker& worker
 ) :
     ITask(std::format("LoadProjectTask: {}", path.c_str())),
     project_file_path(std::move(path)),
     worker(worker)
 {
+}
+
+LoadProjectTask::LoadProjectTask(
+        LoadProjectTask&& other
+) noexcept :
+    ITask(std::move(other)),
+    project_file_path(std::move(other.project_file_path)),
+    worker(other.worker)
+{
+}
+
+LoadProjectTask& LoadProjectTask::operator=(
+        LoadProjectTask&& other
+) noexcept
+{
+    if (this == &other)
+        return *this;
+
+    move_task_identity_from(std::move(other));
+
+    project_file_path = std::move(other.project_file_path);
+    worker = other.worker;
+
+    return *this;
 }
 
 WorkerResult LoadProjectTask::execute_work()

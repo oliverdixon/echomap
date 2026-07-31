@@ -1,5 +1,9 @@
 # TODO
 
+1. Implementation fixes as documented.
+
+2. Add Doctest (in vcpkg) for unit-testing.
+
 *In no particular order...*
 
 * Add an autocorrelation panel. Or maybe just an option on the existing DFT panel and rename it something like

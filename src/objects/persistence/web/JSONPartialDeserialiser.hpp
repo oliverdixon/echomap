@@ -32,7 +32,7 @@ class JSONPartialDeserialiser
 public:
     std::unique_ptr<PartialProject> deserialise_project(
             const std::filesystem::path& path,
-            Worker* worker
+            Worker& worker
     );
 
 private:

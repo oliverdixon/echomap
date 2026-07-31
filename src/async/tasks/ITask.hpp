@@ -22,13 +22,6 @@ namespace echomap
 class ITask : public Object<ITask>
 {
 public:
-    explicit ITask(
-            const std::string_view task_name
-    ) :
-        Object(task_name)
-    {
-    }
-
     /**
      * Destruct the ITask base.
      */
@@ -51,6 +44,32 @@ public:
      * @return An owning container detaining the result of the work.
      */
     WorkerResult operator()();
+
+    ITask(const ITask&) = delete;
+    ITask& operator=(const ITask&) = delete;
+    ITask& operator=(ITask&& other) = delete;
+
+protected:
+    explicit ITask(
+            const std::string_view task_name
+    ) :
+        Object(task_name)
+    {
+    }
+
+    ITask(
+            ITask&& other
+    ) noexcept :
+        Object(std::move(other))
+    {
+    }
+
+    void move_task_identity_from(
+            ITask&& other
+    ) noexcept
+    {
+        move_identity_from(std::move(other));
+    }
 
 private:
     /**

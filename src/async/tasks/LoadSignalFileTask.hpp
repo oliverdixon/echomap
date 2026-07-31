@@ -20,7 +20,7 @@ namespace echomap
 class SignalFactory;
 
 /**
- *
+ * Denotes a unit of work for loading channels from an external wave file into Signal objects.
  */
 class LoadSignalFileTask : public ITask
 {
@@ -36,7 +36,8 @@ public:
     LoadSignalFileTask(const LoadSignalFileTask&) = delete;
     LoadSignalFileTask& operator=(const LoadSignalFileTask&) = delete;
 
-    // TODO needs move operators.
+    LoadSignalFileTask(LoadSignalFileTask&& other) noexcept;
+    LoadSignalFileTask& operator=(LoadSignalFileTask&& other) noexcept;
 
 private:
     WorkerResult execute_work() override;

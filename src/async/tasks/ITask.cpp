@@ -10,7 +10,6 @@
 #include "ITask.hpp"
 
 #include "../../objects/FrequencySpectrum.hpp"
-#include "../../objects/Signal.hpp"
 
 namespace echomap
 {

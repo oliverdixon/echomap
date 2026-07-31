@@ -31,6 +31,32 @@ LoadSignalFileTask::LoadSignalFileTask(
 
 LoadSignalFileTask::~LoadSignalFileTask() noexcept = default;
 
+LoadSignalFileTask::LoadSignalFileTask(
+        LoadSignalFileTask&& other
+) noexcept :
+    ITask(std::move(other)),
+    project_id(other.project_id),
+    path(std::move(other.path)),
+    factories(std::move(other.factories))
+{
+}
+
+LoadSignalFileTask& LoadSignalFileTask::operator=(
+        LoadSignalFileTask&& other
+) noexcept
+{
+    if (this == &other)
+        return *this;
+
+    move_task_identity_from(std::move(other));
+
+    project_id = other.project_id;
+    path = std::move(other.path);
+    factories = std::move(other.factories);
+
+    return *this;
+}
+
 WorkerResult LoadSignalFileTask::execute_work()
 {
     // Prepare the factories as slots for the loader.

@@ -56,7 +56,7 @@ void ProjectControllerBase::request_open_project()
 {
     project_file_picker->request_project_file(
             [this](const std::filesystem::path& path) {
-                worker.submit(std::make_unique<LoadProjectTask>(path, &worker));
+                worker.submit(std::make_unique<LoadProjectTask>(path, worker));
             },
             {}
     );
