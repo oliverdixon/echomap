@@ -46,7 +46,7 @@ const PartialProject* PartialProjectController::observe_partial_project() const 
     return partial_project.get();
 }
 
-void PartialProjectController::add_vfs_mapping(
+void PartialProjectController::prompt_for_vfs_mapping(
         const id_type intended_project_id,
         const std::filesystem::path& intended_external
 )

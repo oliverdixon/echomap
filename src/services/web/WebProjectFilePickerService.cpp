@@ -80,42 +80,33 @@ void WebProjectFilePickerService::request_project_file(
     js::select_project_file();
 }
 
-int WebProjectFilePickerService::complete_project_file_pick(
+WebProjectFilePickerService::Status WebProjectFilePickerService::complete_project_file_pick(
         const char* path
-) noexcept
+)
 {
     if (instance == nullptr)
-        return 1;
+        return Status::NoBoundInstance;
 
     if (path == nullptr) {
         if (instance->cancelled_callback)
             instance->cancelled_callback();
 
-        return 2;
+        return Status::NoPath;
     }
-
-    const std::filesystem::path selected_path{path};
 
     const auto callback = std::move(instance->success_callback);
     instance->success_callback = {};
     instance->cancelled_callback = {};
 
     if (callback)
-        callback(selected_path);
+        callback(std::filesystem::path{path});
 
-    return 0;
+    return Status::Success;
 }
 
 } // namespace echomap
 
-/**
- * Services the @ref ProjectFileAction callback for Emscripten.
- *
- * @param path The file-system path (in the Wasm VFS) selected in the prompt.
- * @return Zero status to indicate success; non-zero to indicate failure.
- *
- * @ingroup ProjectFileAction
- */
+
 extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_project_file_picked(
         const char* const path
 ) noexcept
@@ -123,16 +114,10 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_project_file_picked(
     using namespace echomap;
 
     try {
-        return WebProjectFilePickerService::complete_project_file_pick(path);
-    } catch (const ConfigurationError& error) {
-        LOG_F_ERROR("Could not load path {} due to error: {}", path, error.what());
-        return 3;
-    } catch (const std::exception& error) {
-        LOG_F_ERROR("Could not load path {} due to unexpected error: {}", path, error.what());
-        return 4;
+        return std::to_underlying(WebProjectFilePickerService::complete_project_file_pick(path));
     } catch (...) {
-        LOG_F_ERROR("Could not load path {} due to unknown error.", path);
-        return 5;
+        LOG_ERROR("Could not load Project due to unknown error.");
+        return -1;
     }
 }
 

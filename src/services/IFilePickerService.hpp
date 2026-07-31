@@ -18,7 +18,7 @@ namespace echomap
 {
 
 /**
- * @todo Document
+ * Expresses a service for raising a cancellable file selection dialog.
  */
 class IFilePickerService
 {
@@ -26,7 +26,6 @@ public:
     using SuccessCallbackT = sigc::slot<void(const std::filesystem::path&)>;
     using CancelledCallbackT = sigc::slot<void()>;
 
-    IFilePickerService() = default;
     virtual ~IFilePickerService() = default;
 
     IFilePickerService(const IFilePickerService&) = default;
@@ -38,6 +37,9 @@ public:
             SuccessCallbackT success,
             CancelledCallbackT cancelled
     ) = 0;
+
+protected:
+    IFilePickerService() = default;
 };
 
 } // namespace echomap

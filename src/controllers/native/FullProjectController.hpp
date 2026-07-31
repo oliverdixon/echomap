@@ -17,10 +17,8 @@
 namespace echomap
 {
 
-class RenderHost;
-
 /**
- * @todo Document
+ * Provides implementations of Worker result handlers for native platforms.
  */
 class FullProjectController : public ProjectControllerBase
 {

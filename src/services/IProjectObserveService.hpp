@@ -16,14 +16,27 @@ namespace echomap
 class Project;
 
 /**
- * @todo Document
+ * Expresses a service for observing an active Project.
  */
 class IProjectObserveService
 {
 public:
     virtual ~IProjectObserveService() = default;
 
+    IProjectObserveService(const IProjectObserveService&) = default;
+    IProjectObserveService& operator=(const IProjectObserveService&) = default;
+    IProjectObserveService(IProjectObserveService&&) = default;
+    IProjectObserveService& operator=(IProjectObserveService&&) = default;
+
+    /**
+     * Get an observing pointer to the active Project.
+     *
+     * @return An immutable view of the active Project, or @c nullptr if no Project is stored.
+     */
     [[nodiscard]] virtual const Project* observe_project() const noexcept = 0;
+
+protected:
+    IProjectObserveService() = default;
 };
 
 } // namespace echomap

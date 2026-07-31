@@ -21,7 +21,7 @@ class PanelHost;
 class RenderHost;
 
 /**
- * @todo Document
+ * Provides a native-platform implementation for opening a file selection dialog.
  */
 class NativeProjectFilePickerService : public IFilePickerService
 {
@@ -30,6 +30,13 @@ public:
             PanelHost& panel_host,
             RenderHost& render_host
     );
+
+    ~NativeProjectFilePickerService() override = default;
+
+    NativeProjectFilePickerService(const NativeProjectFilePickerService&) = delete;
+    NativeProjectFilePickerService& operator=(const NativeProjectFilePickerService&) = delete;
+    NativeProjectFilePickerService(NativeProjectFilePickerService&&) = delete;
+    NativeProjectFilePickerService& operator=(NativeProjectFilePickerService&&) = delete;
 
     void request_project_file(
             SuccessCallbackT success,

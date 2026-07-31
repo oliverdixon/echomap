@@ -171,7 +171,7 @@ bool MapSourcesModal::draw_table_entry(
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, upload_button_frame_padding);
 
     if (ImGui::Button("Upload", ImVec2(button_size.x + 2 * padding.x, button_size.y)))
-        builder_service.add_vfs_mapping(project_id, external_path);
+        builder_service.prompt_for_vfs_mapping(project_id, external_path);
 
     ImGui::PopStyleVar();
 

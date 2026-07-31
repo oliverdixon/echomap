@@ -17,7 +17,19 @@ class IProjectOpenService;
 class MenuPanel final : public IPanel
 {
 public:
+    /**
+     * Creates a MenuPanel to display an application-wide top menu.
+     *
+     * @param project_opener Service for prompting to open a new Project.
+     */
     explicit MenuPanel(IProjectOpenService& project_opener);
+
+    MenuPanel(const MenuPanel&) = delete;
+    MenuPanel& operator=(const MenuPanel&) = delete;
+    MenuPanel(MenuPanel&&) = delete;
+    MenuPanel& operator=(MenuPanel&&) = delete;
+
+    ~MenuPanel() override = default;
 
     void draw() noexcept override;
 

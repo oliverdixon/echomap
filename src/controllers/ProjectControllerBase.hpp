@@ -27,8 +27,7 @@ class LoadProjectResult;
 class Worker;
 
 /**
- * Base implementation for controllers requiring direct access to a Project, implementing the base set of WorkerResult
- * handlers.
+ * Maintains the active Project and provides platform-independent implementations of Project service handlers.
  */
 class ProjectControllerBase : public IProjectMutationService, public IProjectOpenService, public IProjectObserveService
 {

@@ -13,6 +13,7 @@
 #include <string>
 
 #include "IPanel.hpp"
+#include "../objects/IDAllocator.hpp"
 
 namespace echomap
 {
@@ -29,13 +30,20 @@ public:
     /**
      * Create a new SensorGeometryPanel to plot and control Sensor information.
      *
-     * @param mutation_service TODO
-     * @param observer_service TODO
+     * @param mutation_service Service for performing simple mutations on the active Project.
+     * @param observer_service Service for observing the active Project.
      */
     explicit SensorGeometryPanel(
             IProjectMutationService& mutation_service,
             const IProjectObserveService& observer_service
     );
+
+    SensorGeometryPanel(const SensorGeometryPanel&) = delete;
+    SensorGeometryPanel& operator=(const SensorGeometryPanel&) = delete;
+    SensorGeometryPanel(SensorGeometryPanel&&) = delete;
+    SensorGeometryPanel& operator=(SensorGeometryPanel&&) = delete;
+
+    ~SensorGeometryPanel() override = default;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
@@ -64,8 +72,10 @@ private:
 
     std::string panel_name;
 
+    std::optional<id_type> cached_project_id;
     std::vector<ImU32> sensor_colours;
     ImPlot3DSpec plotting_spec_3d;
+
     IProjectMutationService& mutation_service;
     const IProjectObserveService& observer_service;
 };

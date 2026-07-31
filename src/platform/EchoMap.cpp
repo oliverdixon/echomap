@@ -37,16 +37,18 @@ void EchoMap::setup_controller(
         std::unique_ptr<ProjectControllerBase> controller
 )
 {
-    project_controller = std::move(controller);
+    if (project_controller != nullptr)
+        throw std::logic_error("A project controller already exists.");
 
-    auto& p_cont = *this->project_controller;
+    project_controller = std::move(controller);
+    auto& p_cont = *this->project_controller; // Just an alias.
 
     panel_host.add_panel(std::make_unique<MenuPanel>(p_cont));
     panel_host.add_panel(std::make_unique<ProjectPanel>(p_cont));
-    panel_host.add_panel(std::make_unique<SignalWaveformPanel>(&worker, despatcher, p_cont));
+    panel_host.add_panel(std::make_unique<SignalWaveformPanel>(worker, despatcher, p_cont));
     panel_host.add_panel(std::make_unique<SensorGeometryPanel>(p_cont, p_cont));
     panel_host.add_panel(std::make_unique<ChannelMappingPanel>(p_cont, render_host, p_cont));
-    panel_host.add_panel(std::make_unique<SignalDFTPanel>(&worker, despatcher, &render_host, p_cont));
+    panel_host.add_panel(std::make_unique<SignalDFTPanel>(worker, despatcher, render_host, p_cont));
 
     // NOLINTBEGIN(*-redundant-casting) - False positive; casts are required for libsigcpp to resolve overloads.
 

@@ -21,12 +21,17 @@ class Signal;
 class Sensor;
 
 /**
- * @todo Document
+ * Expresses a service for applying simple changes to an active Project.
  */
 class IProjectMutationService
 {
 public:
     virtual ~IProjectMutationService() = default;
+
+    IProjectMutationService(const IProjectMutationService&) = default;
+    IProjectMutationService& operator=(const IProjectMutationService&) = default;
+    IProjectMutationService(IProjectMutationService&&) = default;
+    IProjectMutationService& operator=(IProjectMutationService&&) = default;
 
     virtual void add_channel_mapping(
             const Signal& signal,
@@ -42,6 +47,9 @@ public:
             id_type sensor_id,
             const Colour& colour
     ) = 0;
+
+protected:
+    IProjectMutationService() = default;
 };
 
 } // namespace echomap

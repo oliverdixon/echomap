@@ -40,10 +40,10 @@ public:
      *
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
-     * @param observer_service TODO
+     * @param observer_service Service for observing the active Project.
      */
     explicit SignalWaveformPanel(
-            Worker* parent_worker, // TODO ref
+            Worker& parent_worker,
             WorkerResultDespatcher& despatcher,
             const IProjectObserveService& observer_service
     );
@@ -52,9 +52,8 @@ public:
 
     SignalWaveformPanel(const SignalWaveformPanel&) = delete;
     SignalWaveformPanel& operator=(const SignalWaveformPanel&) = delete;
-
-    SignalWaveformPanel(SignalWaveformPanel&&) noexcept;
-    SignalWaveformPanel& operator=(SignalWaveformPanel&&) noexcept = delete;
+    SignalWaveformPanel(SignalWaveformPanel&&) = delete;
+    SignalWaveformPanel& operator=(SignalWaveformPanel&&) = delete;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
@@ -117,7 +116,7 @@ private:
 
     std::string panel_name;
     ImPlotSpec plotting_spec_2d;
-    Worker* parent_worker; // TODO reference
+    Worker& parent_worker;
     const IProjectObserveService& observer_service;
     std::vector<sigc::scoped_connection> connections;
 };

@@ -30,8 +30,6 @@ class ProjectControllerBase;
 class EchoMap
 {
 public:
-    virtual ~EchoMap() noexcept;
-
     /**
      * Runs the platform-dependent event loop to manage and propagate interaction with the EchoMap application.
      *
@@ -55,12 +53,22 @@ protected:
      *
      * @throws ConfigurationError Some part of initialisation, described in the exception message, did not succeed.
      */
-    EchoMap(std::function<void()> worker_result_callback = {});
+    explicit EchoMap(std::function<void()> worker_result_callback = {});
 
+    ~EchoMap() noexcept;
+
+    /**
+     * Emplaces a new ProjectController and sets up the instance for use.
+     *
+     * This should be called exactly once immediately following construction.
+     *
+     * @param controller The constructed ProjectController to own.
+     * @throws std::logic_error A ProjectController is already owned by the instance.
+     */
     void setup_controller(std::unique_ptr<ProjectControllerBase> controller);
 
     /**
-     * Handle any unconsumed events from the Worker.
+     * Pass any unconsumed events from the Worker to the WorkerResultDespatcher for distribution over the channels.
      */
     void process_worker_results();
 

@@ -29,9 +29,9 @@ namespace echomap
 {
 
 SignalDFTPanel::SignalDFTPanel(
-        Worker* parent_worker,
+        Worker& parent_worker,
         WorkerResultDespatcher& despatcher,
-        IRenderInvalidateService* const invalidation_service,
+        IRenderInvalidateService& invalidation_service,
         const IProjectObserveService& observer_service
 ) :
     panel_name(std::string("Signal DFT Panel") + get_imgui_stable_name()),
@@ -47,8 +47,6 @@ SignalDFTPanel::SignalDFTPanel(
 }
 
 SignalDFTPanel::~SignalDFTPanel() noexcept = default;
-
-SignalDFTPanel::SignalDFTPanel(SignalDFTPanel&&) noexcept = default;
 
 void SignalDFTPanel::draw() noexcept
 {
@@ -125,7 +123,7 @@ void SignalDFTPanel::handle_completed_dft(
         if (had_no_visible_spectrum)
             reset_viewport_bounds();
 
-        invalidation_service->force_frames();
+        invalidation_service.force_frames();
     }
 }
 
@@ -214,7 +212,7 @@ void SignalDFTPanel::draw_configuration_window_function() noexcept
         ImGui::EndCombo();
 
         if (!was_window_function_combo_open)
-            invalidation_service->force_frames();
+            invalidation_service.force_frames();
     }
 
     was_window_function_combo_open = is_combo_open;
@@ -250,7 +248,7 @@ void SignalDFTPanel::draw_configuration_transform_size() noexcept
         ImGui::EndCombo();
 
         if (!was_transform_size_combo_open)
-            invalidation_service->force_frames();
+            invalidation_service.force_frames();
     }
 
     was_transform_size_combo_open = is_combo_open;
@@ -279,7 +277,7 @@ void SignalDFTPanel::draw_configuration_preview_actions() noexcept
         spectra_cache.clear();
         update_spectrum_bounds();
         reset_viewport_bounds();
-        invalidation_service->force_frames();
+        invalidation_service.force_frames();
     }
 }
 
@@ -495,7 +493,7 @@ const FrequencySpectrum* SignalDFTPanel::get_spectra(
 
     if (entry.status != CacheValue::State::Pending) {
         entry.status = CacheValue::State::Pending;
-        parent_worker->submit(std::make_unique<DFTTask>(std::move(signal), window_function, transform_size));
+        parent_worker.submit(std::make_unique<DFTTask>(std::move(signal), window_function, transform_size));
     }
 
     return nullptr;

@@ -58,7 +58,8 @@ void SensorGeometryPanel::recache_sensor_colours(
         const Project& active_project
 ) noexcept
 {
-    if (active_project.get_sensors_count() != sensor_colours.size()) {
+    if (!cached_project_id.has_value() || *cached_project_id != active_project.get_id() ||
+            active_project.get_sensors_count() != sensor_colours.size()) {
         // Ensure that we maintain the correct number of colours for the current number of sensors.
         try {
             sensor_colours.resize(active_project.get_sensors_count());
@@ -81,6 +82,7 @@ void SensorGeometryPanel::recache_sensor_colours(
         // ... and update the plotting specification in case the resize invalidated pointers.
         plotting_spec_3d.MarkerFillColors = &*sensor_colours.begin();
         plotting_spec_3d.MarkerLineColors = plotting_spec_3d.MarkerFillColors;
+        cached_project_id = active_project.get_id();
     }
 }
 

@@ -43,12 +43,12 @@ public:
      * @param parent_worker The Worker to receive ITask commands over the command bus.
      * @param despatcher The despatcher to expose the result buses.
      * @param invalidation_service The service to invalidate render cycles.
-     * @param observer_service TODO
+     * @param observer_service Service for observing the active Project.
      */
     explicit SignalDFTPanel(
-            Worker* parent_worker,                    // TODO ref
+            Worker& parent_worker,
             WorkerResultDespatcher& despatcher,
-            IRenderInvalidateService* invalidation_service, // TODO reference
+            IRenderInvalidateService& invalidation_service,
             const IProjectObserveService& observer_service
     );
 
@@ -56,9 +56,8 @@ public:
 
     SignalDFTPanel(const SignalDFTPanel&) = delete;
     SignalDFTPanel& operator=(const SignalDFTPanel&) = delete;
-
-    SignalDFTPanel(SignalDFTPanel&&) noexcept;
-    SignalDFTPanel& operator=(SignalDFTPanel&&) noexcept = delete;
+    SignalDFTPanel(SignalDFTPanel&&) = delete;
+    SignalDFTPanel& operator=(SignalDFTPanel&&) = delete;
 
     void draw() noexcept override;
 
@@ -115,8 +114,8 @@ private:
 
     std::string panel_name;
     ImPlotSpec plotting_spec_2d;
-    Worker* parent_worker;
-    IRenderInvalidateService* invalidation_service; // TODO reference
+    Worker& parent_worker;
+    IRenderInvalidateService& invalidation_service;
     const IProjectObserveService& observer_service;
 
     /**

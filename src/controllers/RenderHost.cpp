@@ -39,8 +39,10 @@ RenderHost::RenderHost() :
     int actual_width = 0;
     int actual_height = 0;
     glfwGetFramebufferSize(window, &actual_width, &actual_height);
+
     assert(actual_width >= 0);
     assert(actual_height >= 0);
+
     viewport_width = static_cast<std::uint32_t>(actual_width);
     viewport_height = static_cast<std::uint32_t>(actual_height);
 
@@ -336,14 +338,14 @@ void RenderHost::setup_imgui()
     if (!ImGui_ImplWGPU_Init(&init_info))
         throw ConfigurationError("ImGui_ImplWGPU_Init failed");
 
-#if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
+#ifdef __EMSCRIPTEN__
     /*
      * If we're targeting WebAssembly, the window dimensions reported by GLFW should match the size of the canvas
      * identified by the CSS selector <code>#canvas</code>. Dear ImGui provides the helper
      * ImGui_ImplGlfw_InstallEmscriptenCallbacks to interface with the DOM and trigger re-draws as needed.
      */
     ImGui_ImplGlfw_InstallEmscriptenCallbacks(window, "#canvas");
-#endif
+#endif // __EMSCRIPTEN__
 }
 
 void RenderHost::setup_dockspace()

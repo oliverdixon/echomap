@@ -28,7 +28,7 @@ class PartialProject;
 class Worker;
 
 /**
- * @todo Document
+ * Maintains a PartialProject for WebAssembly platforms and provides implementations of PartialProject services.
  */
 class PartialProjectController : public ProjectControllerBase,
                                  public IPartialProjectObserveService,
@@ -51,7 +51,7 @@ public:
 
     [[nodiscard]] const PartialProject* observe_partial_project() const noexcept override;
 
-    void add_vfs_mapping(
+    void prompt_for_vfs_mapping(
             id_type intended_project_id,
             const std::filesystem::path& intended_external
     ) override;

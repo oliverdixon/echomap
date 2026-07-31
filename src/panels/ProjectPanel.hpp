@@ -20,9 +20,16 @@ public:
     /**
      * Create a new ProjectPanel to display Project metadata.
      *
-     * @param observer_service TODO
+     * @param observer_service Service for observing the active Project.
      */
     explicit ProjectPanel(const IProjectObserveService& observer_service);
+
+    ProjectPanel(const ProjectPanel&) = delete;
+    ProjectPanel& operator=(const ProjectPanel&) = delete;
+    ProjectPanel(ProjectPanel&&) = delete;
+    ProjectPanel& operator=(ProjectPanel&&) = delete;
+
+    ~ProjectPanel() override = default;
 
     void draw() noexcept override;
 

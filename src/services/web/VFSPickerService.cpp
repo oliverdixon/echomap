@@ -83,53 +83,48 @@ void VFSPickerService::request_vfs_mapping(
 
 }
 
-int VFSPickerService::complete_vfs_mapping(
+VFSPickerService::Status VFSPickerService::complete_vfs_mapping(
         const id_type project_id,
         const char* const external,
         const char* const internal
-) noexcept
+)
 {
     if (instance == nullptr)
-        return 1;
+        return Status::NoBoundInstance;
 
-    if (external == nullptr || internal == nullptr)
-        return 2;
+    if (external == nullptr)
+        return Status::NoPath;
 
     auto& self = *instance;
 
     if (!self.pending_request.has_value())
-        return 3;
+        return Status::NoPendingRequest;
+
+    if (internal == nullptr) {
+        if (self.pending_request->cancelled_callback)
+            self.pending_request->cancelled_callback(std::filesystem::path{external});
+        return Status::NoPath;
+    }
 
     const auto request = std::move(*self.pending_request);
     self.pending_request.reset();
 
     if (request.project_id != project_id)
-        return 4;
+        return Status::UnexpectedProject;
 
     if (request.external != external)
-        return 5;
+        return Status::UnexpectedPath;
 
     if (request.success_callback)
         request.success_callback(project_id, request.external, std::filesystem::path{internal});
 
-    return 0;
+    return Status::Success;
 }
 
 VFSPickerService* VFSPickerService::instance = nullptr;
 
 } // namespace echomap
 
-/**
- * Services the @ref RegisterVFSMapping callback for Emscripten.
- *
- * @param project_id The ID of the Project that owns the destination Signal.
- * @param external The path of the external file being mapped into the VFS.
- * @param internal The path of the VFS file.
- *
- * @return Zero status to indicate success; non-zero to indicate failure.
- *
- * @ingroup RegisterVFSMapping
- */
 extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
         const std::size_t project_id,
         const char* const external,
@@ -139,16 +134,10 @@ extern "C" EMSCRIPTEN_KEEPALIVE int echomap_on_register_vfs_mapping(
     using namespace echomap;
 
     try {
-        return VFSPickerService::complete_vfs_mapping(project_id, external, internal);
-    } catch (const ConfigurationError& error) {
-        LOG_F_ERROR("Could not load path {} due to error: {}", internal, error.what());
-        return 6;
-    } catch (const std::exception& error) {
-        LOG_F_ERROR("Could not load path {} due to unexpected error: {}", internal, error.what());
-        return 7;
+        return std::to_underlying(VFSPickerService::complete_vfs_mapping(project_id, external, internal));
     } catch (...) {
-        LOG_F_ERROR("Could not load path {} due to unknown error.", internal);
-        return 8;
+        LOG_ERROR("Could not register mapping due to unknown system error.");
+        return -1;
     }
 }
 

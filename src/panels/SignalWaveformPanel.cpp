@@ -22,7 +22,7 @@ namespace echomap
 {
 
 SignalWaveformPanel::SignalWaveformPanel(
-        Worker* parent_worker,
+        Worker& parent_worker,
         WorkerResultDespatcher& despatcher,
         const IProjectObserveService& observer_service
 ) :
@@ -42,8 +42,6 @@ SignalWaveformPanel::SignalWaveformPanel(
 }
 
 SignalWaveformPanel::~SignalWaveformPanel() noexcept = default;
-
-SignalWaveformPanel::SignalWaveformPanel(SignalWaveformPanel&&) noexcept = default;
 
 const char* SignalWaveformPanel::get_imgui_name() const noexcept
 {
@@ -170,7 +168,7 @@ const Signal* SignalWaveformPanel::get_downsampled_signal(
          */
 
         downsample_cache.emplace(signal->get_id(), nullptr);
-        parent_worker->submit(std::make_unique<DownsampleTask>(std::move(signal)));
+        parent_worker.submit(std::make_unique<DownsampleTask>(std::move(signal)));
         return nullptr;
     }
 

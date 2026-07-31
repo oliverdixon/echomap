@@ -14,14 +14,22 @@ namespace echomap
 {
 
 /**
- * @todo Document
+ * Expresses a service for initiating a workflow to load a new Project.
  */
 class IProjectOpenService
 {
 public:
     virtual ~IProjectOpenService() = default;
 
+    IProjectOpenService(const IProjectOpenService&) = default;
+    IProjectOpenService& operator=(const IProjectOpenService&) = default;
+    IProjectOpenService(IProjectOpenService&&) = default;
+    IProjectOpenService& operator=(IProjectOpenService&&) = default;
+
     virtual void request_open_project() = 0;
+
+protected:
+    IProjectOpenService() = default;
 };
 
 } // namespace echomap

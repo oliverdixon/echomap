@@ -21,13 +21,22 @@ namespace echomap
 class PanelHost;
 
 /**
- * Provides services for low-level rendering.
+ * Provides services for low-level rendering onto a WebGPU surface.
  */
 class RenderHost : public IRenderInvalidateService
 {
 public:
+    /**
+     * Create a new RenderHost for rendering to a WebGPU-backed window.
+     *
+     * @throws ConfigurationError Could not receive an adapter handle from WebGPU.
+     * @throws ConfigurationError Could not receive a device handle from WebGPU.
+     */
     RenderHost();
 
+    /**
+     * De-initialise all stored state.
+     */
     ~RenderHost() noexcept override;
 
     RenderHost(const RenderHost&) = delete;
@@ -39,8 +48,16 @@ public:
 
     void render(const PanelHost& panel_host);
 
+    /**
+     * Block until a new frame should be rendered, or the window has been closed.
+     *
+     * @return Should the window continue to be open?
+     */
     [[nodiscard]] bool wait_for_frame_trigger() const noexcept;
 
+    /**
+     * Process items on the internal WebGPU event queue.
+     */
     void process_instance_events() const;
 
 private:
@@ -98,10 +115,16 @@ private:
     /**
      * Create a context for Dear ImGui and ImPlot, and configure the plain GLFW and WebGPU backends.
      *
+     * If targeting WebAssembly with Emscripten, a callback is registered from the @c #canvas DOM object to redraw on
+     * resize.
+     *
      * @throws ConfigurationError A Dear ImGui backend could not be initialised.
      */
     void setup_imgui();
 
+    /**
+     * Helper to configure the IPanel objects in their default configuration in the Dear ImGui dockspace.
+     */
     void setup_dockspace();
 
     /**
