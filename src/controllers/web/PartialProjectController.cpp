@@ -34,8 +34,7 @@ PartialProjectController::PartialProjectController(
             std::make_unique<WebProjectFilePickerService>(),
             worker
     ),
-    vfs_picker(std::make_unique<VFSPickerService>()),
-    worker(worker)
+    vfs_picker(std::make_unique<VFSPickerService>())
 {
 }
 
@@ -99,9 +98,14 @@ void PartialProjectController::complete_project_load(
         return;
     }
 
+    if (!partial_project->all_sources_mapped()) {
+        LOG_WARN("Ignored project load request since VFS mappings are not complete.");
+        return;
+    }
+
     // For each group, create an asynchronous task to load the corresponding file.
 
-    for (auto&& [vfs_path, factories] : partial_project->take_unloaded_factories()) {
+    for (auto&& [vfs_path, factories] : partial_project->drain_unloaded_factories()) {
 
         if (!vfs_path.has_value()) {
             panel_host.raise_error("Refusing to complete project load due to an incomplete VFS mapping.");

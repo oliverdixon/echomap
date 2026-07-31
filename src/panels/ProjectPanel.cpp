@@ -22,7 +22,7 @@ ProjectPanel::ProjectPanel(
 {
 }
 
-void ProjectPanel::draw() noexcept
+void ProjectPanel::draw()
 {
     constexpr ImGuiTreeNodeFlags default_flags = ImGuiTreeNodeFlags_DefaultOpen;
 

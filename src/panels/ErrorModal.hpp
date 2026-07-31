@@ -56,7 +56,7 @@ public:
             DismissedCallbackT&& dismissed_callback
     );
 
-    void draw() noexcept override;
+    void draw() override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 

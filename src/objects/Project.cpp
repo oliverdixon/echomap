@@ -84,6 +84,28 @@ std::size_t Project::get_sensors_count() const noexcept
     return sensors.size();
 }
 
+const Signal& Project::lookup_signal(
+        const id_type signal_id
+) const
+{
+    const auto signal_it = signals.find(signal_id);
+    if (signal_it == signals.end())
+        throw std::runtime_error(std::format("No Signal with ID {} belongs to {}.", signal_id, get_name()));
+
+    return *signal_it->second;
+}
+
+const Sensor& Project::lookup_sensor(
+        const id_type sensor_id
+) const
+{
+    const auto sensor_it = sensors.find(sensor_id);
+    if (sensor_it == sensors.end())
+        throw std::runtime_error(std::format("No Sensor with ID {} belongs to {}.", sensor_id, get_name()));
+
+    return *sensor_it->second;
+}
+
 Sensor& Project::get_mutable_sensor(
         const id_type sensor_id
 )

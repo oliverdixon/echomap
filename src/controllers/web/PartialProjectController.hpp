@@ -73,7 +73,6 @@ private:
 
     std::unique_ptr<PartialProject> partial_project;
     std::unique_ptr<VFSPickerService> vfs_picker;
-    Worker& worker;
 };
 
 } // namespace echomap

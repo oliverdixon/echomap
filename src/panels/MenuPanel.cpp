@@ -18,7 +18,7 @@ MenuPanel::MenuPanel(
 {
 }
 
-void MenuPanel::draw() noexcept
+void MenuPanel::draw()
 {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {

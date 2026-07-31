@@ -31,7 +31,7 @@ const char* ChannelMappingPanel::get_imgui_name() const noexcept
     return panel_name.c_str();
 }
 
-void ChannelMappingPanel::draw() noexcept
+void ChannelMappingPanel::draw()
 {
     if (ImGui::Begin(panel_name.c_str())) {
         if (observer_service.observe_project() == nullptr)
@@ -42,12 +42,14 @@ void ChannelMappingPanel::draw() noexcept
             draw_new_channel_mapping(active_project);
 
             // If a new mapping has been fully described, add it and prompt for another.
-            if (new_entry_cache.signal != nullptr && new_entry_cache.sensor != nullptr) {
+            if (new_entry_cache.signal.has_value() && new_entry_cache.sensor.has_value()) {
                 mutation_service.add_channel_mapping(
-                        *new_entry_cache.signal, *new_entry_cache.sensor);
+                        active_project.lookup_signal(new_entry_cache.signal->id),
+                        active_project.lookup_sensor(new_entry_cache.sensor->id)
+                );
 
-                new_entry_cache.signal = nullptr;
-                new_entry_cache.sensor = nullptr;
+                new_entry_cache.signal.reset();
+                new_entry_cache.sensor.reset();
             }
 
             ImGui::SeparatorText("Existing Channel Mapping");
@@ -80,17 +82,18 @@ void ChannelMappingPanel::draw_new_channel_mapping(
         ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
         const auto is_signal_combo_open = ImGui::BeginCombo(
                 "##NewAssociationSignal",
-                new_entry_cache.signal == nullptr ? "Select signal..." : new_entry_cache.signal->get_c_str_name(),
+                !new_entry_cache.signal.has_value() ? "Select signal..." : new_entry_cache.signal->name,
                 0
         );
 
         if (is_signal_combo_open) {
             for (const auto& signal : active_project.observe_signals()) {
-                const bool is_selected = new_entry_cache.signal == nullptr ? false : signal == *new_entry_cache.signal;
+                const auto is_selected =
+                        !new_entry_cache.signal.has_value() ? false : signal.get_id() == new_entry_cache.signal->id;
 
                 // Checks if something has changed (thus current value needs updating).
                 if (ImGui::Selectable(signal.get_c_str_name(), is_selected))
-                    new_entry_cache.signal = &signal;
+                    new_entry_cache.signal.emplace(signal.get_id(), signal.get_c_str_name());
 
                 // Checks if the current item is selected.
                 if (is_selected)
@@ -106,16 +109,17 @@ void ChannelMappingPanel::draw_new_channel_mapping(
         ImGui::SetNextItemWidth(-std::numeric_limits<float>::min());
         const auto is_sensor_combo_open = ImGui::BeginCombo(
                 "##NewAssociationSensor",
-                new_entry_cache.sensor == nullptr ? "Select sensor..." : new_entry_cache.sensor->get_c_str_name(),
+                !new_entry_cache.sensor.has_value() ? "Select sensor..." : new_entry_cache.sensor->name,
                 0
         );
 
         if (is_sensor_combo_open) {
             for (const auto& sensor : active_project.observe_sensors()) {
-                const bool is_selected = new_entry_cache.sensor == nullptr ? false : sensor == *new_entry_cache.sensor;
+                const auto is_selected =
+                        !new_entry_cache.sensor.has_value() ? false : sensor.get_id() == new_entry_cache.sensor->id;
 
                 if (ImGui::Selectable(sensor.get_c_str_name(), is_selected))
-                    new_entry_cache.sensor = &sensor;
+                    new_entry_cache.sensor.emplace(sensor.get_id(), sensor.get_c_str_name());
 
                 if (is_selected)
                     ImGui::SetItemDefaultFocus();

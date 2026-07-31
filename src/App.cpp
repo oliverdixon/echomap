@@ -17,31 +17,36 @@
 /**
  * EchoMap common entry point.
  *
- * @return OS status exit code. 0 for success, 1 for failure.
+ * @return OS status exit code. 0 for success, 1 for typed error, 2 for unknown error.
  */
 int main()
 {
+    using namespace echomap;
+
     try {
 #if defined(__EMSCRIPTEN__) || defined(__DOXYGEN__)
 
         // NOLINTBEGIN(*-owning-memory, *-cplusplus.NewDeleteLeaks) - Emscripten will manage our heap memory.
 
-        auto* const application = new echomap::EchoMapWeb();
+        auto* const application = new EchoMapWeb();
         application->run_event_loop();
 
         // NOLINTEND(*-owning-memory, *-cplusplus.NewDeleteLeaks)
 
 #else
 
-        // Native platforms can use the RAII facilities of EchoMap and StaticInstanceController.
+        // Native platforms can use the RAII facilities of EchoMap.
 
-        echomap::EchoMapNative application;
+        EchoMapNative application;
         application.run_event_loop();
 
 #endif
     } catch (const echomap::ConfigurationError& error) {
-        echomap::Logger::log(echomap::Logger::Level::Error, error.what(), error.where());
+        Logger::log(Logger::Level::Error, error.what(), error.where());
         return 1;
+    } catch (...) {
+        LOG_ERROR("Implementation-defined unknown error caught in entry point.");
+        return 2;
     }
 
     return 0;

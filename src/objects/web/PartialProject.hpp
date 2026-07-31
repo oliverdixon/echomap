@@ -57,6 +57,7 @@ public:
      *
      * @throws std::runtime_error The given SignalFactory did not define an external source.
      * @throws std::runtime_error Could not take ownership of the SignalFactory for some implementation-defined reason.
+     * @throws std::invalid_argument The Signal channel was zero, where channel numbers are one-based.
      */
     void indicate_unloaded_signal(std::unique_ptr<SignalFactory>&& factory);
 
@@ -88,6 +89,13 @@ public:
     }
 
     /**
+     * Determines if all unloaded SignalFactory objects have a VFS mapping.
+     *
+     * @return Do all unloaded SignalFactory objects have a VFS mapping?
+     */
+    [[nodiscard]] bool all_sources_mapped() const noexcept;
+
+    /**
      * Provide a view to the mutable unloaded SignalFactory objects.
      *
      * For a description of the viewed values, see @ref observe_unloaded_signals. Following this operation, ownership of
@@ -96,7 +104,7 @@ public:
      *
      * @return A mutating view of the unloaded Signal SignalFactory objects.
      */
-    [[nodiscard]] auto take_unloaded_factories() noexcept
+    [[nodiscard]] auto drain_unloaded_factories() noexcept
     {
         return std::exchange(unloaded_signals, {}) | std::views::values | std::views::as_rvalue;
     }

@@ -7,6 +7,7 @@
 
 #include <string>
 
+#include "../objects/IDAllocator.hpp"
 #include "IPanel.hpp"
 
 namespace echomap
@@ -47,15 +48,21 @@ public:
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
-    void draw() noexcept override;
+    void draw() override;
 
     static const char* get_imgui_stable_name() noexcept;
 
 private:
     struct AddChannelMappingRowCache
     {
-        const Signal * signal = nullptr;
-        const Sensor * sensor = nullptr;
+        struct Item
+        {
+            id_type id;
+            const char* name;
+        };
+
+        std::optional<Item> signal;
+        std::optional<Item> sensor;
     };
 
     void draw_new_channel_mapping(const Project& active_project) noexcept;

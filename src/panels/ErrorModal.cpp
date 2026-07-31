@@ -46,7 +46,7 @@ ErrorModal::ErrorModal(
     }
 }
 
-void ErrorModal::draw() noexcept
+void ErrorModal::draw()
 {
     ImGui::OpenPopup(get_imgui_name());
     if (ImGui::BeginPopupModal(get_imgui_name(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {

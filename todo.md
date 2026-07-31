@@ -1,8 +1,6 @@
 # TODO
 
-1. Implementation fixes as documented.
-
-2. Add Doctest (in vcpkg) for unit-testing.
+1. Add Doctest (in vcpkg) for unit-testing.
 
 *In no particular order...*
 

@@ -31,7 +31,7 @@ public:
 
     ~MenuPanel() override = default;
 
-    void draw() noexcept override;
+    void draw() override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 

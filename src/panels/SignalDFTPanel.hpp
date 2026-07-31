@@ -59,7 +59,7 @@ public:
     SignalDFTPanel(SignalDFTPanel&&) = delete;
     SignalDFTPanel& operator=(SignalDFTPanel&&) = delete;
 
-    void draw() noexcept override;
+    void draw() override;
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 

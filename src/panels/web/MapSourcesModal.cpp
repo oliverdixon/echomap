@@ -28,7 +28,7 @@ MapSourcesModal::MapSourcesModal(
 {
 }
 
-void MapSourcesModal::draw() noexcept // TODO remove noexcepts where necessary.
+void MapSourcesModal::draw()
 {
     if (observe_service.observe_partial_project() == nullptr)
         return;

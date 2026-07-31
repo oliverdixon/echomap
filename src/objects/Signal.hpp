@@ -47,7 +47,7 @@ public:
         using TimeT = float;      /**< Type for sample times */
         using AmplitudeT = float; /**< Type for sample amplitudes. */
 
-        TimeT time;               /**< Time, in ms. */
+        TimeT time;               /**< Time, in seconds. */
         AmplitudeT amplitude;     /**< Normalised amplitude at the time. */
     };
 

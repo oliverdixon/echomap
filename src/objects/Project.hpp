@@ -158,6 +158,9 @@ public:
                });
     }
 
+    [[nodiscard]] const Signal& lookup_signal(id_type signal_id) const;
+    [[nodiscard]] const Sensor& lookup_sensor(id_type sensor_id) const;
+
     /**
      * Retrieve a mutable reference to the Sensor with the given ID.
      *

@@ -31,7 +31,7 @@ const char* SensorGeometryPanel::get_imgui_name() const noexcept
     return panel_name.c_str();
 }
 
-void SensorGeometryPanel::draw() noexcept
+void SensorGeometryPanel::draw()
 {
     if (ImGui::Begin(panel_name.c_str())) {
         const auto* const optional_project = observer_service.observe_project();

@@ -48,7 +48,7 @@ SignalDFTPanel::SignalDFTPanel(
 
 SignalDFTPanel::~SignalDFTPanel() noexcept = default;
 
-void SignalDFTPanel::draw() noexcept
+void SignalDFTPanel::draw()
 {
     if (ImGui::Begin(panel_name.c_str())) {
         if (observer_service.observe_project() == nullptr)

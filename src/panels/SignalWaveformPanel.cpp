@@ -48,7 +48,7 @@ const char* SignalWaveformPanel::get_imgui_name() const noexcept
     return panel_name.c_str();
 }
 
-void SignalWaveformPanel::draw() noexcept
+void SignalWaveformPanel::draw()
 {
     if (ImGui::Begin(panel_name.c_str())) {
         if (observer_service.observe_project() == nullptr)

@@ -57,7 +57,7 @@ public:
 
     [[nodiscard]] const char* get_imgui_name() const noexcept override;
 
-    void draw() noexcept override;
+    void draw() override;
 
     static const char* get_imgui_stable_name() noexcept;
 

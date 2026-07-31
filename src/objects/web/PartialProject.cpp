@@ -11,6 +11,8 @@
 
 #include "PartialProject.hpp"
 
+#include <algorithm>
+
 #include "../factories/SignalFactory.hpp"
 
 namespace echomap
@@ -33,6 +35,9 @@ void PartialProject::indicate_unloaded_signal(
         throw std::runtime_error("Attempted to defer load of a Signal with no external source.");
 
     const auto& source = *factory->observe_signal().observe_source();
+
+    if (source.channel == 0)
+        throw std::invalid_argument("Signal source channels are one-based.");
 
     auto file_group_it = unloaded_signals.find(source.path);
 
@@ -65,6 +70,14 @@ void PartialProject::add_vfs_mapping_for_unavailable_signal(
         throw std::runtime_error(std::format("Provided VFS mapping for unknown path {}.", external.c_str()));
 
     map_it->second.first.emplace(std::move(internal));
+}
+
+bool PartialProject::all_sources_mapped() const noexcept
+{
+    return std::ranges::all_of(unloaded_signals, [](const auto& mapping) {
+        const auto& path = mapping.second.first;
+        return path.has_value() && !path->empty();
+    });
 }
 
 } // namespace echomap
