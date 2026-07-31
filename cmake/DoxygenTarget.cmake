@@ -3,8 +3,7 @@
 #
 # Author: Oliver Dixon
 # Date: 2026-07-15
-
-option(ECHOMAP_BUILD_DOCUMENTATION "Build EchoMap Doxygen documentation" OFF)
+#
 
 if (ECHOMAP_BUILD_DOCUMENTATION)
     find_package(Doxygen REQUIRED)

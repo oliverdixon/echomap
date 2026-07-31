@@ -6,11 +6,16 @@
 cmake_minimum_required(VERSION 4.0)
 project(EchoMap)
 
+include(CTest)
+
+option(ECHOMAP_BUILD_APPLICATION "Make available the standard EchoMap application targets" ON)
+option(ECHOMAP_BUILD_DOCUMENTATION "Build EchoMap Doxygen documentation" OFF)
+option(ECHOMAP_BUILD_TESTS "Build EchoMap tests" ON)
+
 # The DummyTarget provides a target to IntelliJ IDEs to manage. We extract the source vector for the real targets.
 add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/platform/EchoMap.cpp
         src/platform/EchoMap.hpp
-        src/App.cpp
         src/panels/IPanel.hpp
         src/RobotoMedium.hpp
         src/utility/Logger.cpp
@@ -145,6 +150,7 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     )
 endif ()
 
+target_compile_features(DummyTarget INTERFACE cxx_std_23)
 get_target_property(ECHOMAP_SOURCES DummyTarget SOURCES)
 
 include(cmake/ApplicationTargets.cmake)

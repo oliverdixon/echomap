@@ -3,6 +3,7 @@
 #
 # Author: Oliver Dixon
 # Date: 2026-06-09
+#
 
 if(embed_wgsl_generate)
     foreach(required_variable IN ITEMS

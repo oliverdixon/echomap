@@ -3,12 +3,9 @@
 #
 # Author: Oliver Dixon
 # Date: 2026-07-15
-
-option(ECHOMAP_BUILD_APPLICATION "Make available the standard EchoMap application targets" ON)
+#
 
 if (ECHOMAP_BUILD_APPLICATION)
-    set(CMAKE_CXX_STANDARD 23)
-
     find_package(Dawn CONFIG REQUIRED)
     find_package(ImGui REQUIRED)
     find_package(simdjson REQUIRED)
@@ -21,9 +18,16 @@ if (ECHOMAP_BUILD_APPLICATION)
         target_compile_definitions(dawn_glfw PRIVATE EMSCRIPTEN=1)
     endif ()
 
-    add_executable(EchoMap ${ECHOMAP_SOURCES})
+    # Standard application target to inherit properties and sources of the DummyTarget interface.
+    add_executable(EchoMap
+            ${ECHOMAP_SOURCES}
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/App.cpp"
+    )
 
-    target_link_libraries(EchoMap PRIVATE
+    # Disable inclusion of tests in the non-test target.
+    target_compile_definitions(EchoMap PRIVATE DOCTEST_CONFIG_DISABLE)
+
+    target_link_libraries(DummyTarget INTERFACE
             imgui::imgui
             implot::implot
             implot3d::implot3d
@@ -78,7 +82,7 @@ if (ECHOMAP_BUILD_APPLICATION)
 
         list(JOIN exported_functions "," exported_functions_js_argument)
 
-        target_link_options(EchoMap PRIVATE
+        target_link_options(DummyTarget INTERFACE
                 "-fwasm-exceptions"
                 "-sJSPI"
                 "-sUSE_GLFW=3"
@@ -92,8 +96,8 @@ if (ECHOMAP_BUILD_APPLICATION)
                 $<$<CONFIG:Debug,RelWithDebInfo>:--profiling-funcs>
         )
 
-        # Define a target for each additional auxiliary file specified by web_extra to be replicated in the EchoMap target
-        # output directory.
+        # Define a target for each additional auxiliary file specified by web_extra to be replicated in the EchoMap
+        # target output directory.
         set(web_extra_outputs)
 
         foreach (asset IN LISTS web_extra)
@@ -113,8 +117,14 @@ if (ECHOMAP_BUILD_APPLICATION)
         add_custom_target(EchoMapShellExtra DEPENDS ${web_extra_outputs})
         add_dependencies(EchoMap EchoMapShellExtra)
     else ()
-        set(CMAKE_LINKER_TYPE "native_ld")
         find_package(glfw3 REQUIRED)
-        target_link_libraries(EchoMap PRIVATE dawn::webgpu_dawn glfw)
+        target_link_libraries(DummyTarget INTERFACE dawn::webgpu_dawn glfw)
     endif ()
+
+    target_link_libraries(EchoMap PRIVATE DummyTarget)
+
+    # Only consider building tests if we're also building the main application.
+    include(cmake/Doctest.cmake)
+elseif (ECHOMAP_BUILD_TESTS)
+    message(WARNING "Not building tests since we're not configuring the regular application.")
 endif ()

@@ -79,7 +79,8 @@
       "generator": "Ninja",
       "cacheVariables": {
         "ECHOMAP_BUILD_APPLICATION": false,
-        "ECHOMAP_BUILD_DOCUMENTATION": true
+        "ECHOMAP_BUILD_DOCUMENTATION": true,
+        "ECHOMAP_BUILD_TESTS": false
       },
       "binaryDir": "${sourceDir}/docs/out"
     }

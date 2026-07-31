@@ -4,6 +4,8 @@
 
 #include "Project.hpp"
 
+#include <doctest/doctest.h>
+
 #include <format>
 
 #include "Sensor.hpp"
@@ -142,6 +144,13 @@ Project::resolve_pair(
     assert(sensor_it->second != nullptr);
 
     return {{*signal_it->second, *sensor_it->second}};
+}
+
+TEST_CASE(
+        "doctest is wired into the EchoMap build"
+)
+{
+    CHECK(1 + 1 == 2);
 }
 
 } // namespace echomap
