@@ -2,8 +2,6 @@
 
 1. Write Doctest unit tests.
 
-2. Discuss testing approach in README.
-
 *In no particular order...*
 
 * Add an autocorrelation panel. Or maybe just an option on the existing DFT panel and rename it something like
