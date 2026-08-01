@@ -11,6 +11,8 @@
 
 #include "FullProjectController.hpp"
 
+#include <doctest/doctest.h>
+
 #include "../../async/results/LoadProjectResult.hpp"
 #include "../../async/results/LoadSignalFileResult.hpp"
 #include "../../objects/Project.hpp"
@@ -55,6 +57,13 @@ void FullProjectController::handle_result(
     else
         for (auto&& signals = std::move(result).take_signals(); auto signal : signals | std::views::as_rvalue)
             project->add_signal(std::move(signal));
+}
+
+TEST_CASE(
+        "NATIVE ONLY"
+)
+{
+    CHECK(1 + 1 == 2);
 }
 
 } // namespace echomap

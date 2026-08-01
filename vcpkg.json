@@ -67,7 +67,7 @@
     },
     {
       "name": "doctest",
-      "version>=": "2.5.3"
+      "version>=": "2.5.3-oliverdixon"
     }
   ]
 }

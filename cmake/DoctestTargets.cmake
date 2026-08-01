@@ -28,7 +28,5 @@ if (EMSCRIPTEN)
     )
 endif ()
 
-add_test(
-        NAME EchoMapTests
-        COMMAND EchoMapTests
-)
+include("${doctest_DIR}/doctest.cmake")
+doctest_discover_tests(EchoMapTests TEST_PREFIX "EchoMap.")

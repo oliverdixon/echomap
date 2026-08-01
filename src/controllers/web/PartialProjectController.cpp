@@ -11,6 +11,8 @@
 
 #include "PartialProjectController.hpp"
 
+#include <doctest/doctest.h>
+
 #include "../../async/Worker.hpp"
 #include "../../async/results/LoadProjectResult.hpp"
 #include "../../async/results/LoadSignalFileResult.hpp"
@@ -203,6 +205,13 @@ void PartialProjectController::handle_cancelled_mapping(
 {
     std::ignore = external;
     LOG_F_DEBUG("Cancelled VFS mapping for {}.", external.c_str());
+}
+
+TEST_CASE(
+        "WEB ONLY"
+)
+{
+    CHECK(1 + 1 == 2);
 }
 
 } // namespace echomap

@@ -103,7 +103,7 @@ add_library(EchoMapInterface INTERFACE EXCLUDE_FROM_ALL
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     # WebAssembly/Emscripten-only translation units.
-    target_sources(EchoMapInterface INTERFACE
+    target_sources(EchoMapInterface PRIVATE
             src/platform/EchoMapWeb.cpp
             src/platform/EchoMapWeb.hpp
             src/panels/web/MapSourcesModal.cpp
@@ -127,7 +127,7 @@ endif ()
 
 if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     # Native-only translation units.
-    target_sources(EchoMapInterface INTERFACE
+    target_sources(EchoMapInterface PRIVATE
             src/platform/EchoMapNative.cpp
             src/platform/EchoMapNative.hpp
             src/panels/native/FileChooser.cpp
