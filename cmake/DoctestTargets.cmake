@@ -29,4 +29,4 @@ if (EMSCRIPTEN)
 endif ()
 
 include("${doctest_DIR}/doctest.cmake")
-doctest_discover_tests(EchoMapTests TEST_PREFIX "EchoMap.")
+doctest_discover_tests(EchoMapTests)
