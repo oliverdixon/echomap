@@ -10,7 +10,7 @@ include(CTest)
 
 option(ECHOMAP_BUILD_APPLICATION "Make available the standard EchoMap application targets" ON)
 option(ECHOMAP_BUILD_DOCUMENTATION "Build EchoMap Doxygen documentation" OFF)
-option(ECHOMAP_BUILD_TESTS "Build EchoMap tests" ${BUILD_TESTING})
+option(ECHOMAP_BUILD_TESTS "Build EchoMap tests" OFF)
 
 # Set the sources. This must be in the root for IntelliJ IDEs.
 add_library(EchoMapInterface INTERFACE EXCLUDE_FROM_ALL
