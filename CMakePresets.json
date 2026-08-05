@@ -6,8 +6,7 @@
       "hidden": true,
       "generator": "Ninja",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "ECHOMAP_BUILD_APPLICATION": true
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
@@ -42,34 +41,48 @@
       }
     },
     {
+      "name": "app",
+      "hidden": true,
+      "cacheVariables": {
+        "ECHOMAP_BUILD_APPLICATION": true,
+        "ECHOMAP_BUILD_TESTS": false,
+        "ECHOMAP_BUILD_DOCUMENTATION": false
+      }
+    },
+    {
       "name": "test",
       "hidden": true,
       "cacheVariables": {
         "CMAKE_CXX_FLAGS_INIT": "-fprofile-instr-generate -fcoverage-mapping",
-        "ECHOMAP_BUILD_TESTS": true
+        "ECHOMAP_BUILD_APPLICATION": false,
+        "ECHOMAP_BUILD_TESTS": true,
+        "ECHOMAP_BUILD_DOCUMENTATION": false
       }
     },
 
     {
-      "name": "native-debug",
+      "name": "native-debug-app",
       "inherits": [
         "native",
-        "debug"
+        "debug",
+        "app"
       ],
       "binaryDir": "${sourceDir}/cmake-build-native-debug"
     },
     {
-      "name": "native-release",
+      "name": "native-release-app",
       "inherits": [
         "native",
-        "release"
+        "release",
+        "app"
       ],
       "binaryDir": "${sourceDir}/cmake-build-native-release"
     },
     {
       "name": "native-debug-test",
       "inherits": [
-        "native-debug",
+        "native",
+        "debug",
         "test"
       ],
       "binaryDir": "${sourceDir}/cmake-build-native-debug-test"
@@ -77,24 +90,27 @@
     {
       "name": "native-release-test",
       "inherits": [
-        "native-release",
+        "native",
+        "release",
         "test"
       ],
       "binaryDir": "${sourceDir}/cmake-build-native-release-test"
     },
     {
-      "name": "wasm-debug",
+      "name": "wasm-debug-app",
       "inherits": [
         "wasm",
-        "debug"
+        "debug",
+        "app"
       ],
       "binaryDir": "${sourceDir}/cmake-build-wasm-debug"
     },
     {
-      "name": "wasm-release",
+      "name": "wasm-release-app",
       "inherits": [
         "wasm",
-        "release"
+        "release",
+        "app"
       ],
       "binaryDir": "${sourceDir}/cmake-build-wasm-release"
     },
@@ -103,6 +119,7 @@
       "generator": "Ninja",
       "cacheVariables": {
         "ECHOMAP_BUILD_APPLICATION": false,
+        "ECHOMAP_BUILD_TESTS": false,
         "ECHOMAP_BUILD_DOCUMENTATION": true
       },
       "binaryDir": "${sourceDir}/docs/out"
