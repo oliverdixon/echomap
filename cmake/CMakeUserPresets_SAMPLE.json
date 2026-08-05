@@ -11,6 +11,13 @@
       }
     },
     {
+      "name": "local-node",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CROSSCOMPILING_EMULATOR": "node"
+      }
+    },
+    {
       "name": "local-environment",
       "hidden": true,
       "environment": {
@@ -35,17 +42,35 @@
       ]
     },
     {
+      "name": "native-debug-test-local",
+      "inherits": [
+        "native-debug-test",
+        "local-toolchain",
+        "local-environment"
+      ]
+    },
+    {
+      "name": "native-release-test-local",
+      "inherits": [
+        "native-release-test",
+        "local-toolchain",
+        "local-environment"
+      ]
+    },
+    {
       "name": "wasm-debug-local",
       "inherits": [
         "wasm-debug",
-        "local-environment"
+        "local-environment",
+        "local-node"
       ]
     },
     {
       "name": "wasm-release-local",
       "inherits": [
         "wasm-release",
-        "local-environment"
+        "local-environment",
+        "local-node"
       ]
     }
   ]
