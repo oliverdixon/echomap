@@ -6,11 +6,16 @@
 cmake_minimum_required(VERSION 4.0)
 project(EchoMap)
 
-# The DummyTarget provides a target to IntelliJ IDEs to manage. We extract the source vector for the real targets.
-add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
+include(CTest)
+
+option(ECHOMAP_BUILD_APPLICATION "Make available the standard EchoMap application targets" ON)
+option(ECHOMAP_BUILD_DOCUMENTATION "Build EchoMap Doxygen documentation" OFF)
+option(ECHOMAP_BUILD_TESTS "Build EchoMap tests" OFF)
+
+# Set the sources. This must be in the root for IntelliJ IDEs.
+add_library(EchoMapInterface INTERFACE EXCLUDE_FROM_ALL
         src/platform/EchoMap.cpp
         src/platform/EchoMap.hpp
-        src/App.cpp
         src/panels/IPanel.hpp
         src/RobotoMedium.hpp
         src/utility/Logger.cpp
@@ -101,11 +106,13 @@ add_library(DummyTarget INTERFACE EXCLUDE_FROM_ALL
         src/services/IProjectMutationService.hpp
         src/services/IProjectOpenService.hpp
         src/services/IProjectObserveService.hpp
+        src/objects/IDAllocator.cpp
+        src/objects/Object.cpp
 )
 
 if (EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     # WebAssembly/Emscripten-only translation units.
-    target_sources(DummyTarget PRIVATE
+    target_sources(EchoMapInterface PRIVATE
             src/platform/EchoMapWeb.cpp
             src/platform/EchoMapWeb.hpp
             src/panels/web/MapSourcesModal.cpp
@@ -129,7 +136,7 @@ endif ()
 
 if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     # Native-only translation units.
-    target_sources(DummyTarget PRIVATE
+    target_sources(EchoMapInterface PRIVATE
             src/platform/EchoMapNative.cpp
             src/platform/EchoMapNative.hpp
             src/panels/native/FileChooser.cpp
@@ -145,7 +152,20 @@ if (NOT EMSCRIPTEN OR ECHOMAP_BUILD_DOCUMENTATION)
     )
 endif ()
 
-get_target_property(ECHOMAP_SOURCES DummyTarget SOURCES)
+# Configure the common interface target and extract its source vector.
+include(cmake/InterfaceTarget.cmake)
+get_target_property(ECHOMAP_SOURCES EchoMapInterface SOURCES)
 
-include(cmake/ApplicationTargets.cmake)
-include(cmake/DoxygenTarget.cmake)
+# Include handlers for each enabled aspect of the build.
+
+if (ECHOMAP_BUILD_APPLICATION)
+    include(cmake/ApplicationTargets.cmake)
+endif ()
+
+if (ECHOMAP_BUILD_TESTS)
+    include(cmake/DoctestTargets.cmake)
+endif ()
+
+if (ECHOMAP_BUILD_DOCUMENTATION)
+    include(cmake/DoxygenTarget.cmake)
+endif ()

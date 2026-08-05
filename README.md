@@ -136,3 +136,19 @@ wishing the review the docs can do any of the following:
   $ cmake --build docs/out/ --target EchoMapHTMLDocumentation
   $ docs/open.sh
   ```
+
+## Testing
+
+The functionality of EchoMap is validated with manual play-testing and unit testing. Benchmarking is not yet done
+periodically.
+
+Unit tests are written as documentation, alongside the production code,
+using [doctest](https://github.com/doctest/doctest). While most tests are platform-independent, some are included
+exclusively for native or WebAssembly targets. Building the application will (by default) additionally build the test
+executable, but it can also be built independently of platform sources:
+
+```shell
+$ cmake --preset native-debug
+$ cmake --build cmake-build-native-debug/ --target EchoMapTests
+$ cmake-build-native-debug/EchoMapTests
+```

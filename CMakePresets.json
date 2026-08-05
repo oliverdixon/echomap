@@ -41,6 +41,14 @@
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
+    {
+      "name": "test",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_INIT": "-fprofile-instr-generate -fcoverage-mapping",
+        "ECHOMAP_BUILD_TESTS": true
+      }
+    },
 
     {
       "name": "native-debug",
@@ -57,6 +65,22 @@
         "release"
       ],
       "binaryDir": "${sourceDir}/cmake-build-native-release"
+    },
+    {
+      "name": "native-debug-test",
+      "inherits": [
+        "native-debug",
+        "test"
+      ],
+      "binaryDir": "${sourceDir}/cmake-build-native-debug-test"
+    },
+    {
+      "name": "native-release-test",
+      "inherits": [
+        "native-release",
+        "test"
+      ],
+      "binaryDir": "${sourceDir}/cmake-build-native-release-test"
     },
     {
       "name": "wasm-debug",

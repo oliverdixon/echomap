@@ -1,6 +1,6 @@
 # TODO
 
-1. Add Doctest (in vcpkg) for unit-testing.
+1. Write Doctest unit tests.
 
 *In no particular order...*
 
