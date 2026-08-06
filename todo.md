@@ -1,9 +1,5 @@
 # TODO
 
-1. Write Doctest unit tests.
-
-*In no particular order...*
-
 * Add an autocorrelation panel. Or maybe just an option on the existing DFT panel and rename it something like
   "Spectrum Analyzer"? These algorithms will be required for the SRP-PHAT anyway.
 
